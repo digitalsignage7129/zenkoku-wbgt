@@ -12,11 +12,11 @@
             width: 100% !important;
             height: 100% !important;
             background-color: #0d1117;
-            overflow: hidden !important; /* 絶対にスクロールさせない */
+            overflow: hidden !important;
             position: relative;
         }
 
-        /* 👑 どんな解像度のモニターでも絶対に5%の余白を持って内側に収める魔法の枠 */
+        /* どんな解像度のモニターでも絶対に5%の余白を持って内側に収める魔法の枠 */
         .outer-wrapper {
             width: 1920px;
             height: 1080px;
@@ -226,21 +226,59 @@
         .theme-1 { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); color: #fff; } 
         .theme-0 { background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%); color: #fff; } 
 
-        .error-screen {
+        /* 👑 初回・未入力時のナビゲーション専用デザイン */
+        .setup-screen {
             position: fixed; top:0; left:0; width:100%; height:100%;
             background:#0d1117; display:flex; flex-direction:column;
             justify-content:center; align-items:center; z-index:999;
+            font-family: sans-serif; color: #c9d1d9;
+        }
+        .setup-card {
+            background: #161b22; padding: 40px 60px; border-radius: 24px;
+            border: 2px solid #30363d; width: 1000px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .setup-title { font-size: 38px; color: #58a6ff; margin: 0 0 20px 0; text-align: center; font-weight: 800; }
+        .setup-steps { font-size: 24px; line-height: 1.8; margin-bottom: 30px; }
+        .setup-steps ol { padding-left: 30px; margin: 15px 0; }
+        .setup-steps li { margin-bottom: 12px; }
+        .official-link {
+            display: inline-block; background: #238636; color: #fff; text-decoration: none;
+            padding: 12px 30px; border-radius: 10px; font-weight: bold; font-size: 22px;
+            transition: background 0.2s; margin: 5px 0;
+        }
+        .official-link:hover { background: #2ea043; }
+        .url-preview {
+            background: #0d1117; padding: 15px 20px; border-radius: 10px;
+            border: 1px solid #30363d; font-family: monospace; font-size: 22px; color: #ff7b72;
+            word-break: break-all; margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
-<div id="errorOverlay" class="error-screen" style="display: none;">
-    <h1 style="font-size: 54px; color: #ff7b72;">⚠️ 地点コードが未指定、または不正です</h1>
-    <p style="font-size: 36px; color: #8b949e; margin-top: 30px; text-align: center; line-height: 1.8;">
-        URLの末尾に <code style="color: #fff; background: #21262d; padding: 8px 20px; border-radius: 10px; border: 1px solid #30363d;">?area=5桁の数字</code> を付与してください。<br>
-        例: https://〜/?area=62091 (大阪府堺市周辺)
-    </p>
+<div id="errorOverlay" class="setup-screen" style="display: none;">
+    <div class="setup-card">
+        <h1 class="setup-title">📡 地域コードを設定してください</h1>
+        
+        <div class="setup-steps">
+            <p>このサイネージを表示するには、URLの末尾に<strong>「5桁の地域コード」</strong>を入力する必要があります。</p>
+            
+            <ol>
+                <li>まずは、下記の環境省公式リンクから設置したい地域の5桁のコードを調べます。<br>
+                    <a href="https://www.wbgt.env.go.jp/wbgt_data.php" target="_blank" class="official-link">🌐 環境省 WBGT地域コード確認ページを開く</a>
+                </li>
+                <li>調べた5桁の数字（例: 大阪市住之江区なら <code>62124</code>、渡嘉敷なら <code>91000</code>）を控えます。</li>
+                <li>現在のブラウザのURLの末尾に <strong><code>?area=5桁の数字</code></strong> を書き足してEnterキーを押してください。</li>
+            </ol>
+
+            <p style="margin-bottom: 5px; color: #8b949e;">👉 入力例（大阪市住之江区周辺の場合）:</p>
+            <div id="urlExample" class="url-preview">https://〜/index.html?area=62124</div>
+        </div>
+        
+        <p style="text-align: center; color: #8b949e; font-size: 18px; margin: 0;">
+            ※一度URLを設定してしまえば、それ以降は自動的にその地域の熱中症情報が表示され続けます。
+        </p>
+    </div>
 </div>
 
 <div id="scaler" class="outer-wrapper">
@@ -278,6 +316,7 @@
 </div>
 
 <script>
+// 全国151地点主要マスターデータ
 const areaMap = {
     "62091": "大阪府 堺市周辺","62124": "大阪府 大阪市住之江区周辺","62117": "大阪府 大阪市中央区（大阪）","62021": "大阪府 豊中市周辺","62061": "大阪府 枚方市周辺",
     "44132": "東京都 千代田区（東京）","44101": "東京都 八王子市周辺","51106": "愛知県 名古屋市","36136": "石川県 金沢市","43106": "神奈川県 横浜市","82117": "福岡県 福岡市","14154": "北海道 札幌市",
@@ -287,24 +326,14 @@ const areaMap = {
 function resizeSignage() {
     const scaler = document.getElementById('scaler');
     if (!scaler) return;
-    
-    const baseWidth = 1920;
-    const baseHeight = 1080;
-    
-    // スクロールバー等の幅を除いた純粋な画面の表示可能サイズを取得
+    const baseWidth = 1920; const baseHeight = 1080;
     const winWidth = document.documentElement.clientWidth;
     const winHeight = document.documentElement.clientHeight;
-    
-    const scaleX = winWidth / baseWidth;
-    const scaleY = winHeight / baseHeight;
-    
-    // 【最重要改善】画面に少し余裕を持たせるため、本来のスケールの「95%」にわざと小さく収めます
-    const scale = Math.min(scaleX, scaleY) * 0.95;
-    
+    const scaleX = winWidth / baseWidth; const scaleY = winHeight / baseHeight;
+    const scale = Math.min(scaleX, scaleY) * 0.95; // 5%安全マージン
     scaler.style.transform = `translate(-50%, -50%) scale(${scale})`;
 }
 
-// 画面サイズ変更イベント（無駄な連続実行を防ぐ）
 let resizeTimeout;
 window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
@@ -312,9 +341,14 @@ window.addEventListener('resize', () => {
 });
 
 window.onload = function() {
+    // 現在の実際のURLを取得して、案内画面の例を分かりやすく書き換える
+    const currentUrl = window.location.href.split('?')[0];
+    document.getElementById('urlExample').innerText = `${currentUrl}?area=62124`;
+
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code') || urlParams.get('area');
 
+    // コードが未入力、または5桁の数字ではない場合は案内画面を表示
     if (!code || !/^\d{5}$/.test(code.trim())) {
         document.getElementById('errorOverlay').style.display = 'flex';
         return;
@@ -325,9 +359,7 @@ window.onload = function() {
     document.getElementById('cityNameDisplay').innerText = regionName;
 
     const now = new Date();
-    const month = now.getMonth() + 1;
-    const date = now.getDate();
-    const hours = now.getHours();
+    const month = now.getMonth() + 1; const date = now.getDate(); const hours = now.getHours();
     const minutes = Math.floor(now.getMinutes() / 10) * 10;
     const minutesStr = minutes < 10 ? '0' + minutes : minutes;
     document.getElementById('timeDisplay').innerText = `${month}/${date} ${hours}:${minutesStr} 時点`;
@@ -373,10 +405,9 @@ window.onload = function() {
         grid.innerHTML += cardHtml;
     });
 
-    // データの描画が完了したあと、ミリ秒単位の時差を完全に無くして強制固定
     resizeSignage();
     setTimeout(resizeSignage, 50);
-    setTimeout(resizeSignage, 300); // 念のためのダメ押し実行
+    setTimeout(resizeSignage, 300);
 };
 </script>
 
