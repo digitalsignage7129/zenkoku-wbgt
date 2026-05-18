@@ -5,170 +5,209 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>現場用 WBGT熱中症警戒アラートサイネージ</title>
     <style>
-        /* 1920x1080 に完全固定（スクロールバー非表示） */
+        /* 1920x1080 フルHD完全固定（スクロールバー排除） */
         html, body {
             margin: 0;
             padding: 0;
             width: 1920px;
             height: 1080px;
-            background-color: #000; /* 画面焼き付き防止 */
-            color: #fff;
-            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+            background-color: #0d1117;
+            color: #ffffff;
+            font-family: 'Helvetica Neue', Arial, 'Segoe UI', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
             overflow: hidden;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
+        /* 画面全体のレイアウト */
         .signage-container {
             display: flex;
             width: 1920px;
             height: 1080px;
+            box-sizing: border-box;
+            background: radial-gradient(circle at 80% 20%, #1a2332 0%, #0d1117 100%);
         }
 
-        /* 左側：現在のリアルタイムステータス */
-        .main-card {
-            width: 1050px;
+        /* LEFT AREA: 現在のステータス表示（全体の約60%） */
+        .left-panel {
+            width: 1120px;
             height: 1080px;
+            padding: 60px 80px;
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            transition: background-color 0.5s ease;
+            justify-content: space-between;
+            position: relative;
         }
 
-        .location-title {
-            font-size: 50px;
+        .header-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .location-badge {
+            font-size: 38px;
+            font-weight: 700;
+            color: #8b949e;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .location-badge::before {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-color: #58a6ff;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #58a6ff;
+        }
+
+        /* プロ仕様：超巨大WBGT数値表示 */
+        .wbgt-hero-box {
+            display: flex;
+            align-items: baseline;
+            margin-top: -20px;
+        }
+        .wbgt-label {
+            font-size: 40px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-right: 30px;
+            letter-spacing: 2px;
+        }
+        .wbgt-value {
+            font-size: 260px;
             font-weight: 900;
-            margin-bottom: 30px;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 15px 50px;
-            border-radius: 50px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -4px;
+            background: linear-gradient(to bottom, #ffffff 60%, #e1e4e8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            drop-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+        .wbgt-unit {
+            font-size: 80px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-left: 15px;
+        }
+
+        /* 現在の警戒レベル巨大帯 */
+        .status-alert-bar {
+            width: 960px;
+            padding: 35px 50px;
+            border-radius: 30px;
+            font-size: 64px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* 3時間ごと予測（左下配置） */
+        .forecast-section {
+            width: 960px;
+            margin-top: 30px;
+        }
+        .section-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #c9d1d9;
+            margin-bottom: 25px;
             letter-spacing: 1px;
         }
+        .forecast-grid {
+            display: flex;
+            gap: 20px;
+        }
+        .forecast-card {
+            flex: 1;
+            background: rgba(22, 27, 34, 0.7);
+            border: 2px solid rgba(48, 54, 61, 0.8);
+            border-radius: 24px;
+            padding: 25px 20px;
+            text-align: center;
+            box-sizing: border-box;
+            backdrop-filter: blur(12px);
+        }
+        .fc-time {
+            font-size: 26px;
+            color: #8b949e;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        .fc-temp {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            font-variant-numeric: tabular-nums;
+        }
+        .fc-badge {
+            font-size: 24px;
+            font-weight: 800;
+            padding: 8px 0;
+            border-radius: 12px;
+            width: 100%;
+            display: inline-block;
+        }
 
-        /* イラスト窓（ここがポイント！） */
-        .illustration-window {
-            width: 450px;
-            height: 480px;
-            margin: 10px 0;
-            background-color: #fff; /* イラストが引き立つ白背景 */
-            border-radius: 40px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            overflow: hidden; /* 枠からはみ出た部分（他のポーズ）を非表示にする */
+
+        /* RIGHT AREA: イラスト＆シグナル表示（全体の約40%） */
+        .right-panel {
+            width: 800px;
+            height: 1080px;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
+            background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+            border-left: 2px solid rgba(255,255,255,0.05);
         }
 
-        /* 4人セットの画像を裏側でズラすための設定 */
+        /* 引用サイトを参考にした大型円形イラストフレーム */
+        .illustration-circle-frame {
+            width: 620px;
+            height: 620px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            overflow: hidden;
+            position: relative;
+            border: 12px solid rgba(255,255,255,0.1);
+        }
+
+        /* スプライト画像の配置調整（フレームサイズ 620px に合わせて最適化） */
         .sprite-img {
             position: absolute;
-            width: 900px;  /* 1枚の画像の幅をサイネージ用に最適化 */
-            height: 960px; /* 1枚の画像の高さをサイネージ用に最適化 */
-            transition: all 0.3s ease-in-out;
+            width: 1240px;   /* 620px * 2 */
+            height: 1320px;  /* 660px * 2 */
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        /* 暑さレベルに応じて、裏の画像をスライドさせて適切なポーズを窓に収める */
-        .level-0 .sprite-img, .level-1 .sprite-img { left: 0px; top: 0px; }            /* 左上：通常・注意 */
-        .level-2 .sprite-img { left: -450px; top: 0px; }         /* 右上：水分補給 */
-        .level-3 .sprite-img { left: 0px; top: -480px; }         /* 左下：うちわ（厳重警戒） */
-        .level-4 .sprite-img { left: -450px; top: -480px; }       /* 右下：ぐったり（危険） */
+        /* 4ポーズの正確な座標指定（1マスの中心を綺麗にくり抜き） */
+        .level-0 .sprite-img, .level-1 .sprite-img { left: -30px; top: -10px; }       /* 左上: 通常 */
+        .level-2 .sprite-img { left: -650px; top: -10px; }     /* 右上: 水分補給 */
+        .level-3 .sprite-img { left: -20px; top: -670px; }     /* 左下: うちわ */
+        .level-4 .sprite-img { left: -630px; top: -670px; }     /* 右下: ぐったり */
 
-        .status-label {
-            font-size: 76px;
-            font-weight: 900;
-            letter-spacing: 4px;
-            text-shadow: 4px 4px 12px rgba(0,0,0,0.7);
-            margin-top: 30px;
-        }
 
-        .value-display {
-            font-size: 46px;
-            margin-top: 30px;
-            font-weight: bold;
-            background: rgba(0,0,0,0.3);
-            padding: 15px 40px;
-            border-radius: 15px;
-        }
-        .wbgt-number {
-            font-size: 110px;
-            font-weight: 900;
-        }
-
-        /* 右側：3時間ごとの推移予測 */
-        .forecast-side {
-            width: 870px;
-            height: 1080px;
-            background-color: #141414;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 0 50px;
-            box-sizing: border-box;
-            border-left: 4px solid #222;
-        }
-
-        .side-title {
-            font-size: 46px;
-            font-weight: 900;
-            border-left: 15px solid #ffeb3b;
-            padding-left: 25px;
-            margin-bottom: 60px;
-            color: #fff;
-            letter-spacing: 2px;
-        }
-
-        .forecast-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #222;
-            margin-bottom: 25px;
-            padding: 25px 40px;
-            border-radius: 20px;
-            border: 1px solid #333;
-        }
-
-        .time-label {
-            font-size: 38px;
-            font-weight: bold;
-            color: #ddd;
-        }
-
-        .val-label {
-            font-size: 46px;
-            font-weight: 900;
-        }
-
-        .badge-label {
-            font-size: 36px;
-            font-weight: 900;
-            padding: 12px 0;
-            border-radius: 12px;
-            color: #fff;
-            width: 240px;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        /* 現場用高コントラスト配色 */
-        .bg-level-4 { background-color: #b71c1c; } /* 危険：深紅 */
-        .bg-level-3 { background-color: #e65100; } /* 厳重警戒：オレンジ */
-        .bg-level-2 { background-color: #fbc02d; color: #000; } /* 警戒：黄 */
-        .bg-level-1 { background-color: #1b5e20; } /* 注意：緑 */
-        .bg-level-0 { background-color: #0d47a1; } /* ほぼ安全：紺 */
-
-        .badge-4 { background-color: #d32f2f; }
-        .badge-3 { background-color: #f57c00; }
-        .badge-2 { background-color: #fbc02d; color: #000; }
-        .badge-1 { background-color: #2e7d32; }
-        .badge-0 { background-color: #1565c0; }
+        /* 👑 プロの配色マスター（シグラボ風 高コントラスト＆スタイリッシュ） */
+        .theme-4 { background: linear-gradient(135deg, #b71c1c 0%, #7f0000 100%); color: #fff; } /* 危険 */
+        .theme-3 { background: linear-gradient(135deg, #f57c00 0%, #e65100 100%); color: #fff; } /* 厳重警戒 */
+        .theme-2 { background: linear-gradient(135deg, #fbc02d 0%, #f9a825 100%); color: #000; } /* 警戒 */
+        .theme-1 { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); color: #fff; } /* 注意 */
+        .theme-0 { background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%); color: #fff; } /* 安全 */
 
         /* エラー画面 */
         .error-screen {
             position: fixed; top:0; left:0; width:1920px; height:1080px;
-            background:#111; display:flex; flex-direction:column;
+            background:#0d1117; display:flex; flex-direction:column;
             justify-content:center; align-items:center; z-index:999;
         }
     </style>
@@ -176,40 +215,48 @@
 <body>
 
 <div id="errorOverlay" class="error-screen" style="display: none;">
-    <h1 style="font-size: 54px; color: #ff3b30;">⚠️ 地点コードが未指定、または不正です</h1>
-    <p style="font-size: 36px; color: #ccc; margin-top: 30px; text-align: center; line-height: 1.8;">
-        URLの末尾に <code style="color: #fff; background: #333; padding: 5px 20px; border-radius: 10px;">?code=5桁の数字</code> を付与してください。<br>
+    <h1 style="font-size: 54px; color: #ff7b72;">⚠️ 地点コードが未指定、または不正です</h1>
+    <p style="font-size: 36px; color: #8b949e; margin-top: 30px; text-align: center; line-height: 1.8;">
+        URLの末尾に <code style="color: #fff; background: #21262d; padding: 8px 20px; border-radius: 10px; border: 1px solid #30363d;">?code=5桁の数字</code> を付与してください。<br>
         例: https://〜/?code=62124 (大阪市住之江区周辺)
     </p>
 </div>
 
 <div class="signage-container">
-    <div id="mainCard" class="main-card bg-level-0">
-        <div id="cityNameDisplay" class="location-title">計測地域：設定中...</div>
-        
-        <div id="windowBox" class="illustration-window level-0">
-            <img src="girls-set.png" class="sprite-img" alt="熱中症対策イラスト">
+    <div class="left-panel">
+        <div class="header-info">
+            <div id="cityNameDisplay" class="location-badge">計測地域：設定中...</div>
+            <div class="wbgt-hero-box">
+                <div class="wbgt-label">現在の暑さ指数</div>
+                <div id="nowVal" class="wbgt-value">--.-</div>
+                <div class="wbgt-unit">℃</div>
+            </div>
         </div>
 
-        <div id="statusText" class="status-label">安全確認中</div>
-        <div class="value-display">
-            現在の暑さ指数(WBGT)：<span id="nowVal" class="wbgt-number">--.-</span> <span style="font-size: 40px;">℃</span>
+        <div id="alertBar" class="status-alert-bar theme-0">
+            <span id="alertIcon">ℹ️</span> <span id="statusText">データ取得中...</span>
+        </div>
+
+        <div class="forecast-section">
+            <div class="section-title">今後の暑さ指数予測（3時間ごと）</div>
+            <div id="forecastGrid" class="forecast-grid">
+                </div>
         </div>
     </div>
 
-    <div class="forecast-side">
-        <div class="side-title">今後の暑さ指数予測（3時間ごと）</div>
-        <div id="forecastContainer">
-            </div>
+    <div class="right-panel">
+        <div id="windowBox" class="illustration-circle-frame level-0">
+            <img src="girls-set.png" class="sprite-img" alt="熱中症対策ポーズ連動イラスト">
+        </div>
     </div>
 </div>
 
 <script>
-// 地域マスター（環境省コード対応）
+// 地点マスター
 const areaMap = {
-    "62124": "大阪府 大阪市住之江区周辺",
-    "62117": "大阪府 大阪市中央区（大阪）",
-    "44132": "東京都 千代田区（東京）",
+    "62124": "大阪府 大阪市住之江区",
+    "62117": "大阪府 大阪市中央区",
+    "44132": "東京都 千代田区",
     "51106": "愛知県 名古屋市",
     "36136": "石川県 金沢市",
     "43106": "神奈川県 横浜市",
@@ -228,66 +275,68 @@ window.onload = function() {
 
     const cleanCode = code.trim();
     const regionName = areaMap[cleanCode] || `地点コード: ${cleanCode}`;
-    document.getElementById('cityNameDisplay').innerText = `測定地域：${regionName}`;
+    document.getElementById('cityNameDisplay').innerText = regionName;
 
     // 数値シミュレーション
     const seed = parseInt(cleanCode);
-    const baseWbgt = 23.5 + (seed % 9) + (Math.random() * 0.4); 
+    const baseWbgt = 23.0 + (seed % 9) + (Math.random() * 0.5); 
 
     let level = 0;
     let statusStr = '';
+    let iconStr = '';
 
-    // WBGT数値によるレベル・テキスト・イラスト切り替え判定
+    // レベル判定とデザインテーマの割り当て
     if (baseWbgt >= 31) {
-        statusStr = '危 険（作業は原則中止）'; level = 4;
+        statusStr = '危険（作業は原則中止）'; level = 4; iconStr = '🚨';
     } else if (baseWbgt >= 28) {
-        statusStr = '厳重警戒（厳重な熱中症対策を）'; level = 3;
+        statusStr = '厳重警戒（外出は控えて）'; level = 3; iconStr = '⚠️';
     } else if (baseWbgt >= 25) {
-        statusStr = '警 戒（定期的な水分・塩分補給）'; level = 2;
+        statusStr = '警戒（積極的に水分補給）'; level = 2; iconStr = '🥤';
     } else if (baseWbgt >= 21) {
-        statusStr = '注 意（こまめな給水を推奨）'; level = 1;
+        statusStr = '注意（こまめな給水を）'; level = 1; iconStr = '💧';
     } else {
-        statusStr = 'ほぼ安全（通常通り作業可能）'; level = 0;
+        statusStr = 'ほぼ安全（通常通り活動可）'; level = 0; iconStr = '✅';
     }
 
+    // 画面への反映
     document.getElementById('nowVal').innerText = baseWbgt.toFixed(1);
     document.getElementById('statusText').innerText = statusStr;
+    document.getElementById('alertIcon').innerText = iconStr;
     
-    // 全体の背景色を変更
-    document.getElementById('mainCard').className = `main-card bg-level-${level}`;
-    // イラスト窓のクラスを書き換えて、中の画像をピタッと動かす
-    document.getElementById('windowBox').className = `illustration-window level-${level}`;
+    // 現在のレベルにクラスを書き換えて、色とイラストポーズを完全シンクロ
+    document.getElementById('alertBar').className = `status-alert-bar theme-${level}`;
+    document.getElementById('windowBox').className = `illustration-circle-frame level-${level}`;
 
-    // 右側予測エリア
-    const container = document.getElementById('forecastContainer');
-    container.innerHTML = '';
+    // 予測カードの動的生成
+    const grid = document.getElementById('forecastGrid');
+    grid.innerHTML = '';
 
-    const timeSteps = ['3時間後予測', '6時間後予測', '9時間後予測', '12時間後予測'];
+    const timeSteps = ['3時間後', '6時間後', '9時間後', '12時間後'];
     timeSteps.forEach((time, index) => {
-        let wave = Math.sin(((index + 1) / timeSteps.length) * Math.PI) * 3.2;
-        let predVal = baseWbgt + wave - (index * 0.5);
+        let wave = Math.sin(((index + 1) / timeSteps.length) * Math.PI) * 3.0;
+        let predVal = baseWbgt + wave - (index * 0.4);
         
-        if(predVal > 34.8) predVal = 34.3;
-        if(predVal < 18.0) predVal = 19.2;
+        if(predVal > 34.8) predVal = 34.2;
+        if(predVal < 18.0) predVal = 19.5;
 
         let badgeText = '注意';
         let lv = 1;
-        if (predVal >= 31) { badgeText = '🚨 危険'; lv = 4; }
-        else if (predVal >= 28) { badgeText = '⚠️ 厳重警戒'; lv = 3; }
-        else if (predVal >= 25) { badgeText = '🥤 警戒'; lv = 2; }
-        else if (predVal < 21) { badgeText = '✅ 安全'; lv = 0; }
+        if (predVal >= 31) { badgeText = '危険'; lv = 4; }
+        else if (predVal >= 28) { badgeText = '厳重警戒'; lv = 3; }
+        else if (predVal >= 25) { badgeText = '警戒'; lv = 2; }
+        else if (predVal < 21) { badgeText = '安全'; lv = 0; }
 
-        let rowHtml = `
-            <div class="forecast-row">
-                <div class="time-label">${time}</div>
-                <div class="val-label" style="color: ${lv === 2 ? '#fbc02d' : '#fff'}">${predVal.toFixed(1)} ℃</div>
-                <div class="badge-label badge-${lv}">${badgeText}</div>
+        let cardHtml = `
+            <div class="forecast-card">
+                <div class="fc-time">${time}</div>
+                <div class="fc-temp">${predVal.toFixed(1)}<span style="font-size: 24px; font-weight:700;">℃</span></div>
+                <div class="fc-badge theme-${lv}">${badgeText}</div>
             </div>
         `;
-        container.innerHTML += rowHtml;
+        grid.innerHTML += cardHtml;
     });
 };
 </script>
 
-</body
+</body>
 </html>
