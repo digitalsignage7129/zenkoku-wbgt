@@ -28,7 +28,7 @@
             background: radial-gradient(circle at 80% 20%, #1a2332 0%, #0d1117 100%);
         }
 
-        /* LEFT AREA: 現在のステータス表示（全体の約60%） */
+        /* LEFT AREA: 現在のステータス表示 */
         .left-panel {
             width: 1120px;
             height: 1080px;
@@ -40,16 +40,21 @@
             position: relative;
         }
 
-        .header-info {
+        /* トップヘッダーメタデータ（日時・場所） */
+        .meta-header {
             display: flex;
-            flex-direction: column;
-            gap: 15px;
+            justify-content: space-between;
+            align-items: center;
+            width: 960px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .location-badge {
-            font-size: 38px;
-            font-weight: 700;
-            color: #8b949e;
+            font-size: 36px;
+            font-weight: 800;
+            color: #ffffff;
             display: flex;
             align-items: center;
             gap: 15px;
@@ -57,23 +62,33 @@
         .location-badge::before {
             content: '';
             display: inline-block;
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             background-color: #58a6ff;
             border-radius: 50%;
             box-shadow: 0 0 12px #58a6ff;
         }
 
-        /* プロ仕様：超巨大WBGT数値表示 */
+        .time-badge {
+            font-size: 32px;
+            font-weight: 700;
+            color: #8b949e;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 25px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* メイン数値表示 */
         .wbgt-hero-box {
             display: flex;
             align-items: baseline;
-            margin-top: -20px;
+            margin-top: 10px;
         }
         .wbgt-label {
             font-size: 40px;
             font-weight: 800;
-            color: #ffffff;
+            color: #c9d1d9;
             margin-right: 30px;
             letter-spacing: 2px;
         }
@@ -86,7 +101,6 @@
             background: linear-gradient(to bottom, #ffffff 60%, #e1e4e8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            drop-shadow: 0 8px 24px rgba(0,0,0,0.5);
         }
         .wbgt-unit {
             font-size: 80px;
@@ -107,13 +121,14 @@
             display: flex;
             align-items: center;
             gap: 30px;
+            box-sizing: border-box;
             transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        /* 3時間ごと予測（左下配置） */
+        /* 3時間ごと予測 */
         .forecast-section {
             width: 960px;
-            margin-top: 30px;
+            margin-top: 20px;
         }
         .section-title {
             font-size: 32px;
@@ -157,8 +172,7 @@
             display: inline-block;
         }
 
-
-        /* RIGHT AREA: イラスト＆シグナル表示（全体の約40%） */
+        /* RIGHT AREA: イラストフレーム */
         .right-panel {
             width: 800px;
             height: 1080px;
@@ -170,7 +184,6 @@
             border-left: 2px solid rgba(255,255,255,0.05);
         }
 
-        /* 引用サイトを参考にした大型円形イラストフレーム */
         .illustration-circle-frame {
             width: 620px;
             height: 620px;
@@ -182,27 +195,25 @@
             border: 12px solid rgba(255,255,255,0.1);
         }
 
-        /* スプライト画像の配置調整（フレームサイズ 620px に合わせて最適化） */
         .sprite-img {
             position: absolute;
-            width: 1240px;   /* 620px * 2 */
-            height: 1320px;  /* 660px * 2 */
+            width: 1240px;   
+            height: 1320px;  
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        /* 4ポーズの正確な座標指定（1マスの中心を綺麗にくり抜き） */
-        .level-0 .sprite-img, .level-1 .sprite-img { left: -30px; top: -10px; }       /* 左上: 通常 */
-        .level-2 .sprite-img { left: -650px; top: -10px; }     /* 右上: 水分補給 */
-        .level-3 .sprite-img { left: -20px; top: -670px; }     /* 左下: うちわ */
-        .level-4 .sprite-img { left: -630px; top: -670px; }     /* 右下: ぐったり */
+        /* 4ポーズ位置調整 */
+        .level-0 .sprite-img, .level-1 .sprite-img { left: -30px; top: -10px; }       
+        .level-2 .sprite-img { left: -650px; top: -10px; }     
+        .level-3 .sprite-img { left: -20px; top: -670px; }     
+        .level-4 .sprite-img { left: -630px; top: -670px; }     
 
-
-        /* 👑 プロの配色マスター（シグラボ風 高コントラスト＆スタイリッシュ） */
-        .theme-4 { background: linear-gradient(135deg, #b71c1c 0%, #7f0000 100%); color: #fff; } /* 危険 */
-        .theme-3 { background: linear-gradient(135deg, #f57c00 0%, #e65100 100%); color: #fff; } /* 厳重警戒 */
-        .theme-2 { background: linear-gradient(135deg, #fbc02d 0%, #f9a825 100%); color: #000; } /* 警戒 */
-        .theme-1 { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); color: #fff; } /* 注意 */
-        .theme-0 { background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%); color: #fff; } /* 安全 */
+        /* 配色テーマ */
+        .theme-4 { background: linear-gradient(135deg, #b71c1c 0%, #7f0000 100%); color: #fff; } 
+        .theme-3 { background: linear-gradient(135deg, #f57c00 0%, #e65100 100%); color: #fff; } 
+        .theme-2 { background: linear-gradient(135deg, #fbc02d 0%, #f9a825 100%); color: #000; } 
+        .theme-1 { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); color: #fff; } 
+        .theme-0 { background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%); color: #fff; } 
 
         /* エラー画面 */
         .error-screen {
@@ -224,8 +235,12 @@
 
 <div class="signage-container">
     <div class="left-panel">
-        <div class="header-info">
-            <div id="cityNameDisplay" class="location-badge">計測地域：設定中...</div>
+        <div>
+            <div class="meta-header">
+                <div id="cityNameDisplay" class="location-badge">取得中...</div>
+                <div id="timeDisplay" class="time-badge">--/-- --:-- 時点</div>
+            </div>
+
             <div class="wbgt-hero-box">
                 <div class="wbgt-label">現在の暑さ指数</div>
                 <div id="nowVal" class="wbgt-value">--.-</div>
@@ -252,11 +267,11 @@
 </div>
 
 <script>
-// 地点マスター
+// 環境省WBGTコード対応 地域マスター
 const areaMap = {
-    "62124": "大阪府 大阪市住之江区",
-    "62117": "大阪府 大阪市中央区",
-    "44132": "東京都 千代田区",
+    "62124": "大阪府 大阪市住之江区周辺",
+    "62117": "大阪府 大阪市中央区（大阪）",
+    "44132": "東京都 千代田区（東京）",
     "51106": "愛知県 名古屋市",
     "36136": "石川県 金沢市",
     "43106": "神奈川県 横浜市",
@@ -277,6 +292,16 @@ window.onload = function() {
     const regionName = areaMap[cleanCode] || `地点コード: ${cleanCode}`;
     document.getElementById('cityNameDisplay').innerText = regionName;
 
+    // 【追加】「何時時点の情報か」を現在時刻から動的に生成
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const date = now.getDate();
+    const hours = now.getHours();
+    // サイネージとして見栄えがいいように10分単位で切り捨て表示（例: 15:43 → 15:40発表）
+    const minutes = Math.floor(now.getMinutes() / 10) * 10;
+    const minutesStr = minutes < 10 ? '0' + minutes : minutes;
+    document.getElementById('timeDisplay').innerText = `${month}/${date} ${hours}:${minutesStr} 時点`;
+
     // 数値シミュレーション
     const seed = parseInt(cleanCode);
     const baseWbgt = 23.0 + (seed % 9) + (Math.random() * 0.5); 
@@ -285,7 +310,6 @@ window.onload = function() {
     let statusStr = '';
     let iconStr = '';
 
-    // レベル判定とデザインテーマの割り当て
     if (baseWbgt >= 31) {
         statusStr = '危険（作業は原則中止）'; level = 4; iconStr = '🚨';
     } else if (baseWbgt >= 28) {
@@ -298,16 +322,14 @@ window.onload = function() {
         statusStr = 'ほぼ安全（通常通り活動可）'; level = 0; iconStr = '✅';
     }
 
-    // 画面への反映
     document.getElementById('nowVal').innerText = baseWbgt.toFixed(1);
     document.getElementById('statusText').innerText = statusStr;
     document.getElementById('alertIcon').innerText = iconStr;
     
-    // 現在のレベルにクラスを書き換えて、色とイラストポーズを完全シンクロ
     document.getElementById('alertBar').className = `status-alert-bar theme-${level}`;
     document.getElementById('windowBox').className = `illustration-circle-frame level-${level}`;
 
-    // 予測カードの動的生成
+    // 予測カード生成
     const grid = document.getElementById('forecastGrid');
     grid.innerHTML = '';
 
