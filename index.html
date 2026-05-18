@@ -46,25 +46,34 @@
             letter-spacing: 1px;
         }
 
-        /* グラフィック表示エリア */
-        .illustration-box {
-            width: 500px;
-            height: 500px;
+        /* イラスト窓（ここがポイント！） */
+        .illustration-window {
+            width: 450px;
+            height: 480px;
             margin: 10px 0;
+            background-color: #fff; /* イラストが引き立つ白背景 */
+            border-radius: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            overflow: hidden; /* 枠からはみ出た部分（他のポーズ）を非表示にする */
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #fff; /* イラストが映える白背景 */
-            border-radius: 50%;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            padding: 20px;
-            box-sizing: border-box;
+            position: relative;
         }
-        
-        .illustration-box svg {
-            width: 100%;
-            height: 100%;
+
+        /* 4人セットの画像を裏側でズラすための設定 */
+        .sprite-img {
+            position: absolute;
+            width: 900px;  /* 1枚の画像の幅をサイネージ用に最適化 */
+            height: 960px; /* 1枚の画像の高さをサイネージ用に最適化 */
+            transition: all 0.3s ease-in-out;
         }
+
+        /* 暑さレベルに応じて、裏の画像をスライドさせて適切なポーズを窓に収める */
+        .level-0 .sprite-img, .level-1 .sprite-img { left: 0px; top: 0px; }            /* 左上：通常・注意 */
+        .level-2 .sprite-img { left: -450px; top: 0px; }         /* 右上：水分補給 */
+        .level-3 .sprite-img { left: 0px; top: -480px; }         /* 左下：うちわ（厳重警戒） */
+        .level-4 .sprite-img { left: -450px; top: -480px; }       /* 右下：ぐったり（危険） */
 
         .status-label {
             font-size: 76px;
@@ -156,11 +165,6 @@
         .badge-1 { background-color: #2e7d32; }
         .badge-0 { background-color: #1565c0; }
 
-        /* イラスト内のパーツ表示切り替え（初期値は非表示） */
-        .part-sun, .part-bottle, .part-sweat, .part-dizzy, .part-shade, .part-smile {
-            display: none;
-        }
-
         /* エラー画面 */
         .error-screen {
             position: fixed; top:0; left:0; width:1920px; height:1080px;
@@ -183,67 +187,8 @@
     <div id="mainCard" class="main-card bg-level-0">
         <div id="cityNameDisplay" class="location-title">計測地域：設定中...</div>
         
-        <div class="illustration-box">
-            <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="200" cy="230" r="150" fill="#f5f5f5" />
-
-                <g class="part-sun">
-                    <circle cx="80" cy="80" r="25" fill="#ff9100" />
-                    <path d="M80 45 L80 35 M80 115 L80 125 M45 80 L35 80 M115 80 L125 80 M55 55 L48 48 M105 105 L112 112 M55 105 L48 112 M105 55 L112 48" stroke="#ff9100" stroke-width="5" stroke-linecap="round" />
-                </g>
-
-                <path d="M200 130 C250 130, 270 180, 260 220 C240 220, 230 180, 200 180" fill="#111" />
-                <path d="M255 185 C290 200, 300 240, 280 270 C265 250, 255 220, 255 185" fill="#111" />
-
-                <path d="M130 380 C130 310, 270 310, 270 380" fill="#b3e5fc" stroke="#111" stroke-width="6" stroke-linejoin="round" />
-                
-                <path d="M175 260 Q200 310 225 260 Z" fill="#fcd8c4" stroke="#111" stroke-width="6" stroke-linejoin="round" />
-                <circle cx="200" cy="210" r="55" fill="#fcd8c4" stroke="#111" stroke-width="6" />
-
-                <path d="M145 200 C160 170, 240 170, 255 200 C240 180, 160 180, 145 200" fill="#111" />
-                <path d="M145 195 L150 240 L158 240 Z" fill="#111" />
-                <path d="M255 195 L250 240 L242 240 Z" fill="#111" />
-
-                <g class="part-smile">
-                    <path d="M175 210 Q185 205 190 212" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" />
-                    <path d="M210 210 Q215 205 225 212" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" />
-                    <path d="M190 235 Q200 250 210 235" fill="none" stroke="#111" stroke-width="5" stroke-linecap="round" />
-                </g>
-
-                <g class="part-bottle">
-                    <path d="M175 215 Q185 220 190 212" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" />
-                    <path d="M210 215 Q215 220 225 212" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" />
-                    <path d="M170 225 Q180 235 190 225" fill="none" stroke="#e57373" stroke-width="8" opacity="0.4" stroke-linecap="round" />
-                    <path d="M140 330 Q110 240 205 235" fill="none" stroke="#111" stroke-width="26" stroke-linecap="round" />
-                    <path d="M140 330 Q110 240 205 235" fill="none" stroke="#fcd8c4" stroke-width="18" stroke-linecap="round" />
-                    <rect x="200" y="215" width="65" height="30" rx="5" fill="#b3e5fc" stroke="#111" stroke-width="5" transform="rotate(-30 200 215)" />
-                    <rect x="255" y="200" width="15" height="18" fill="#0288d1" stroke="#111" stroke-width="4" transform="rotate(-30 255 200)" />
-                </g>
-
-                <g class="part-shade">
-                    <path d="M170 195 Q180 190 190 198" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" />
-                    <path d="M210 198 Q220 190 230 195" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" />
-                    <circle cx="180" cy="215" r="4" fill="#111" />
-                    <circle cx="220" cy="215" r="4" fill="#111" />
-                    <path d="M192 235 Q200 228 208 235" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" />
-                    <path d="M150 195 Q200 215 250 195 L250 220 Q200 240 150 220 Z" fill="#e57373" opacity="0.3" />
-                    <path d="M270 320 Q280 170 190 165" fill="none" stroke="#111" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M270 320 Q280 170 190 165" fill="none" stroke="#fcd8c4" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" />
-                </g>
-
-                <g class="part-dizzy">
-                    <path d="M170 215 Q180 205 185 220 Q175 225 172 212" fill="none" stroke="#111" stroke-width="4" />
-                    <path d="M215 215 Q225 205 228 220 Q218 225 215 212" fill="none" stroke="#111" stroke-width="4" />
-                    <path d="M190 245 Q200 235 210 245" fill="none" stroke="#111" stroke-width="5" stroke-linecap="round" />
-                    <path d="M150 190 L250 190 L250 225 L150 225 Z" fill="#b0bec5" opacity="0.4" /> <path d="M130 330 Q120 170 185 170" fill="none" stroke="#111" stroke-width="26" stroke-linecap="round" />
-                    <path d="M130 330 Q120 170 185 170" fill="none" stroke="#fcd8c4" stroke-width="18" stroke-linecap="round" />
-                </g>
-
-                <g class="part-sweat">
-                    <path d="M165 225 Q163 235 165 240 M235 220 Q233 230 235 235 M195 255 Q193 265 195 270" fill="none" stroke="#29b6f6" stroke-width="4" stroke-linecap="round" />
-                    <path d="M140 260 Q135 270 138 275 M250 315 Q245 325 248 330" fill="none" stroke="#29b6f6" stroke-width="4" stroke-linecap="round" />
-                </g>
-            </svg>
+        <div id="windowBox" class="illustration-window level-0">
+            <img src="girls-set.png" class="sprite-img" alt="熱中症対策イラスト">
         </div>
 
         <div id="statusText" class="status-label">安全確認中</div>
@@ -292,43 +237,26 @@ window.onload = function() {
     let level = 0;
     let statusStr = '';
 
-    // すべてのイラストパーツを一度非表示にする関数
-    const hideAllParts = () => {
-        document.querySelector('.part-smile').style.display = 'none';
-        document.querySelector('.part-bottle').style.display = 'none';
-        document.querySelector('.part-shade').style.display = 'none';
-        document.querySelector('.part-dizzy').style.display = 'none';
-        document.querySelector('.part-sun').style.display = 'none';
-        document.querySelector('.part-sweat').style.display = 'none';
-    };
-
-    hideAllParts();
-
-    // レベル判定と、イラスト内部のパーツの出し分け処理
+    // WBGT数値によるレベル・テキスト・イラスト切り替え判定
     if (baseWbgt >= 31) {
         statusStr = '危 険（作業は原則中止）'; level = 4;
-        document.querySelector('.part-dizzy').style.display = 'block';
-        document.querySelector('.part-sun').style.display = 'block';
-        document.querySelector('.part-sweat').style.display = 'block';
     } else if (baseWbgt >= 28) {
         statusStr = '厳重警戒（厳重な熱中症対策を）'; level = 3;
-        document.querySelector('.part-shade').style.display = 'block';
-        document.querySelector('.part-sun').style.display = 'block';
-        document.querySelector('.part-sweat').style.display = 'block';
     } else if (baseWbgt >= 25) {
         statusStr = '警 戒（定期的な水分・塩分補給）'; level = 2;
-        document.querySelector('.part-bottle').style.display = 'block';
     } else if (baseWbgt >= 21) {
         statusStr = '注 意（こまめな給水を推奨）'; level = 1;
-        document.querySelector('.part-smile').style.display = 'block';
     } else {
         statusStr = 'ほぼ安全（通常通り作業可能）'; level = 0;
-        document.querySelector('.part-smile').style.display = 'block';
     }
 
     document.getElementById('nowVal').innerText = baseWbgt.toFixed(1);
     document.getElementById('statusText').innerText = statusStr;
+    
+    // 全体の背景色を変更
     document.getElementById('mainCard').className = `main-card bg-level-${level}`;
+    // イラスト窓のクラスを書き換えて、中の画像をピタッと動かす
+    document.getElementById('windowBox').className = `illustration-window level-${level}`;
 
     // 右側予測エリア
     const container = document.getElementById('forecastContainer');
@@ -361,5 +289,5 @@ window.onload = function() {
 };
 </script>
 
-</body>
+</body
 </html>
