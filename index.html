@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>現場用 WBGT熱中症警戒アラートサイネージ</title>
     <style>
-        /* 画面からはみ出さないための根本修正 */
         html, body {
             margin: 0;
             padding: 0;
@@ -15,7 +14,7 @@
             overflow: hidden;
         }
 
-        /* 👑 どんな解像度のモニターでも「3分の1」にならず絶対全体を入れる魔法の枠 */
+        /* どんな解像度のモニターでも絶対に1画面に収める外枠 */
         .outer-wrapper {
             width: 1920px;
             height: 1080px;
@@ -23,10 +22,11 @@
             top: 50%;
             left: 50%;
             transform-origin: center center;
-            /* 画面サイズに合わせて自動縮小するJavaScriptと連動 */
+            transform: translate(-50%, -50%) scale(1);
+            will-change: transform;
         }
 
-        /* 画面全体のレイアウト（ベースデザインは維持） */
+        /* 画面全体のレイアウト */
         .signage-container {
             display: flex;
             width: 1920px;
@@ -210,7 +210,7 @@
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        /* ポーズ位置調整 */
+        /* ポーズ位置 */
         .level-0 .sprite-img, .level-1 .sprite-img { left: 0px; top: 0px; }               
         .level-2 .sprite-img { left: -620px; top: -15px; }          
         .level-3 .sprite-img { left: 0px; top: -827px; }            
@@ -275,38 +275,37 @@
 </div>
 
 <script>
-// 全国151地点マスターデータ
 const areaMap = {
     "62091": "大阪府 堺市周辺","62124": "大阪府 大阪市住之江区周辺","62117": "大阪府 大阪市中央区（大阪）","62021": "大阪府 豊中市周辺","62061": "大阪府 枚方市周辺",
     "44132": "東京都 千代田区（東京）","44101": "東京都 八王子市周辺","51106": "愛知県 名古屋市","36136": "石川県 金沢市","43106": "神奈川県 横浜市","82117": "福岡県 福岡市","14154": "北海道 札幌市",
     "91111":"沖縄県 那覇","91000":"沖縄県 渡嘉敷周辺"
 };
 
-// 👑 【追加】どんなモニターでも画面に100%ぴったり収める自動計算処理
+// 【バグ修正】リサイズ計算を安定化させる処理
+let resizeTimeout;
 function resizeSignage() {
     const scaler = document.getElementById('scaler');
+    if (!scaler) return;
+    
     const baseWidth = 1920;
     const baseHeight = 1080;
-    
-    // 現在表示されているブラウザ（モニター）のサイズを取得
     const winWidth = window.innerWidth;
     const winHeight = window.innerHeight;
     
-    // 縮小比率を計算
     const scaleX = winWidth / baseWidth;
     const scaleY = winHeight / baseHeight;
-    const scale = Math.min(scaleX, scaleY); // 画面の縦横比を崩さないよう小さい方に合わせる
+    const scale = Math.min(scaleX, scaleY);
     
-    // 中央寄せ＆縮小を実行
     scaler.style.transform = `translate(-50%, -50%) scale(${scale})`;
 }
 
-// 画面サイズ変更時やロード時に縮小処理を実行
-window.addEventListener('resize', resizeSignage);
+// 画面サイズが本当に手動で変更された時だけ追従する
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(resizeSignage, 50);
+});
 
 window.onload = function() {
-    resizeSignage(); // 初回起動時にサイズをフィットさせる
-
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code') || urlParams.get('area');
 
@@ -370,6 +369,9 @@ window.onload = function() {
         `;
         grid.innerHTML += cardHtml;
     });
+
+    // 👑 すべての処理が完全に終わった最後の最後にサイズフィッティングを実行（これで固定されます）
+    setTimeout(resizeSignage, 100);
 };
 </script>
 
