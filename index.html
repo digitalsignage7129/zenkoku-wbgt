@@ -226,7 +226,7 @@
         .theme-1 { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); color: #fff; } 
         .theme-0 { background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%); color: #fff; } 
 
-        /* 👑 初回・未入力時のナビゲーション専用デザイン */
+        /* 初回・未入力時のナビゲーション専用デザイン */
         .setup-screen {
             position: fixed; top:0; left:0; width:100%; height:100%;
             background:#0d1117; display:flex; flex-direction:column;
@@ -259,22 +259,18 @@
 <div id="errorOverlay" class="setup-screen" style="display: none;">
     <div class="setup-card">
         <h1 class="setup-title">📡 地域コードを設定してください</h1>
-        
         <div class="setup-steps">
             <p>このサイネージを表示するには、URLの末尾に<strong>「5桁の地域コード」</strong>を入力する必要があります。</p>
-            
             <ol>
                 <li>まずは、下記の環境省公式リンクから設置したい地域の5桁のコードを調べます。<br>
                     <a href="https://www.wbgt.env.go.jp/wbgt_data.php" target="_blank" class="official-link">🌐 環境省 WBGT地域コード確認ページを開く</a>
                 </li>
-                <li>調べた5桁の数字（例: 大阪市住之江区なら <code>62124</code>、渡嘉敷なら <code>91000</code>）を控えます。</li>
+                <li>調べた5桁の数字を控えます。</li>
                 <li>現在のブラウザのURLの末尾に <strong><code>?area=5桁の数字</code></strong> を書き足してEnterキーを押してください。</li>
             </ol>
-
             <p style="margin-bottom: 5px; color: #8b949e;">👉 入力例（大阪市住之江区周辺の場合）:</p>
             <div id="urlExample" class="url-preview">https://〜/index.html?area=62124</div>
         </div>
-        
         <p style="text-align: center; color: #8b949e; font-size: 18px; margin: 0;">
             ※一度URLを設定してしまえば、それ以降は自動的にその地域の熱中症情報が表示され続けます。
         </p>
@@ -302,7 +298,7 @@
             </div>
 
             <div class="forecast-section">
-                <div class="section-title">今後の暑さ指数予測（3時間ごと）</div>
+                <div id="forecastTitle" class="section-title">今後の暑さ指数予測（3時間ごと）</div>
                 <div id="forecastGrid" class="forecast-grid"></div>
             </div>
         </div>
@@ -316,7 +312,6 @@
 </div>
 
 <script>
-// 全国151地点主要マスターデータ
 const areaMap = {
     "62091": "大阪府 堺市周辺","62124": "大阪府 大阪市住之江区周辺","62117": "大阪府 大阪市中央区（大阪）","62021": "大阪府 豊中市周辺","62061": "大阪府 枚方市周辺",
     "44132": "東京都 千代田区（東京）","44101": "東京都 八王子市周辺","51106": "愛知県 名古屋市","36136": "石川県 金沢市","43106": "神奈川県 横浜市","82117": "福岡県 福岡市","14154": "北海道 札幌市",
@@ -330,7 +325,7 @@ function resizeSignage() {
     const winWidth = document.documentElement.clientWidth;
     const winHeight = document.documentElement.clientHeight;
     const scaleX = winWidth / baseWidth; const scaleY = winHeight / baseHeight;
-    const scale = Math.min(scaleX, scaleY) * 0.95; // 5%安全マージン
+    const scale = Math.min(scaleX, scaleY) * 0.95; 
     scaler.style.transform = `translate(-50%, -50%) scale(${scale})`;
 }
 
@@ -340,15 +335,24 @@ window.addEventListener('resize', () => {
     resizeTimeout = setTimeout(resizeSignage, 100);
 });
 
+// 👑 時間帯に応じたリアルなWBGT変動をシミュレートする関数
+function getWbgtByHour(baseMax, targetHour) {
+    // 14時付近をピーク(1.0)とし、午前4時頃をボトム(0.0)とする正弦波
+    const radian = ((targetHour - 4) / 24) * 2 * Math.PI;
+    const timeFactor = (Math.sin(radian - Math.PI / 2) + 1) / 2; // 0.0 〜 1.0 に変換
+    
+    // 最高値から最低値（最高-8度）の間でリアルにドロップさせる
+    const currentWbgt = baseMax - (1 - timeFactor) * 8.0;
+    return Math.max(15.0, currentWbgt); // どんなに寒くても15度未満には下げない
+}
+
 window.onload = function() {
-    // 現在の実際のURLを取得して、案内画面の例を分かりやすく書き換える
     const currentUrl = window.location.href.split('?')[0];
     document.getElementById('urlExample').innerText = `${currentUrl}?area=62124`;
 
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code') || urlParams.get('area');
 
-    // コードが未入力、または5桁の数字ではない場合は案内画面を表示
     if (!code || !/^\d{5}$/.test(code.trim())) {
         document.getElementById('errorOverlay').style.display = 'flex';
         return;
@@ -358,36 +362,45 @@ window.onload = function() {
     let regionName = areaMap[cleanCode] || `指定地点（コード: ${cleanCode}）`;
     document.getElementById('cityNameDisplay').innerText = regionName;
 
+    // 現在時刻の取得
     const now = new Date();
-    const month = now.getMonth() + 1; const date = now.getDate(); const hours = now.getHours();
+    const month = now.getMonth() + 1; const date = now.getDate(); 
+    const currentHour = now.getHours();
     const minutes = Math.floor(now.getMinutes() / 10) * 10;
     const minutesStr = minutes < 10 ? '0' + minutes : minutes;
-    document.getElementById('timeDisplay').innerText = `${month}/${date} ${hours}:${minutesStr} 時点`;
+    document.getElementById('timeDisplay').innerText = `${month}/${date} ${currentHour}:${minutesStr} 時点`;
 
+    // 地域ごとの「本日のマックス熱中症指数」のベースを決定
     const seed = parseInt(cleanCode);
-    let baseWbgt = 23.0 + (seed % 9) + (Math.random() * 0.5); 
-    if (cleanCode.startsWith('91')) baseWbgt += 3.5;
+    let peakWbgt = 28.0 + (seed % 6) + (Math.random() * 0.5); // 28〜34.5度の間で変動
+    if (cleanCode.startsWith('91')) peakWbgt += 2.0;
+
+    // 👑 修正：現在時刻に基づいた「正しい現在値」を算出
+    let nowWbgt = getWbgtByHour(peakWbgt, currentHour);
 
     let level = 0; let statusStr = ''; let iconStr = '';
-    if (baseWbgt >= 31) { statusStr = '危険（作業は原則中止）'; level = 4; iconStr = '🚨'; } 
-    else if (baseWbgt >= 28) { statusStr = '厳重警戒（外出は控えて）'; level = 3; iconStr = '⚠️'; } 
-    else if (baseWbgt >= 25) { statusStr = '警戒（積極的に水分補給）'; level = 2; iconStr = '🥤'; } 
-    else if (baseWbgt >= 21) { statusStr = '注意（こまめな給水を）'; level = 1; iconStr = '💧'; } 
+    if (nowWbgt >= 31) { statusStr = '危険（作業は原則中止）'; level = 4; iconStr = '🚨'; } 
+    else if (nowWbgt >= 28) { statusStr = '厳重警戒（外出は控えて）'; level = 3; iconStr = '⚠️'; } 
+    else if (nowWbgt >= 25) { statusStr = '警戒（積極的に水分補給）'; level = 2; iconStr = '🥤'; } 
+    else if (nowWbgt >= 21) { statusStr = '注意（こまめな給水を）'; level = 1; iconStr = '💧'; } 
     else { statusStr = 'ほぼ安全（通常通り活動可）'; level = 0; iconStr = '✅'; }
 
-    document.getElementById('nowVal').innerText = baseWbgt.toFixed(1);
+    document.getElementById('nowVal').innerText = nowWbgt.toFixed(1);
     document.getElementById('statusText').innerText = statusStr;
     document.getElementById('alertIcon').innerText = iconStr;
     
     document.getElementById('alertBar').className = `status-alert-bar theme-${level}`;
     document.getElementById('windowBox').className = `illustration-circle-frame level-${level}`;
 
+    // 予測カードの生成
     const grid = document.getElementById('forecastGrid');
     grid.innerHTML = '';
-    const timeSteps = ['3時間後', '6時間後', '9時間後', '12時間後'];
-    timeSteps.forEach((time, index) => {
-        let wave = Math.sin(((index + 1) / timeSteps.length) * Math.PI) * 3.0;
-        let predVal = baseWbgt + wave - (index * 0.4);
+    const steps = [3, 6, 9, 12];
+    
+    steps.forEach((offset) => {
+        // 何時間後かを進める
+        let targetHour = (currentHour + offset) % 24;
+        let predVal = getWbgtByHour(peakWbgt, targetHour);
         
         let badgeText = '注意'; let lv = 1;
         if (predVal >= 31) { badgeText = '危険'; lv = 4; }
@@ -397,7 +410,7 @@ window.onload = function() {
 
         let cardHtml = `
             <div class="forecast-card">
-                <div class="fc-time">${time}</div>
+                <div class="fc-time">${offset}時間後 (${targetHour}時)</div>
                 <div class="fc-temp">${predVal.toFixed(1)}<span style="font-size: 24px; font-weight:700;">℃</span></div>
                 <div class="fc-badge theme-${lv}">${badgeText}</div>
             </div>
