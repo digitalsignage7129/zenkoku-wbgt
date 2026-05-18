@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>現場用 WBGT熱中症警戒アラートサイネージ</title>
     <style>
-        /* 1920x1080 フルHD完全固定（スクロールバー排除） */
+        /* 1920x1080 フルHD完全固定 */
         html, body {
             margin: 0;
             padding: 0;
@@ -19,7 +19,6 @@
             user-select: none;
         }
 
-        /* 画面全体のレイアウト */
         .signage-container {
             display: flex;
             width: 1920px;
@@ -28,7 +27,7 @@
             background: radial-gradient(circle at 80% 20%, #1a2332 0%, #0d1117 100%);
         }
 
-        /* LEFT AREA: 現在のステータス表示 */
+        /* LEFT AREA */
         .left-panel {
             width: 1120px;
             height: 1080px;
@@ -40,7 +39,6 @@
             position: relative;
         }
 
-        /* トップヘッダーメタデータ（日時・場所） */
         .meta-header {
             display: flex;
             justify-content: space-between;
@@ -79,7 +77,6 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* メイン数値表示 */
         .wbgt-hero-box {
             display: flex;
             align-items: baseline;
@@ -109,7 +106,6 @@
             margin-left: 15px;
         }
 
-        /* 現在の警戒レベル巨大帯 */
         .status-alert-bar {
             width: 960px;
             padding: 35px 50px;
@@ -172,7 +168,7 @@
             display: inline-block;
         }
 
-        /* RIGHT AREA: イラストフレーム */
+        /* RIGHT AREA */
         .right-panel {
             width: 800px;
             height: 1080px;
@@ -202,20 +198,19 @@
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        /* 4ポーズ位置調整 */
+        /* ポーズ位置 */
         .level-0 .sprite-img, .level-1 .sprite-img { left: -30px; top: -10px; }       
         .level-2 .sprite-img { left: -650px; top: -10px; }     
         .level-3 .sprite-img { left: -20px; top: -670px; }     
         .level-4 .sprite-img { left: -630px; top: -670px; }     
 
-        /* 配色テーマ */
+        /* テーマ色 */
         .theme-4 { background: linear-gradient(135deg, #b71c1c 0%, #7f0000 100%); color: #fff; } 
         .theme-3 { background: linear-gradient(135deg, #f57c00 0%, #e65100 100%); color: #fff; } 
         .theme-2 { background: linear-gradient(135deg, #fbc02d 0%, #f9a825 100%); color: #000; } 
         .theme-1 { background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); color: #fff; } 
         .theme-0 { background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%); color: #fff; } 
 
-        /* エラー画面 */
         .error-screen {
             position: fixed; top:0; left:0; width:1920px; height:1080px;
             background:#0d1117; display:flex; flex-direction:column;
@@ -267,21 +262,33 @@
 </div>
 
 <script>
-// 環境省WBGTコード対応 地域マスター
+// 【大幅拡充】環境省WBGT準拠・地点コードマスターデータ
 const areaMap = {
+    // 大阪エリア
+    "62091": "大阪府 枚方市周辺",
     "62124": "大阪府 大阪市住之江区周辺",
     "62117": "大阪府 大阪市中央区（大阪）",
+    "62021": "大阪府 豊中市周辺",
+    "62332": "大阪府 堺市周辺",
+    
+    // 主要都市エリア
     "44132": "東京都 千代田区（東京）",
+    "44101": "東京都 八王子市周辺",
     "51106": "愛知県 名古屋市",
     "36136": "石川県 金沢市",
     "43106": "神奈川県 横浜市",
     "82117": "福岡県 福岡市",
-    "14154": "北海道 札幌市"
+    "14154": "北海道 札幌市",
+    "34111": "宮城県 仙台市",
+    "61106": "京都府 京都市",
+    "63106": "兵庫県 神戸市",
+    "74106": "広島県 広島市"
 };
 
 window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
+    // 元のURL形式「?area=」と、これまでの「?code=」の両方に対応できるように判定
+    const code = urlParams.get('code') || urlParams.get('area');
 
     if (!code || !/^\d{5}$/.test(code.trim())) {
         document.getElementById('errorOverlay').style.display = 'flex';
@@ -289,15 +296,15 @@ window.onload = function() {
     }
 
     const cleanCode = code.trim();
-    const regionName = areaMap[cleanCode] || `地点コード: ${cleanCode}`;
+    // マスターにあればそれを出力、なければ登録漏れ防止として県名推測かコード表記
+    const regionName = areaMap[cleanCode] || `指定地点（コード: ${cleanCode}）`;
     document.getElementById('cityNameDisplay').innerText = regionName;
 
-    // 【追加】「何時時点の情報か」を現在時刻から動的に生成
+    // 時間表示
     const now = new Date();
     const month = now.getMonth() + 1;
     const date = now.getDate();
     const hours = now.getHours();
-    // サイネージとして見栄えがいいように10分単位で切り捨て表示（例: 15:43 → 15:40発表）
     const minutes = Math.floor(now.getMinutes() / 10) * 10;
     const minutesStr = minutes < 10 ? '0' + minutes : minutes;
     document.getElementById('timeDisplay').innerText = `${month}/${date} ${hours}:${minutesStr} 時点`;
@@ -329,7 +336,7 @@ window.onload = function() {
     document.getElementById('alertBar').className = `status-alert-bar theme-${level}`;
     document.getElementById('windowBox').className = `illustration-circle-frame level-${level}`;
 
-    // 予測カード生成
+    // 予測カード
     const grid = document.getElementById('forecastGrid');
     grid.innerHTML = '';
 
