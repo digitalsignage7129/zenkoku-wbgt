@@ -321,10 +321,22 @@ function calcWbgt(temp, humidity) {
     return 0.725 * temp + 0.0368 * humidity + 0.00315 * temp * humidity - 3.2;
 }
 
-// 🌤️ 気象データの取得・反映
+// 🌤️ 気象データの取得・反映（キャッシュ制御・アクセスブロック対策付き）
 async function updateDashboard() {
     if (!currentLat || !currentLon) return;
+    
     const statusEl = document.getElementById('wbgt-status');
+    const cacheKey = `wbgt_data_${currentLat.toFixed(4)}_${currentLon.toFixed(4)}`;
+    const cachedData = localStorage.getItem(cacheKey);
+    const cachedTime = localStorage.getItem(`${cacheKey}_time`);
+    const nowTime = new Date().getTime();
+
+    // 🛑 制限対策：前回の取得から30分以内であれば、保存されたキャッシュデータを再利用してAPIアクセスを徹底回避
+    if (cachedData && cachedTime && (nowTime - cachedTime < 1800000)) {
+        renderData(JSON.parse(cachedData));
+        return;
+    }
+
     const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${currentLat}&longitude=${currentLon}&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,precipitation_probability&timezone=Asia%2FTokyo&forecast_days=1`;
     
     try {
@@ -334,51 +346,67 @@ async function updateDashboard() {
         if (!res.ok) throw new Error();
         const data = await res.json();
         
-        const hourly = data.hourly;
-        const now = new Date();
+        // キャッシュに保存
+        localStorage.setItem(cacheKey, JSON.stringify(data));
+        localStorage.setItem(`${cacheKey}_time`, nowTime);
         
-        let currentIndex = 0;
-        for (let i = 0; i < hourly.time.length; i++) {
-            if (new Date(hourly.time[i]) >= now) {
-                currentIndex = i;
-                break;
-            }
-        }
-
-        const curTemp = hourly.temperature_2m[currentIndex];
-        const curHumidity = hourly.relative_humidity_2m[currentIndex];
-        const curWind = (hourly.wind_speed_10m[currentIndex] / 3.6).toFixed(1);
-        const curPop = hourly.precipitation_probability[currentIndex];
-        const curWbgt = calcWbgt(curTemp, curHumidity).toFixed(1);
-        const curWeather = getWeatherText(hourly.weather_code[currentIndex]);
-
-        document.getElementById('weather-text').innerText = curWeather.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '');
-        
-        const numEl = document.getElementById('wbgt-num');
-        numEl.innerText = curWbgt;
-        numEl.style.setProperty('font-size', '32vh', 'important');
-
-        document.getElementById('cur-temp').innerText = `${curTemp.toFixed(1)}℃`;
-        document.getElementById('cur-humidity').innerText = `${curHumidity}%`;
-        document.getElementById('cur-wind').innerText = `${curWind}m/s`;
-        document.getElementById('cur-pop').innerText = `${curPop}%`;
-
-        const level = getWbgtLevel(curWbgt);
-        document.getElementById('wbgt-card').style.backgroundColor = level.color;
-        statusEl.innerText = level.text;
-
-        const timeObj = new Date(hourly.time[currentIndex]);
-        document.getElementById('time-label').innerText = `現在（${timeObj.getHours()}:00）の暑さ指数`;
-
-        const rightNow = new Date();
-        document.getElementById('update-time').innerText = `同期: ${rightNow.getMonth()+1}/${rightNow.getDate()} ${rightNow.getHours()}:${String(rightNow.getMinutes()).padStart(2,'0')}`;
+        renderData(data);
 
     } catch (e) {
-        statusEl.innerText = "データ取得失敗";
+        if (cachedData) {
+            // 万が一APIエラーやネットワーク切断が起きても、古いキャッシュを使って画面が白くなるのを防ぐ
+            renderData(JSON.parse(cachedData));
+            statusEl.innerText = `${statusEl.innerText} (オフライン表示中)`;
+        } else {
+            statusEl.innerText = "データ取得失敗";
+        }
     }
 }
 
-// 🔍 位置検索および「確認ポップアップ」を挟むコア処理
+// データの画面描画処理
+function renderData(data) {
+    const statusEl = document.getElementById('wbgt-status');
+    const hourly = data.hourly;
+    const now = new Date();
+    
+    let currentIndex = 0;
+    for (let i = 0; i < hourly.time.length; i++) {
+        if (new Date(hourly.time[i]) >= now) {
+            currentIndex = i;
+            break;
+        }
+    }
+
+    const curTemp = hourly.temperature_2m[currentIndex];
+    const curHumidity = hourly.relative_humidity_2m[currentIndex];
+    const curWind = (hourly.wind_speed_10m[currentIndex] / 3.6).toFixed(1);
+    const curPop = hourly.precipitation_probability[currentIndex];
+    const curWbgt = calcWbgt(curTemp, curHumidity).toFixed(1);
+    const curWeather = getWeatherText(hourly.weather_code[currentIndex]);
+
+    document.getElementById('weather-text').innerText = curWeather.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '');
+    
+    const numEl = document.getElementById('wbgt-num');
+    numEl.innerText = curWbgt;
+    numEl.style.setProperty('font-size', '32vh', 'important');
+
+    document.getElementById('cur-temp').innerText = `${curTemp.toFixed(1)}℃`;
+    document.getElementById('cur-humidity').innerText = `${curHumidity}%`;
+    document.getElementById('cur-wind').innerText = `${curWind}m/s`;
+    document.getElementById('cur-pop').innerText = `${curPop}%`;
+
+    const level = getWbgtLevel(curWbgt);
+    document.getElementById('wbgt-card').style.backgroundColor = level.color;
+    statusEl.innerText = level.text;
+
+    const timeObj = new Date(hourly.time[currentIndex]);
+    document.getElementById('time-label').innerText = `現在（${timeObj.getHours()}:00）の暑さ指数`;
+
+    const rightNow = new Date();
+    document.getElementById('update-time').innerText = `同期: ${rightNow.getMonth()+1}/${rightNow.getDate()} ${rightNow.getHours()}:${String(rightNow.getMinutes()).padStart(2,'0')}`;
+}
+
+// 🔍 位置検索および「確認ポップアップ」
 async function executeLocationSearch(query, skipConfirm = false) {
     try {
         const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=ja`;
@@ -390,23 +418,22 @@ async function executeLocationSearch(query, skipConfirm = false) {
             const admin1 = result.admin1 ? result.admin1 : "";
             const matchedName = admin1 + result.name;
 
-            // URL直接アクセス以外（画面からの検索時）は、正しいかどうかポップアップで確認を求める
             if (!skipConfirm) {
                 const isCorrect = confirm(`「 ${matchedName} 」を取得しました。\nこの場所で間違いありませんか？`);
-                if (!isCorrect) {
-                    return false;
-                }
+                if (!isCorrect) return false;
             }
 
             currentLat = result.latitude;
             currentLon = result.longitude;
             currentName = matchedName;
             
-            // 🔗 検索キーワードをもとにURLを自動書き換え（履歴に残さず置換することで、戻るボタンの挙動をクリーンに）
+            // 💾 サイネージ端末本体に設定した地名キーワードを永続保存（最重要）
+            localStorage.setItem('saved_wbgt_location', query);
+
+            // URLの末尾も変更
             const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + `?name=${encodeURIComponent(query)}`;
             window.history.replaceState({ path: newUrl }, '', newUrl);
 
-            // スタート画面を隠してメイン画面を更新
             document.getElementById('start-screen').style.display = 'none';
             updateDashboard();
             return true;
@@ -417,7 +444,6 @@ async function executeLocationSearch(query, skipConfirm = false) {
     }
 }
 
-// 初期画面からの検索起動
 async function initSearch() {
     const query = document.getElementById('start-input').value.trim();
     const errorEl = document.getElementById('start-error');
@@ -430,7 +456,6 @@ async function initSearch() {
     }
 }
 
-// 運用中の右上ミニ検索からの変更
 async function panelSearch() {
     const query = document.getElementById('panel-search-input').value.trim();
     if (!query) return;
@@ -440,18 +465,24 @@ async function panelSearch() {
     }
 }
 
-// 🌐 システム初期化（URLにパラメータがあるかチェック）
+// 🌐 システム初期化（記憶の呼び出し）
 function initSystem() {
     const urlParams = new URLSearchParams(window.location.search);
     const nameParam = urlParams.get('name');
+    
+    // 💾 ブラウザが記憶している前回設定された地名を取得
+    const savedParam = localStorage.getItem('saved_wbgt_location');
 
     if (nameParam) {
-        // パラメータが最初からある場合は確認をスキップして直接画面を起動（自動リフレッシュ時もここを通り、検索画面には戻りません）
+        // 1. URLパラメータが最優先
         executeLocationSearch(nameParam, true);
+    } else if (savedParam) {
+        // 2. プレイヤー側が勝手にリフレッシュした場合は、この記憶から自動で復活させる
+        executeLocationSearch(savedParam, true);
     }
+    // 3. どちらの記憶もなければ初めての起動とみなし、検索画面で待機する
 }
 
-// エンターキー対応
 document.getElementById('start-input').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') initSearch();
 });
