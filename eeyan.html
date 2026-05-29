@@ -3,18 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>大阪市此花区舞洲 WBGTダッシュボード</title>
+    <title>WBGTマルチサイネージシステム</title>
     <style>
         html, body {
             margin: 0;
             padding: 0;
             width: 100vw;
             height: 100vh;
-            background-color: #ffffff;
+            background-color: #f7fafc;
             font-family: 'Helvetica Neue', Arial, sans-serif;
             overflow: hidden !important;
         }
         
+        /* 🚪 初期検索スタート画面のスタイル */
+        #start-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+        }
+        .start-box {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6vh 5vw;
+            border-radius: 24px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .start-box h2 {
+            font-size: 4vh;
+            margin-bottom: 1vh;
+            font-weight: 900;
+        }
+        .start-box p {
+            font-size: 2vh;
+            color: #cbd5e0;
+            margin-bottom: 4vh;
+        }
+        .start-search-container {
+            display: flex;
+            gap: 15px;
+            width: 40vw;
+        }
+        .start-input {
+            flex: 1;
+            font-size: 2.5vh;
+            padding: 2vh 2.5vw;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            outline: none;
+        }
+        .start-btn {
+            font-size: 2.5vh;
+            padding: 2vh 4vw;
+            background: #3182ce;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(49, 130, 206, 0.4);
+        }
+
+        /* 📺 メインサイネージボックス */
         .widget-box {
             width: 100vw;
             height: 100vh;
@@ -24,9 +82,10 @@
             flex-direction: column;
             justify-content: space-between;
             overflow: hidden !important;
+            background-color: #ffffff;
         }
 
-        /* ヘッダー：検索窓をスッキリ収めるための調整 */
+        /* ヘッダー */
         .header {
             display: flex;
             justify-content: space-between;
@@ -47,11 +106,11 @@
         }
         .header .sub {
             font-size: 1.8vh;
-            color: #718096;
+            color: #4a5568;
             font-weight: bold;
         }
 
-        /* 🔍 サイネージ感を崩さないスマートな検索エリア */
+        /* 右上ミニ検索エリア */
         .search-container {
             display: flex;
             align-items: center;
@@ -67,9 +126,6 @@
             outline: none;
             color: #2d3748;
         }
-        .search-input:focus {
-            border-color: #3182ce;
-        }
         .search-btn {
             font-size: 2.2vh;
             padding: 0.8vh 1.8vw;
@@ -79,10 +135,6 @@
             border-radius: 30px;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.2s;
-        }
-        .search-btn:hover {
-            background-color: #2b6cb0;
         }
 
         .weather-icon-txt {
@@ -92,7 +144,7 @@
             margin-left: 15px;
         }
 
-        /* 暑さ指数エリア（完璧サイズ） */
+        /* 暑さ指数エリア */
         .wbgt-section {
             background: #2ecc71;
             color: white;
@@ -114,7 +166,6 @@
             line-height: 1;
         }
         
-        /* 数字の表示エリア */
         .wbgt-display-area {
             display: flex;
             justify-content: center;
@@ -125,7 +176,6 @@
             padding: 0;
         }
 
-        /* バカでか一歩手前の完璧サイズ */
         #wbgt-num {
             font-weight: 900 !important;
             line-height: 0.9 !important;
@@ -181,7 +231,6 @@
             line-height: 1;
         }
 
-        /* フッター */
         .footer {
             font-size: 2vh;
             color: #a0aec0;
@@ -197,16 +246,28 @@
 </head>
 <body>
 
+<div id="start-screen">
+    <div class="start-box">
+        <h2>WBGT MONITOR SYSTEM</h2>
+        <p>設置する地域、または現場名を入力してください</p>
+        <div class="start-search-container">
+            <input type="text" id="start-input" class="start-input" placeholder="例：加古川市、舞洲、和歌山...">
+            <button onclick="initSearch()" class="start-btn">モニター起動</button>
+        </div>
+        <div id="start-error" style="color: #fc8181; margin-top: 15px; font-weight: bold;"></div>
+    </div>
+</div>
+
 <div class="widget-box">
     <div class="header">
         <div class="header-title-area">
-            <h1 id="location-title">大阪市此花区舞洲</h1>
-            <div class="sub" id="location-sub">ピンポイント観測情報</div>
+            <h1 id="location-title">未設定</h1>
+            <div class="sub" id="location-sub">位置情報同期中...</div>
         </div>
         
         <div class="search-container">
-            <input type="text" id="search-input" class="search-input" placeholder="地名や施設名を入力...">
-            <button onclick="searchLocation()" class="search-btn">検索</button>
+            <input type="text" id="panel-search-input" class="search-input" placeholder="地域を変更...">
+            <button onclick="panelSearch()" class="search-btn">変更</button>
             <div id="weather-text" class="weather-icon-txt">--</div>
         </div>
     </div>
@@ -231,10 +292,9 @@
 </div>
 
 <script>
-// 🌟 初期設定は「大阪市此花区舞洲」
-let currentLat = 34.6658;
-let currentLon = 135.3965;
-let currentName = "大阪市此花区舞洲";
+let currentLat = null;
+let currentLon = null;
+let currentName = "";
 
 function getWeatherText(code) {
     if (code === 0) return "☀️晴";
@@ -261,8 +321,9 @@ function calcWbgt(temp, humidity) {
     return 0.725 * temp + 0.0368 * humidity + 0.00315 * temp * humidity - 3.2;
 }
 
-// 🌤️ 気象データの取得と反映
+// 🌤️ 気象データの取得・反映
 async function updateDashboard() {
+    if (!currentLat || !currentLon) return;
     const statusEl = document.getElementById('wbgt-status');
     const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${currentLat}&longitude=${currentLon}&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,precipitation_probability&timezone=Asia%2FTokyo&forecast_days=1`;
     
@@ -317,14 +378,8 @@ async function updateDashboard() {
     }
 }
 
-// 🔍 ジオコーディングAPIを使って場所を検索
-async function searchLocation() {
-    const query = document.getElementById('search-input').value.trim();
-    if (!query) return;
-
-    const statusEl = document.getElementById('wbgt-status');
-    statusEl.innerText = "位置を検索中...";
-
+// 🔍 位置検索コア処理
+async function executeLocationSearch(query) {
     try {
         const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=ja`;
         const res = await fetch(geoUrl);
@@ -335,31 +390,70 @@ async function searchLocation() {
             currentLat = result.latitude;
             currentLon = result.longitude;
             
-            // 日本語名があれば優先、なければ検索ワードを表示
-            currentName = result.name;
-            document.getElementById('location-sub').innerText = `経度:${currentLat.toFixed(2)} 緯度:${currentLon.toFixed(2)}`;
+            // 日本、都道府県名、市町村名を組み合わせてわかりやすく表示
+            const admin1 = result.admin1 ? result.admin1 : "";
+            currentName = admin1 + result.name;
             
-            // 新しい場所でダッシュボードを更新
+            document.getElementById('location-sub').innerText = `【確認用】緯度:${currentLat.toFixed(2)} 経度:${currentLon.toFixed(2)}`;
+            
+            // スタート画面を非表示にしてメイン表示へ
+            document.getElementById('start-screen').style.display = 'none';
             updateDashboard();
-            document.getElementById('search-input').value = ""; // 入力欄をクリア
-        } else {
-            statusEl.innerText = "場所が見つかりません";
+            return true;
         }
+        return false;
     } catch (error) {
-        statusEl.innerText = "検索エラーが発生";
+        return false;
     }
 }
 
-// エンターキーでも検索できるように設定
-document.getElementById('search-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        searchLocation();
+// 初期画面からの検索起動
+async function initSearch() {
+    const query = document.getElementById('start-input').value.trim();
+    const errorEl = document.getElementById('start-error');
+    if (!query) return;
+
+    errorEl.innerText = "位置を検索中...";
+    const success = await executeLocationSearch(query);
+    if (!success) {
+        errorEl.innerText = "場所が見つかりませんでした。もう一度入力してください。";
     }
+}
+
+// 運用中の右上ミニ検索からの変更
+async function panelSearch() {
+    const query = document.getElementById('panel-search-input').value.trim();
+    if (!query) return;
+    const success = await executeLocationSearch(query);
+    if (success) {
+        document.getElementById('panel-search-input').value = "";
+    } else {
+        alert("場所が見つかりませんでした。");
+    }
+}
+
+// 🌐 システム初期化（URLにパラメータがあるかチェック）
+function initSystem() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const nameParam = urlParams.get('name');
+
+    if (nameParam) {
+        // パラメータがあれば直接画面を起動
+        executeLocationSearch(nameParam);
+    }
+    // パラメータがなければスタート画面を表示したまま待機
+}
+
+// エンターキー対応
+document.getElementById('start-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') initSearch();
+});
+document.getElementById('panel-search-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') panelSearch();
 });
 
-// 初期起動
-updateDashboard();
-// 10分ごとに自動更新（検索された場所のデータを維持して更新します）
+// 起動
+initSystem();
 setInterval(updateDashboard, 600000);
 </script>
 
