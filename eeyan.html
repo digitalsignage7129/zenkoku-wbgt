@@ -15,7 +15,7 @@
             overflow: hidden !important;
         }
         
-        /* 🚪 初期検索スタート画面のスタイル */
+        /* 🚪 初期検索スタート画面 */
         #start-screen {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -262,7 +262,7 @@
     <div class="header">
         <div class="header-title-area">
             <h1 id="location-title">未設定</h1>
-            <div class="sub" id="location-sub">位置情報同期中...</div>
+            <div class="sub" id="location-sub">ピンポイント観測情報</div>
         </div>
         
         <div class="search-container">
@@ -378,8 +378,8 @@ async function updateDashboard() {
     }
 }
 
-// 🔍 位置検索コア処理
-async function executeLocationSearch(query) {
+// 🔍 位置検索および「確認ポップアップ」を挟むコア処理
+async function executeLocationSearch(query, skipConfirm = false) {
     try {
         const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=ja`;
         const res = await fetch(geoUrl);
@@ -387,16 +387,26 @@ async function executeLocationSearch(query) {
 
         if (data.results && data.results.length > 0) {
             const result = data.results[0];
+            const admin1 = result.admin1 ? result.admin1 : "";
+            const matchedName = admin1 + result.name;
+
+            // URL直接アクセス以外（画面からの検索時）は、正しいかどうかポップアップで確認を求める
+            if (!skipConfirm) {
+                const isCorrect = confirm(`「 ${matchedName} 」を取得しました。\nこの場所で間違いありませんか？`);
+                if (!isCorrect) {
+                    return false;
+                }
+            }
+
             currentLat = result.latitude;
             currentLon = result.longitude;
+            currentName = matchedName;
             
-            // 日本、都道府県名、市町村名を組み合わせてわかりやすく表示
-            const admin1 = result.admin1 ? result.admin1 : "";
-            currentName = admin1 + result.name;
-            
-            document.getElementById('location-sub').innerText = `【確認用】緯度:${currentLat.toFixed(2)} 経度:${currentLon.toFixed(2)}`;
-            
-            // スタート画面を非表示にしてメイン表示へ
+            // 🔗 検索キーワードをもとにURLを自動書き換え（履歴に残さず置換することで、戻るボタンの挙動をクリーンに）
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + `?name=${encodeURIComponent(query)}`;
+            window.history.replaceState({ path: newUrl }, '', newUrl);
+
+            // スタート画面を隠してメイン画面を更新
             document.getElementById('start-screen').style.display = 'none';
             updateDashboard();
             return true;
@@ -414,9 +424,9 @@ async function initSearch() {
     if (!query) return;
 
     errorEl.innerText = "位置を検索中...";
-    const success = await executeLocationSearch(query);
+    const success = await executeLocationSearch(query, false);
     if (!success) {
-        errorEl.innerText = "場所が見つかりませんでした。もう一度入力してください。";
+        errorEl.innerText = "場所がキャンセルされたか、見つかりませんでした。";
     }
 }
 
@@ -424,11 +434,9 @@ async function initSearch() {
 async function panelSearch() {
     const query = document.getElementById('panel-search-input').value.trim();
     if (!query) return;
-    const success = await executeLocationSearch(query);
+    const success = await executeLocationSearch(query, false);
     if (success) {
         document.getElementById('panel-search-input').value = "";
-    } else {
-        alert("場所が見つかりませんでした。");
     }
 }
 
@@ -438,10 +446,9 @@ function initSystem() {
     const nameParam = urlParams.get('name');
 
     if (nameParam) {
-        // パラメータがあれば直接画面を起動
-        executeLocationSearch(nameParam);
+        // パラメータが最初からある場合は確認をスキップして直接画面を起動（自動リフレッシュ時もここを通り、検索画面には戻りません）
+        executeLocationSearch(nameParam, true);
     }
-    // パラメータがなければスタート画面を表示したまま待機
 }
 
 // エンターキー対応
