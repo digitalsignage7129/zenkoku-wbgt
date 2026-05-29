@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大阪市此花区舞洲 WBGTダッシュボード</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #ffffff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            overflow: hidden !important;
+        }
+        
+        .widget-box {
+            width: 100vw;
+            height: 100vh;
+            box-sizing: border-box;
+            padding: 1.5vh 3vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden !important;
+        }
+
+        /* ヘッダー：検索窓をスッキリ収めるための調整 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 5px solid #edf2f7;
+            height: 11vh;
+        }
+        .header-title-area {
+            display: flex;
+            flex-direction: column;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 4vh;
+            color: #2d3748;
+            font-weight: 900;
+            line-height: 1.1;
+        }
+        .header .sub {
+            font-size: 1.8vh;
+            color: #718096;
+            font-weight: bold;
+        }
+
+        /* 🔍 サイネージ感を崩さないスマートな検索エリア */
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .search-input {
+            font-size: 2.2vh;
+            padding: 0.8vh 1.5vw;
+            border: 3px solid #cbd5e0;
+            border-radius: 30px;
+            width: 18vw;
+            font-weight: bold;
+            outline: none;
+            color: #2d3748;
+        }
+        .search-input:focus {
+            border-color: #3182ce;
+        }
+        .search-btn {
+            font-size: 2.2vh;
+            padding: 0.8vh 1.8vw;
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .search-btn:hover {
+            background-color: #2b6cb0;
+        }
+
+        .weather-icon-txt {
+            font-size: 5.5vh;
+            font-weight: 900;
+            color: #3182ce;
+            margin-left: 15px;
+        }
+
+        /* 暑さ指数エリア（完璧サイズ） */
+        .wbgt-section {
+            background: #2ecc71;
+            color: white;
+            border-radius: 24px;
+            text-align: center;
+            height: 59vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2vh 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .wbgt-label {
+            font-size: 3.5vh;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin: 0;
+            line-height: 1;
+        }
+        
+        /* 数字の表示エリア */
+        .wbgt-display-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 41vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* バカでか一歩手前の完璧サイズ */
+        #wbgt-num {
+            font-weight: 900 !important;
+            line-height: 0.9 !important;
+            letter-spacing: -6px !important;
+        }
+        .wbgt-unit {
+            font-size: 9vh !important;
+            font-weight: 900 !important;
+            margin-left: 10px;
+            align-self: flex-end;
+            margin-bottom: 5vh;
+        }
+        
+        .wbgt-status {
+            font-size: 5vh;
+            font-weight: 900;
+            background: rgba(0,0,0,0.25);
+            padding: 0.4vh 8vw;
+            border-radius: 50px;
+            display: inline-block;
+            align-self: center;
+            letter-spacing: 2px;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        /* 気象グリッド */
+        .weather-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2vw;
+            height: 18vh;
+        }
+        .grid-item {
+            background: #f7fafc;
+            border: 4px solid #e2e8f0;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+        .grid-label {
+            font-size: 2.5vh;
+            color: #4a5568;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .grid-value {
+            font-size: 4.5vh;
+            font-weight: 900;
+            color: #1a202c;
+            line-height: 1;
+        }
+
+        /* フッター */
+        .footer {
+            font-size: 2vh;
+            color: #a0aec0;
+            text-align: center;
+            border-top: 3px solid #edf2f7;
+            height: 4vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="widget-box">
+    <div class="header">
+        <div class="header-title-area">
+            <h1 id="location-title">大阪市此花区舞洲</h1>
+            <div class="sub" id="location-sub">ピンポイント観測情報</div>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" id="search-input" class="search-input" placeholder="地名や施設名を入力...">
+            <button onclick="searchLocation()" class="search-btn">検索</button>
+            <div id="weather-text" class="weather-icon-txt">--</div>
+        </div>
+    </div>
+
+    <div class="wbgt-section" id="wbgt-card">
+        <div class="wbgt-label" id="time-label">現在の暑さ指数 (WBGT)</div>
+        <div class="wbgt-display-area">
+            <span id="wbgt-num">--.-</span>
+            <span class="wbgt-unit">℃</span>
+        </div>
+        <div class="wbgt-status" id="wbgt-status">取得中...</div>
+    </div>
+
+    <div class="weather-grid">
+        <div class="grid-item"><div class="grid-label">気温</div><div class="grid-value" id="cur-temp">--.-℃</div></div>
+        <div class="grid-item"><div class="grid-label">湿度</div><div class="grid-value" id="cur-humidity">--%</div></div>
+        <div class="grid-item"><div class="grid-label">風速</div><div class="grid-value" id="cur-wind">--.-m/s</div></div>
+        <div class="grid-item"><div class="grid-label">降水</div><div class="grid-value" id="cur-pop">--%</div></div>
+    </div>
+
+    <div class="footer" id="update-time">Open-Meteo 自動更新</div>
+</div>
+
+<script>
+// 🌟 初期設定は「大阪市此花区舞洲」
+let currentLat = 34.6658;
+let currentLon = 135.3965;
+let currentName = "大阪市此花区舞洲";
+
+function getWeatherText(code) {
+    if (code === 0) return "☀️晴";
+    if (code === 1 || code === 2 || code === 3) return "⛅晴曇";
+    if (code === 45 || code === 48) return "🌫️霧";
+    if (code === 51 || code === 53 || code === 55) return "🌧️小雨";
+    if (code === 61 || code === 63 || code === 65) return "☔雨";
+    if (code === 71 || code === 73 || code === 75) return "❄️雪";
+    if (code === 80 || code === 81 || code === 82) return "🌦️雨";
+    if (code === 95 || code === 96) return "⚡雷雨";
+    return "☁️曇";
+}
+
+function getWbgtLevel(value) {
+    const v = parseFloat(value);
+    if (v >= 31) return { color: '#e74c3c', text: '危険（運動中止）' };
+    if (v >= 28) return { color: '#e67e22', text: '厳重警戒' };
+    if (v >= 25) return { color: '#f1c40f', text: '警戒' };
+    if (v >= 21) return { color: '#3498db', text: '注意' };
+    return { color: '#2ecc71', text: 'ほぼ安全' };
+}
+
+function calcWbgt(temp, humidity) {
+    return 0.725 * temp + 0.0368 * humidity + 0.00315 * temp * humidity - 3.2;
+}
+
+// 🌤️ 気象データの取得と反映
+async function updateDashboard() {
+    const statusEl = document.getElementById('wbgt-status');
+    const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${currentLat}&longitude=${currentLon}&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,precipitation_probability&timezone=Asia%2FTokyo&forecast_days=1`;
+    
+    try {
+        document.getElementById('location-title').innerText = currentName;
+        
+        const res = await fetch(apiUrl);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        
+        const hourly = data.hourly;
+        const now = new Date();
+        
+        let currentIndex = 0;
+        for (let i = 0; i < hourly.time.length; i++) {
+            if (new Date(hourly.time[i]) >= now) {
+                currentIndex = i;
+                break;
+            }
+        }
+
+        const curTemp = hourly.temperature_2m[currentIndex];
+        const curHumidity = hourly.relative_humidity_2m[currentIndex];
+        const curWind = (hourly.wind_speed_10m[currentIndex] / 3.6).toFixed(1);
+        const curPop = hourly.precipitation_probability[currentIndex];
+        const curWbgt = calcWbgt(curTemp, curHumidity).toFixed(1);
+        const curWeather = getWeatherText(hourly.weather_code[currentIndex]);
+
+        document.getElementById('weather-text').innerText = curWeather.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '');
+        
+        const numEl = document.getElementById('wbgt-num');
+        numEl.innerText = curWbgt;
+        numEl.style.setProperty('font-size', '32vh', 'important');
+
+        document.getElementById('cur-temp').innerText = `${curTemp.toFixed(1)}℃`;
+        document.getElementById('cur-humidity').innerText = `${curHumidity}%`;
+        document.getElementById('cur-wind').innerText = `${curWind}m/s`;
+        document.getElementById('cur-pop').innerText = `${curPop}%`;
+
+        const level = getWbgtLevel(curWbgt);
+        document.getElementById('wbgt-card').style.backgroundColor = level.color;
+        statusEl.innerText = level.text;
+
+        const timeObj = new Date(hourly.time[currentIndex]);
+        document.getElementById('time-label').innerText = `現在（${timeObj.getHours()}:00）の暑さ指数`;
+
+        const rightNow = new Date();
+        document.getElementById('update-time').innerText = `同期: ${rightNow.getMonth()+1}/${rightNow.getDate()} ${rightNow.getHours()}:${String(rightNow.getMinutes()).padStart(2,'0')}`;
+
+    } catch (e) {
+        statusEl.innerText = "データ取得失敗";
+    }
+}
+
+// 🔍 ジオコーディングAPIを使って場所を検索
+async function searchLocation() {
+    const query = document.getElementById('search-input').value.trim();
+    if (!query) return;
+
+    const statusEl = document.getElementById('wbgt-status');
+    statusEl.innerText = "位置を検索中...";
+
+    try {
+        const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=ja`;
+        const res = await fetch(geoUrl);
+        const data = await res.json();
+
+        if (data.results && data.results.length > 0) {
+            const result = data.results[0];
+            currentLat = result.latitude;
+            currentLon = result.longitude;
+            
+            // 日本語名があれば優先、なければ検索ワードを表示
+            currentName = result.name;
+            document.getElementById('location-sub').innerText = `経度:${currentLat.toFixed(2)} 緯度:${currentLon.toFixed(2)}`;
+            
+            // 新しい場所でダッシュボードを更新
+            updateDashboard();
+            document.getElementById('search-input').value = ""; // 入力欄をクリア
+        } else {
+            statusEl.innerText = "場所が見つかりません";
+        }
+    } catch (error) {
+        statusEl.innerText = "検索エラーが発生";
+    }
+}
+
+// エンターキーでも検索できるように設定
+document.getElementById('search-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchLocation();
+    }
+});
+
+// 初期起動
+updateDashboard();
+// 10分ごとに自動更新（検索された場所のデータを維持して更新します）
+setInterval(updateDashboard, 600000);
+</script>
+
+</body>
+</html>
