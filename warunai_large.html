@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0">
-<title>WBGTマルチサイネージシステム (1920x1080 Ver.)</title>
+<title>WBGTマルチサイネージシステム (1920x1080 大画面版)</title>
 <style>
 /* 1920x1080の固定サイズ・スクロールバー強制非表示 */
 html, body {
@@ -14,71 +14,6 @@ html, body {
     background-color: #fff;
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
     overflow: hidden !important;
-}
-
-/* スタート画面の最適化 */
-#start-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 1920px;
-    height: 1080px;
-    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    color: #fff;
-}
-.start-box {
-    text-align: center;
-    background: rgba(255, 255, 255, .1);
-    padding: 60px 80px;
-    border-radius: 24px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, .2);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, .3);
-}
-.start-box h2 {
-    font-size: 45px;
-    margin: 0 0 15px 0;
-    font-weight: 900;
-    letter-spacing: 2px;
-}
-.start-box p {
-    font-size: 22px;
-    color: #cbd5e0;
-    margin: 0 0 40px 0;
-}
-.start-search-container {
-    display: flex;
-    gap: 15px;
-    width: 700px;
-}
-.start-input {
-    flex: 1;
-    font-size: 24px;
-    padding: 15px 30px;
-    border: none;
-    border-radius: 50px;
-    font-weight: bold;
-    outline: none;
-}
-.start-btn {
-    font-size: 24px;
-    padding: 15px 45px;
-    background: #3182ce;
-    color: #fff;
-    border: none;
-    border-radius: 50px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 5px 15px rgba(49, 130, 206, .4);
-    transition: background 0.2s;
-}
-.start-btn:hover {
-    background: #2b6cb0;
 }
 
 /* メインウィジェット全体のコンテナ枠 */
@@ -175,7 +110,7 @@ html, body {
 .wbgt-display-area {
     display: flex;
     justify-content: center;
-    align-items: flex-end; /* 下揃えにして単位と数字のバランスを調整 */
+    align-items: flex-end;
     width: 100%;
     height: 420px;
     margin: 0;
@@ -190,7 +125,7 @@ html, body {
     font-size: 90px !important;
     font-weight: 900 !important;
     margin-left: 15px;
-    margin-bottom: 35px; /* 数字のベースラインに合わせる微調整 */
+    margin-bottom: 35px;
 }
 .wbgt-status {
     font-size: 55px;
@@ -250,18 +185,6 @@ html, body {
 </head>
 <body>
 
-<div id="start-screen">
-    <div class="start-box">
-        <h2>WBGT MONITOR SYSTEM</h2>
-        <p>設置する地域、または現場名を入力してください</p>
-        <div class="start-search-container">
-            <input type="text" id="start-input" class="start-input" placeholder="例：加古川市、舞洲、和歌山...">
-            <button onclick="initSearch()" class="start-btn">モニター起動</button>
-        </div>
-        <div id="start-error" style="color:#fc8181;margin-top:20px;font-weight:bold;font-size:18px;"></div>
-    </div>
-</div>
-
 <div class="widget-box">
     <div class="header">
         <div class="header-title-area">
@@ -300,21 +223,17 @@ function renderData(e){
     const o=t.temperature_2m[c],s=t.relative_humidity_2m[c],i=(t.wind_speed_10m[c]/3.6).toFixed(1),a=t.precipitation_probability[c],l=calcWbgt(o,s).toFixed(1),u=getWeatherText(t.weather_code[c]);
     document.getElementById("location-title").innerText=currentName;
     document.getElementById("weather-text").innerText=u;
-    
-    // 1920x1080に最適化した固定文字サイズ（340px）に変更
     const d=document.getElementById("wbgt-num");
     d.innerText=l;
     d.style.setProperty("font-size","340px","important");
-    
     document.getElementById("cur-temp").innerText=`${o.toFixed(1)}℃`,document.getElementById("cur-humidity").innerText=`${s}%`,document.getElementById("cur-wind").innerText=`${i}m/s`,document.getElementById("cur-pop").innerText=`${a}%`;
-    const m=getWbgtLevel(l);document.getElementById("wbgt-card").style.backgroundColor=m.color,document.getElementById("wbgt-status").innerText=m.text;const f=new Date(t.time[c]);document.getElementById("time-label").innerText=`現在（${f.getHours()}:00）の暑さ指数`;const g=new Date;document.getElementById("update-time").innerText=`同期: ${g.getMonth()+1}/${g.getDate()} ${g.getHours()}:${String(g.getMinutes()).padStart(2,"0")}
+    const m=getWbgtLevel(l);document.getElementById("wbgt-card").style.backgroundColor=m.color,document.getElementById("wbgt-status").innerText=m.text;const f=new Date(t.time[c]);document.getElementById("time-label").innerText=`現在（${f.getHours()}:00）の暑さ指数`;const g=new Date;document.getElementById("update-time").innerText=`同期: ${g.getMonth()+1}/${g.getDate()} ${g.getHours()}:${String(g.getMinutes()).padStart(2,"0")}`;
 }
 
-async function executeLocationSearch(e,t=!1){try{const n=`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(e)}&count=1&language=ja`,c=await fetch(n),r=await c.json();if(r.results&&r.results.length>0){const o=r.results[0],s=(o.admin1?o.admin1:"")+o.name;if(!t&&!confirm(`「 ${s} 」を取得しました。\nこの場所で間違いありませんか？`))return!1;currentLat=o.latitude,currentLon=o.longitude,currentName=s,localStorage.setItem("saved_wbgt_location",e);const i=window.location.protocol+"//"+window.location.host+window.location.pathname+`?name=${encodeURIComponent(e)}`;return window.history.replaceState({path:i},"",i),document.getElementById("start-screen").style.display="none",await updateDashboard(),!0}return alert(`「${e}」が見つかりませんでした。正しい地域名を入力してください。`),!1}catch(s){return alert("通信エラーが発生しました。"),!1}}
-async function initSearch(){const e=document.getElementById("start-input").value.trim();if(e){document.getElementById("start-error").innerText="位置を検索中...";(await executeLocationSearch(e,!1))||(document.getElementById("start-error").innerText="場所が見つからないか、キャンセルされました。")}}
+async function executeLocationSearch(e,t=!1){try{const n=`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(e)}&count=1&language=ja`,c=await fetch(n),r=await c.json();if(r.results&&r.results.length>0){const o=r.results[0],s=(o.admin1?o.admin1:"")+o.name;if(!t&&!confirm(`「 ${s} 」を取得しました。\nこの場所で間違いありませんか？`)) return!1;currentLat=o.latitude,currentLon=o.longitude,currentName=s,localStorage.setItem("saved_wbgt_location",e);const i=window.location.protocol+"//"+window.location.host+window.location.pathname+`?name=${encodeURIComponent(e)}`;window.history.replaceState({path:i},"",i);await updateDashboard();return!0}return alert(`「${e}」が見つかりませんでした。正しい地域名を入力してください。`),!1}catch(s){return alert("通信エラーが発生しました。"),!1}}
 async function panelSearch(){const e=document.getElementById("panel-search-input").value.trim();e&&(await executeLocationSearch(e,!1))&&(document.getElementById("panel-search-input").value="")}
-function initSystem(){const e=new URLSearchParams(window.location.search).get("name"),t=localStorage.getItem("saved_wbgt_location");e?executeLocationSearch(e,!0):t?executeLocationSearch(t,!0):document.getElementById("start-screen").style.display="flex"}
-document.getElementById("start-input").addEventListener("keypress",function(e){"Enter"===e.key&&initSearch()}),document.getElementById("panel-search-input").addEventListener("keypress",function(e){"Enter"===e.key&&panelSearch()}),initSystem(),setInterval(updateDashboard,600000);
+function initSystem(){const e=new URLSearchParams(window.location.search).get("name"),t=localStorage.getItem("saved_wbgt_location");e?executeLocationSearch(e,!0):t?executeLocationSearch(t,!0):alert("地域が指定されていません。トップページから検索してください。")}
+document.getElementById("panel-search-input").addEventListener("keypress",function(e){"Enter"===e.key&&panelSearch()}),initSystem(),setInterval(updateDashboard,600000);
 </script>
 </body>
 </html>
