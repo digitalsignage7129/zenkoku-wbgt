@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=100vw, height=100vh, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>WBGTマルチサイネージ (フォルダ間・完全同期版)</title>
+<title>WBGTマルチサイネージ (OpenWeatherMap同期独立版)</title>
 <style>
 html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-color: #fff; font-family: sans-serif; overflow: hidden !important; }
 .widget-box { width: 100vw; height: 100vh; box-sizing: border-box; padding: 2.3vh 2.1vw; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden !important; background-color: #fff; }
@@ -36,7 +36,7 @@ html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-colo
     <div class="wbgt-section" id="wbgt-card">
         <div class="wbgt-label">現在の暑さ指数 (WBGT)</div>
         <div class="wbgt-display-area"><span id="wbgt-num">--.-</span><span class="wbgt-unit">℃</span></div>
-        <div class="wbgt-status" id="wbgt-status">お天気システムからのデータ同期を待機中...</div>
+        <div class="wbgt-status" id="wbgt-status">データ取得中...</div>
     </div>
     <div class="weather-grid">
         <div class="grid-item"><div class="grid-label">気温</div><div class="grid-value" id="cur-temp">--.-℃</div></div>
@@ -44,10 +44,12 @@ html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-colo
         <div class="grid-item"><div class="grid-label">風速</div><div class="grid-value" id="cur-wind">--.-m/s</div></div>
         <div class="grid-item"><div class="grid-label">天気詳細</div><div class="grid-value" id="cur-desc" style="font-size:3vh;">--</div></div>
     </div>
-    <div class="footer" id="update-time">別フォルダ間 リアルタイム同期システム</div>
+    <div class="footer" id="update-time">OpenWeatherMap 一体型システム</div>
 </div>
 
 <script>
+const API_KEY = '6b80c00ad3da39082b7e25c449d07c51'; // お天気側と全く同じ鍵
+
 function getWeatherEmoji(iconCode) {
     if(!iconCode) return "☁️";
     if(iconCode.startsWith("01")) return "☀️晴";
@@ -71,21 +73,60 @@ function calcWbgt(temp, humidity) {
     return 0.725 * temp + 0.0368 * humidity + 0.00315 * temp * humidity - 3.2;
 }
 
-// 💡 別フォルダの api.html から飛んできた電波をキャッチする設定
-const syncChannel = new BroadcastChannel('weather_sync_channel');
-syncChannel.onmessage = function(event) {
-    const weatherData = event.data;
-    if (weatherData && weatherData.current) {
-        renderWbgt(weatherData);
-    }
-};
-
-function renderWbgt(weatherData) {
+async function updateWbgtSystem() {
     const urlParams = new URLSearchParams(window.location.search);
     let cityName = decodeURIComponent(urlParams.get('mytown') || '東京').trim();
+    let pureName = cityName.replace(/[市区町村]$/, "");
+    
     document.getElementById("location-title").innerText = `${cityName}のWBGT`;
 
-    const current = weatherData.current;
+    const cacheKey = `wgbt_solo_cache_${cityName}`;
+    const cachedString = localStorage.getItem(cacheKey);
+    const nowTime = Date.now();
+
+    // 💡 30分以内の保存キャッシュがあればそれを使って描画（リロード対策）
+    if (cachedString) {
+        try {
+            const cachedData = JSON.parse(cachedString);
+            if (cachedData && cachedData.timestamp && (nowTime - cachedData.timestamp < 1800000)) {
+                renderWbgt(cachedData.current, cachedData.timestamp);
+                return;
+            }
+        } catch(e) {}
+    }
+
+    // キャッシュがない、または30分以上経っていたら直接APIを叩く
+    try {
+        const geoRes = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(pureName)},JP&limit=1&appid=${API_KEY}`);
+        let geoData = await geoRes.json();
+        if (!geoData || geoData.length === 0) {
+            const backupRes = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(cityName)},JP&limit=1&appid=${API_KEY}`);
+            geoData = await backupRes.json();
+        }
+        if (!geoData || geoData.length === 0) throw new Error("位置特定失敗");
+
+        const lat = geoData[0].lat;
+        const lon = geoData[0].lon;
+
+        const weatherRes = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=ja`);
+        const currentData = await weatherRes.json();
+
+        // データを保存
+        localStorage.setItem(cacheKey, JSON.stringify({ current: currentData, timestamp: nowTime }));
+        renderWbgt(currentData, nowTime);
+
+    } catch (e) {
+        if (cachedString) {
+            const cachedData = JSON.parse(cachedString);
+            renderWbgt(cachedData.current, cachedData.timestamp);
+            document.getElementById("update-time").innerText += " (オフライン表示)";
+        } else {
+            document.getElementById("wbgt-status").innerText = "データ取得エラー";
+        }
+    }
+}
+
+function renderWbgt(current, timestamp) {
     const temp = current.main.temp;
     const humidity = current.main.humidity;
     const windSpeed = current.wind.speed;
@@ -108,9 +149,12 @@ function renderWbgt(weatherData) {
     document.getElementById("cur-wind").innerText = `${windSpeed.toFixed(1)}m/s`;
     document.getElementById("cur-desc").innerText = weatherDesc;
 
-    const syncDate = new Date(weatherData.timestamp);
-    document.getElementById("update-time").innerText = `天気同期時刻: ${syncDate.getHours()}:${String(syncDate.getMinutes()).padStart(2, '0')} (別フォルダ同期成功)`;
+    const syncDate = new Date(timestamp);
+    document.getElementById("update-time").innerText = `データ更新時刻: ${syncDate.getHours()}:${String(syncDate.getMinutes()).padStart(2, '0')} (30分毎自動更新)`;
 }
+
+updateWbgtSystem();
+setInterval(updateWbgtSystem, 1800000); // 30分に1回自動更新
 </script>
 </body>
 </html>
