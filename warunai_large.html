@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=100vw, height=100vh, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>WBGTマルチサイネージ (位置特定修正版)</title>
+<title>WBGTマルチサイネージ (国内特定・完全同期版)</title>
 <style>
 html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-color: #fff; font-family: sans-serif; overflow: hidden !important; }
 .widget-box { width: 100vw; height: 100vh; box-sizing: border-box; padding: 2.3vh 2.1vw; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden !important; background-color: #fff; }
@@ -36,7 +36,7 @@ html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-colo
     <div class="wbgt-section" id="wbgt-card">
         <div class="wbgt-label">現在の暑さ指数 (WBGT)</div>
         <div class="wbgt-display-area"><span id="wbgt-num">--.-</span><span class="wbgt-unit">℃</span></div>
-        <div class="wbgt-status" id="wbgt-status">データ取得中...</div>
+        <div class="wbgt-status" id="wbgt-status">データ同期中...</div>
     </div>
     <div class="weather-grid">
         <div class="grid-item"><div class="grid-label">気温</div><div class="grid-value" id="cur-temp">--.-℃</div></div>
@@ -76,6 +76,7 @@ function calcWbgt(temp, humidity) {
 async function updateWbgtSystem() {
     const urlParams = new URLSearchParams(window.location.search);
     let cityName = decodeURIComponent(urlParams.get('name') || '江南').trim();
+    let pureName = cityName.replace(/[市区町村]$/, "");
     
     document.getElementById("location-title").innerText = `${cityName}のWBGT`;
 
@@ -83,7 +84,7 @@ async function updateWbgtSystem() {
     const cachedString = localStorage.getItem(cacheKey);
     const nowTime = Date.now();
 
-    // 30分以内の保存キャッシュがあればそれを使って描画
+    // 30分以内の保存キャッシュがあればそれを使う
     if (cachedString) {
         try {
             const cachedData = JSON.parse(cachedString);
@@ -95,10 +96,25 @@ async function updateWbgtSystem() {
     }
 
     try {
-        // 💡【修正ポイント】OpenWeatherMapでも確実に日本語の地名（江南など）を認識できるAPIURLに変更しました
-        const geoRes = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(cityName)},jp&appid=${API_KEY}&units=metric&lang=ja`);
-        if (!geoRes.ok) throw new Error("天気データ取得失敗");
-        const currentData = await geoRes.json();
+        // 💡【重要修正】api.htmlと全く同じ2段階の「日本国内ピンポイント位置特定」を導入
+        let geoRes = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(pureName)},JP&limit=1&appid=${API_KEY}`);
+        let geoData = await geoRes.json();
+        
+        if (!geoData || geoData.length === 0) {
+            geoRes = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(cityName)},JP&limit=1&appid=${API_KEY}`);
+            geoData = await geoRes.json();
+        }
+        
+        if (!geoData || geoData.length === 0) throw new Error("位置特定失敗");
+
+        // 正しい日本の緯度・経度を取得
+        const lat = geoData[0].lat;
+        const lon = geoData[0].lon;
+
+        // 正しい位置情報をベースに天気を取得
+        const weatherRes = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=ja`);
+        if (!weatherRes.ok) throw new Error("天気データ取得失敗");
+        const currentData = await weatherRes.json();
 
         // データを保存
         localStorage.setItem(cacheKey, JSON.stringify({ current: currentData, timestamp: nowTime }));
@@ -144,7 +160,7 @@ function renderWbgt(current, timestamp) {
 }
 
 updateWbgtSystem();
-setInterval(updateWbgtSystem, 1800000); // 30分に1回自動更新
+setInterval(updateWbgtSystem, 1800000);
 </script>
 </body>
 </html>
