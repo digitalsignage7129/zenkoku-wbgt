@@ -2,185 +2,26 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>WBGTマルチサイネージシステム (Magic Player 最適化版)</title>
+<meta name="viewport" content="width=100vw, height=100vh, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>WBGTマルチサイネージ (フォルダ間・完全同期版)</title>
 <style>
-/* 画面サイズに100%追従し、スクロールバーを絶対に出さない */
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: #fff;
-    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
-    overflow: hidden !important;
-}
-
-/* メインコンテナ：縦横比をアプリの画面全体にフィットさせる */
-.widget-box {
-    width: 100vw;
-    height: 100vh;
-    box-sizing: border-box;
-    padding: 2.3vh 2.1vw;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    overflow: hidden !important;
-    background-color: #fff;
-}
-
-/* ヘッダーエリア */
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 0.46vh solid #edf2f7;
-    height: 10.2vh;
-}
-.header-title-area {
-    display: flex;
-    flex-direction: column;
-}
-.header h1 {
-    margin: 0;
-    font-size: 3.9vh;
-    color: #2d3748;
-    font-weight: 900;
-    line-height: 1.1;
-}
-.header .sub {
-    font-size: 1.67vh;
-    color: #4a5568;
-    font-weight: bold;
-    margin-top: 0.46vh;
-}
-.search-container {
-    display: flex;
-    align-items: center;
-    gap: 0.6vw;
-}
-.search-input {
-    font-size: 1.85vh;
-    padding: 0.9vh 1vw;
-    border: 0.28vh solid #cbd5e0;
-    border-radius: 3vh;
-    width: 15vw;
-    font-weight: bold;
-    outline: none;
-    color: #2d3748;
-}
-.search-btn {
-    font-size: 1.85vh;
-    padding: 0.9vh 1.3vw;
-    background-color: #3182ce;
-    color: #fff;
-    border: none;
-    border-radius: 3vh;
-    font-weight: bold;
-    cursor: pointer;
-}
-.weather-icon-txt {
-    font-size: 5.1vh;
-    font-weight: 900;
-    color: #3182ce;
-    margin-left: 1vw;
-}
-
-/* WBGTメインカード（大画面用の黄金比率に調整） */
-.wbgt-section {
-    background: #2ecc71;
-    color: #fff;
-    border-radius: 2.2vh;
-    text-align: center;
-    height: 59.2vh;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 2.8vh 0;
-    box-shadow: 0 0.9vh 2.3vh rgba(0, 0, 0, .1);
-}
-.wbgt-label {
-    font-size: 3.3vh;
-    font-weight: bold;
-    letter-spacing: 0.1vw;
-    margin: 0;
-    line-height: 1;
-}
-.wbgt-display-area {
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    width: 100%;
-    height: 38.9vh;
-    margin: 0;
-    padding: 0;
-}
-#wbgt-num {
-    font-weight: 900 !important;
-    line-height: 0.85 !important;
-    letter-spacing: -0.3vw !important;
-}
-.wbgt-unit {
-    font-size: 8.3vh !important;
-    font-weight: 900 !important;
-    margin-left: 0.8vw;
-    margin-bottom: 3.2vh;
-}
-.wbgt-status {
-    font-size: 5.1vh;
-    font-weight: 900;
-    background: rgba(0, 0, 0, .25);
-    padding: 0.9vh 6vw;
-    border-radius: 4.6vh;
-    display: inline-block;
-    align-self: center;
-    letter-spacing: 0.15vw;
-    margin: 0;
-    line-height: 1.2;
-}
-
-/* 気象情報 グリッド */
-.weather-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5vw;
-    height: 16.7vh;
-}
-.grid-item {
-    background: #f7fafc;
-    border: 0.37vh solid #e2e8f0;
-    border-radius: 1.5vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-}
-.grid-label {
-    font-size: 2.4vh;
-    color: #4a5568;
-    font-weight: bold;
-    margin-bottom: 0.7vh;
-}
-.grid-value {
-    font-size: 4.25vh;
-    font-weight: 900;
-    color: #1a202c;
-    line-height: 1;
-}
-
-/* フッター */
-.footer {
-    font-size: 1.67vh;
-    color: #a0aec0;
-    text-align: center;
-    border-top: 0.28vh solid #edf2f7;
-    height: 3.7vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-}
+html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-color: #fff; font-family: sans-serif; overflow: hidden !important; }
+.widget-box { width: 100vw; height: 100vh; box-sizing: border-box; padding: 2.3vh 2.1vw; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden !important; background-color: #fff; }
+.header { display: flex; justify-content: space-between; align-items: center; border-bottom: 0.46vh solid #edf2f7; height: 10.2vh; }
+.header-title-area { display: flex; flex-direction: column; }
+.header h1 { margin: 0; font-size: 3.9vh; color: #2d3748; font-weight: 900; line-height: 1.1; }
+.weather-icon-txt { font-size: 5.1vh; font-weight: 900; color: #3182ce; }
+.wbgt-section { background: #2ecc71; color: #fff; border-radius: 2.2vh; text-align: center; height: 59.2vh; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; padding: 2.8vh 0; box-shadow: 0 0.9vh 2.3vh rgba(0, 0, 0, .1); }
+.wbgt-label { font-size: 3.3vh; font-weight: bold; letter-spacing: 0.1vw; margin: 0; line-height: 1; }
+.wbgt-display-area { display: flex; justify-content: center; align-items: flex-end; width: 100%; height: 38.9vh; margin: 0; padding: 0; }
+#wbgt-num { font-weight: 900 !important; line-height: 0.85 !important; letter-spacing: -0.3vw !important; }
+.wbgt-unit { font-size: 8.3vh !important; font-weight: 900 !important; margin-left: 0.8vw; margin-bottom: 3.2vh; }
+.wbgt-status { font-size: 5.1vh; font-weight: 900; background: rgba(0, 0, 0, .25); padding: 0.9vh 6vw; border-radius: 4.6vh; display: inline-block; align-self: center; letter-spacing: 0.15vw; margin: 0; line-height: 1.2; }
+.weather-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5vw; height: 16.7vh; }
+.grid-item { background: #f7fafc; border: 0.37vh solid #e2e8f0; border-radius: 1.5vh; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+.grid-label { font-size: 2.4vh; color: #4a5568; font-weight: bold; margin-bottom: 0.7vh; }
+.grid-value { font-size: 4.25vh; font-weight: 900; color: #1a202c; line-height: 1; }
+.footer { font-size: 1.67vh; color: #a0aec0; text-align: center; border-top: 0.28vh solid #edf2f7; height: 3.7vh; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 </style>
 </head>
 <body>
@@ -189,54 +30,87 @@ html, body {
     <div class="header">
         <div class="header-title-area">
             <h1 id="location-title">地域情報</h1>
-            <div class="sub" id="location-sub">ピンポイント観測情報</div>
         </div>
-        <div class="search-container">
-            <input type="text" id="panel-search-input" class="search-input" placeholder="地域を変更...">
-            <button onclick="panelSearch()" class="search-btn">変更</button>
-            <div id="weather-text" class="weather-icon-txt">--</div>
-        </div>
+        <div id="weather-text" class="weather-icon-txt">--</div>
     </div>
     <div class="wbgt-section" id="wbgt-card">
-        <div class="wbgt-label" id="time-label">現在の暑さ指数 (WBGT)</div>
+        <div class="wbgt-label">現在の暑さ指数 (WBGT)</div>
         <div class="wbgt-display-area"><span id="wbgt-num">--.-</span><span class="wbgt-unit">℃</span></div>
-        <div class="wbgt-status" id="wbgt-status">取得中...</div>
+        <div class="wbgt-status" id="wbgt-status">お天気システムからのデータ同期を待機中...</div>
     </div>
     <div class="weather-grid">
         <div class="grid-item"><div class="grid-label">気温</div><div class="grid-value" id="cur-temp">--.-℃</div></div>
         <div class="grid-item"><div class="grid-label">湿度</div><div class="grid-value" id="cur-humidity">--%</div></div>
         <div class="grid-item"><div class="grid-label">風速</div><div class="grid-value" id="cur-wind">--.-m/s</div></div>
-        <div class="grid-item"><div class="grid-label">降水</div><div class="grid-value" id="cur-pop">--%</div></div>
+        <div class="grid-item"><div class="grid-label">天気詳細</div><div class="grid-value" id="cur-desc" style="font-size:3vh;">--</div></div>
     </div>
-    <div class="footer" id="update-time">Open-Meteo 自動更新</div>
+    <div class="footer" id="update-time">別フォルダ間 リアルタイム同期システム</div>
 </div>
 
 <script>
-let currentLat=null,currentLon=null,currentName="";
-function getWeatherText(e){return 0===e?"☀️晴":1===e||2===e||3===e?"⛅晴曇":45===e||48===e?"🌫️霧":51===e||53===e||55===e?"🌧️小雨":61===e||63===e||65===e?"☔雨":71===e||73===e||75===e?"❄️雪":80===e||81===e||82===e?"🌦️雨":95===e||96===e?"⚡雷雨":"☁️曇"}
-function getWbgtLevel(e){const t=parseFloat(e);return t>=31?{color:"#e74c3c",text:"危険（運動中止）"}:t>=28?{color:"#e67e22",text:"厳重警戒"}:t>=25?{color:"#f1c40f",text:"警戒"}:t>=21?{color:"#3498db",text:"注意"}:{color:"#2ecc71",text:"ほぼ安全"}}
-function calcWbgt(e,t){return.725*e+.0368*t+.00315*e*t-3.2}
-async function updateDashboard(){if(!currentLat||!currentLon)return;const e=document.getElementById("wbgt-status"),t=`wbgt_data_${currentLat.toFixed(4)}_${currentLon.toFixed(4)}`,n=localStorage.getItem(t),c=localStorage.getItem(`${t}_time`),r=(new Date).getTime();if(n&&c&&r-c<1800000){renderData(JSON.parse(n));return}const o=`https://api.open-meteo.com/v1/forecast?latitude=${currentLat}&longitude=${currentLon}&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,precipitation_probability&timezone=Asia%2FTokyo&forecast_days=1`;try{const s=await fetch(o);if(!s.ok)throw new Error;const i=await s.json();localStorage.setItem(t,JSON.stringify(i)),localStorage.setItem(`${t}_time`,r),renderData(i)}catch(a){n?(renderData(JSON.parse(n)),e.innerText+=" (オフライン)"):(e.innerText="データ取得失敗")}}
-
-function renderData(e){
-    const t=e.hourly,n=new Date;let c=0;for(let r=0;r<t.time.length;r++)if(new Date(t.time[r])>=n){c=r;break}
-    const o=t.temperature_2m[c],s=t.relative_humidity_2m[c],i=(t.wind_speed_10m[c]/3.6).toFixed(1),a=t.precipitation_probability[c],l=calcWbgt(o,s).toFixed(1),u=getWeatherText(t.weather_code[c]);
-    document.getElementById("location-title").innerText=currentName;
-    document.getElementById("weather-text").innerText=u;
-    
-    const d=document.getElementById("wbgt-num");
-    d.innerText=l;
-    // Magic Player用にフォントサイズも画面追従のvh単位に最適化
-    d.style.setProperty("font-size","31.5vh","important");
-    
-    document.getElementById("cur-temp").innerText=`${o.toFixed(1)}℃`,document.getElementById("cur-humidity").innerText=`${s}%`,document.getElementById("cur-wind").innerText=`${i}m/s`,document.getElementById("cur-pop").innerText=`${a}%`;
-    const m=getWbgtLevel(l);document.getElementById("wbgt-card").style.backgroundColor=m.color,document.getElementById("wbgt-status").innerText=m.text;const f=new Date(t.time[c]);document.getElementById("time-label").innerText=`現在（${f.getHours()}:00）の暑さ指数`;const g=new Date;document.getElementById("update-time").innerText=`同期: ${g.getMonth()+1}/${g.getDate()} ${g.getHours()}:${String(g.getMinutes()).padStart(2,"0")}`;
+function getWeatherEmoji(iconCode) {
+    if(!iconCode) return "☁️";
+    if(iconCode.startsWith("01")) return "☀️晴";
+    if(iconCode.startsWith("02") || iconCode.startsWith("03") || iconCode.startsWith("04")) return "☁️曇";
+    if(iconCode.startsWith("09") || iconCode.startsWith("10")) return "☔雨";
+    if(iconCode.startsWith("11")) return "⚡雷";
+    if(iconCode.startsWith("13")) return "❄️雪";
+    return "🌫️";
 }
 
-async function executeLocationSearch(e,t=!1){try{const n=`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(e)}&count=1&language=ja`,c=await fetch(n),r=await c.json();if(r.results&&r.results.length>0){const o=r.results[0],s=(o.admin1?o.admin1:"")+o.name;if(!t&&!confirm(`「 ${s} 」を取得しました。\nこの場所で間違いありませんか？`)) return!1;currentLat=o.latitude,currentLon=o.longitude,currentName=s,localStorage.setItem("saved_wbgt_location",e);const i=window.location.protocol+"//"+window.location.host+window.location.pathname+`?name=${encodeURIComponent(e)}`;return window.history.replaceState({path:i},"",i),await updateDashboard(),!0}return alert(`「${e}」が見つかりませんでした。正しい地域名を入力してください。`),!1}catch(s){return alert("通信エラーが発生しました。"),!1}}
-async function panelSearch(){const e=document.getElementById("panel-search-input").value.trim();e&&(await executeLocationSearch(e,!1))&&(document.getElementById("panel-search-input").value="")}
-function initSystem(){const e=new URLSearchParams(window.location.search).get("name"),t=localStorage.getItem("saved_wbgt_location");e?executeLocationSearch(e,!0):t?executeLocationSearch(t,!0):alert("地域が指定されていません。トップページから検索してください。")}
-document.getElementById("panel-search-input").addEventListener("keypress",function(e){"Enter"===e.key&&panelSearch()}),initSystem(),setInterval(updateDashboard,600000);
+function getWbgtLevel(wbgt) {
+    const val = parseFloat(wbgt);
+    if(val >= 31) return {color: "#e74c3c", text: "危険（運動中止）"};
+    if(val >= 28) return {color: "#e67e22", text: "厳重警戒"};
+    if(val >= 25) return {color: "#f1c40f", text: "警戒"};
+    if(val >= 21) return {color: "#3498db", text: "注意"};
+    return {color: "#2ecc71", text: "ほぼ安全"};
+}
+
+function calcWbgt(temp, humidity) {
+    return 0.725 * temp + 0.0368 * humidity + 0.00315 * temp * humidity - 3.2;
+}
+
+// 💡 別フォルダの api.html から飛んできた電波をキャッチする設定
+const syncChannel = new BroadcastChannel('weather_sync_channel');
+syncChannel.onmessage = function(event) {
+    const weatherData = event.data;
+    if (weatherData && weatherData.current) {
+        renderWbgt(weatherData);
+    }
+};
+
+function renderWbgt(weatherData) {
+    const urlParams = new URLSearchParams(window.location.search);
+    let cityName = decodeURIComponent(urlParams.get('mytown') || '東京').trim();
+    document.getElementById("location-title").innerText = `${cityName}のWBGT`;
+
+    const current = weatherData.current;
+    const temp = current.main.temp;
+    const humidity = current.main.humidity;
+    const windSpeed = current.wind.speed;
+    const weatherDesc = current.weather[0].description;
+    const iconCode = current.weather[0].icon;
+
+    const wbgtVal = calcWbgt(temp, humidity).toFixed(1);
+    const level = getWbgtLevel(wbgtVal);
+
+    document.getElementById("weather-text").innerText = getWeatherEmoji(iconCode);
+    const numDiv = document.getElementById("wbgt-num");
+    numDiv.innerText = wbgtVal;
+    numDiv.style.setProperty("font-size", "31.5vh", "important");
+
+    document.getElementById("wbgt-card").style.backgroundColor = level.color;
+    document.getElementById("wbgt-status").innerText = level.text;
+
+    document.getElementById("cur-temp").innerText = `${temp.toFixed(1)}℃`;
+    document.getElementById("cur-humidity").innerText = `${humidity}%`;
+    document.getElementById("cur-wind").innerText = `${windSpeed.toFixed(1)}m/s`;
+    document.getElementById("cur-desc").innerText = weatherDesc;
+
+    const syncDate = new Date(weatherData.timestamp);
+    document.getElementById("update-time").innerText = `天気同期時刻: ${syncDate.getHours()}:${String(syncDate.getMinutes()).padStart(2, '0')} (別フォルダ同期成功)`;
+}
 </script>
 </body>
 </html>
