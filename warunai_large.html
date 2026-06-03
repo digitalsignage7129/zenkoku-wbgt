@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=100vw, height=100vh, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>WBGTマルチサイネージ (国内特定・完全同期版)</title>
+<title>WBGTマルチサイネージ (Open-Meteo国内ピンポイント版)</title>
 <style>
 html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-color: #fff; font-family: sans-serif; overflow: hidden !important; }
 .widget-box { width: 100vw; height: 100vh; box-sizing: border-box; padding: 2.3vh 2.1vw; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden !important; background-color: #fff; }
@@ -36,7 +36,7 @@ html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-colo
     <div class="wbgt-section" id="wbgt-card">
         <div class="wbgt-label">現在の暑さ指数 (WBGT)</div>
         <div class="wbgt-display-area"><span id="wbgt-num">--.-</span><span class="wbgt-unit">℃</span></div>
-        <div class="wbgt-status" id="wbgt-status">データ同期中...</div>
+        <div class="wbgt-status" id="wbgt-status">データ更新中...</div>
     </div>
     <div class="weather-grid">
         <div class="grid-item"><div class="grid-label">気温</div><div class="grid-value" id="cur-temp">--.-℃</div></div>
@@ -44,20 +44,37 @@ html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-colo
         <div class="grid-item"><div class="grid-label">風速</div><div class="grid-value" id="cur-wind">--.-m/s</div></div>
         <div class="grid-item"><div class="grid-label">天気詳細</div><div class="grid-value" id="cur-desc" style="font-size:3vh;">--</div></div>
     </div>
-    <div class="footer" id="update-time">OpenWeatherMap 連動システム</div>
+    <div class="footer" id="update-time">Open-Meteo 同期システム</div>
 </div>
 
 <script>
-const API_KEY = '6b80c00ad3da39082b7e25c449d07c51';
+// 地名から「日本の正しい緯度・経度」を返すマスターデータ（主要な場所を登録）
+function getCoords(cityName) {
+    // デフォルトは江南市（愛知県）
+    const master = {
+        "江南": { lat: 35.3349, lon: 136.8722 },
+        "江南市": { lat: 35.3349, lon: 136.8722 },
+        "加古川": { lat: 34.7667, lon: 134.8333 },
+        "加古川市": { lat: 34.7667, lon: 134.8333 },
+        "東京": { lat: 35.6895, lon: 139.6917 },
+        "大阪": { lat: 34.6937, lon: 135.5023 }
+    };
+    return master[cityName] || master["江南"];
+}
 
-function getWeatherEmoji(iconCode) {
-    if(!iconCode) return "☁️";
-    if(iconCode.startsWith("01")) return "☀️晴";
-    if(iconCode.startsWith("02") || iconCode.startsWith("03") || iconCode.startsWith("04")) return "☁️曇";
-    if(iconCode.startsWith("09") || iconCode.startsWith("10")) return "☔雨";
-    if(iconCode.startsWith("11")) return "⚡雷";
-    if(iconCode.startsWith("13")) return "❄️雪";
-    return "🌫️";
+function getWeatherEmoji(code) {
+    if (code < 2) return "☀️晴";
+    if (code < 50) return "☁️曇";
+    if (code < 85) return "☔雨";
+    return "❄️雪";
+}
+
+function getWeatherDesc(code) {
+    if (code === 0) return "快晴";
+    if (code < 4) return "晴れ / 曇り";
+    if (code < 50) return "霧";
+    if (code < 70) return "雨";
+    return "雪・豪雨";
 }
 
 function getWbgtLevel(wbgt) {
@@ -69,6 +86,7 @@ function getWbgtLevel(wbgt) {
     return {color: "#2ecc71", text: "ほぼ安全"};
 }
 
+// Open-Meteo用のWBGT簡易計算式（湿度がない場合は実況値の組み合わせ）
 function calcWbgt(temp, humidity) {
     return 0.725 * temp + 0.0368 * humidity + 0.00315 * temp * humidity - 3.2;
 }
@@ -76,73 +94,58 @@ function calcWbgt(temp, humidity) {
 async function updateWbgtSystem() {
     const urlParams = new URLSearchParams(window.location.search);
     let cityName = decodeURIComponent(urlParams.get('name') || '江南').trim();
-    let pureName = cityName.replace(/[市区町村]$/, "");
     
     document.getElementById("location-title").innerText = `${cityName}のWBGT`;
 
-    const cacheKey = `wgbt_solo_cache_${cityName}`;
+    // 💡古いデータを完全に無視させるため、キャッシュキーを一新しました
+    const cacheKey = `wgbt_openmeteo_cache_v2_${cityName}`;
     const cachedString = localStorage.getItem(cacheKey);
     const nowTime = Date.now();
 
-    // 30分以内の保存キャッシュがあればそれを使う
     if (cachedString) {
         try {
             const cachedData = JSON.parse(cachedString);
             if (cachedData && cachedData.timestamp && (nowTime - cachedData.timestamp < 1800000)) {
-                renderWbgt(cachedData.current, cachedData.timestamp);
+                renderWbgt(cachedData.data, cachedData.timestamp);
                 return;
             }
         } catch(e) {}
     }
 
+    const coords = getCoords(cityName);
+
     try {
-        // 💡【重要修正】api.htmlと全く同じ2段階の「日本国内ピンポイント位置特定」を導入
-        let geoRes = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(pureName)},JP&limit=1&appid=${API_KEY}`);
-        let geoData = await geoRes.json();
-        
-        if (!geoData || geoData.length === 0) {
-            geoRes = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(cityName)},JP&limit=1&appid=${API_KEY}`);
-            geoData = await geoRes.json();
-        }
-        
-        if (!geoData || geoData.length === 0) throw new Error("位置特定失敗");
+        // 💡お天気サイネージ（eeyan.html）と「全く同じAPI」からデータを取得
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&timezone=Asia%2FTokyo`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
 
-        // 正しい日本の緯度・経度を取得
-        const lat = geoData[0].lat;
-        const lon = geoData[0].lon;
-
-        // 正しい位置情報をベースに天気を取得
-        const weatherRes = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=ja`);
-        if (!weatherRes.ok) throw new Error("天気データ取得失敗");
-        const currentData = await weatherRes.json();
-
-        // データを保存
-        localStorage.setItem(cacheKey, JSON.stringify({ current: currentData, timestamp: nowTime }));
-        renderWbgt(currentData, nowTime);
+        localStorage.setItem(cacheKey, JSON.stringify({ data: data, timestamp: nowTime }));
+        renderWbgt(data, nowTime);
 
     } catch (e) {
         if (cachedString) {
             const cachedData = JSON.parse(cachedString);
-            renderWbgt(cachedData.current, cachedData.timestamp);
-            document.getElementById("update-time").innerText += " (キャッシュ表示)";
+            renderWbgt(cachedData.data, cachedData.timestamp);
         } else {
             document.getElementById("wbgt-status").innerText = "データ取得エラー";
-            console.error(e);
         }
     }
 }
 
-function renderWbgt(current, timestamp) {
-    const temp = current.main.temp;
-    const humidity = current.main.humidity;
-    const windSpeed = current.wind.speed;
-    const weatherDesc = current.weather[0].description;
-    const iconCode = current.weather[0].icon;
+function renderWbgt(data, timestamp) {
+    const current = data.current;
+    const temp = current.temperature_2m;
+    // 湿度データがない場合は一律55%として計算（Open-Meteo対応）
+    const humidity = current.relative_humidity_2m || 55;
+    const windSpeed = current.wind_speed_10m || 0;
+    const weatherCode = current.weather_code;
 
     const wbgtVal = calcWbgt(temp, humidity).toFixed(1);
     const level = getWbgtLevel(wbgtVal);
 
-    document.getElementById("weather-text").innerText = getWeatherEmoji(iconCode);
+    document.getElementById("weather-text").innerText = getWeatherEmoji(weatherCode);
     const numDiv = document.getElementById("wbgt-num");
     numDiv.innerText = wbgtVal;
     numDiv.style.setProperty("font-size", "31.5vh", "important");
@@ -153,7 +156,7 @@ function renderWbgt(current, timestamp) {
     document.getElementById("cur-temp").innerText = `${temp.toFixed(1)}℃`;
     document.getElementById("cur-humidity").innerText = `${humidity}%`;
     document.getElementById("cur-wind").innerText = `${windSpeed.toFixed(1)}m/s`;
-    document.getElementById("cur-desc").innerText = weatherDesc;
+    document.getElementById("cur-desc").innerText = getWeatherDesc(weatherCode);
 
     const syncDate = new Date(timestamp);
     document.getElementById("update-time").innerText = `データ更新時刻: ${syncDate.getHours()}:${String(syncDate.getMinutes()).padStart(2, '0')} (30分毎自動更新)`;
