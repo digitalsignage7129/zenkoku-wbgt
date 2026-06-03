@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>WBGTマルチサイネージシステム (表示選択)</title>
+<style>
+html,body{margin:0;padding:0;width:100vw;height:100vh;background:linear-gradient(135deg,#1a202c 0%,#2d3748 100%);font-family:'Helvetica Neue',Arial,sans-serif;display:flex;justify-content:center;align-items:center;overflow:hidden;}
+.start-box{text-align:center;background:rgba(255,255,255,.1);padding:50px;border-radius:24px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);box-shadow:0 20px 50px rgba(0,0,0,.3);width:500px;}
+.start-box h2{font-size:32px;margin:0 0 10px 0;font-weight:900;color:#fff;}
+.start-box p{font-size:16px;color:#cbd5e0;margin:0 0 30px 0;}
+.search-form{display:flex;gap:10px;margin-bottom:20px;}
+.start-input{flex:1;font-size:18px;padding:12px 20px;border:none;border-radius:50px;font-weight:bold;outline:none;}
+.start-btn{font-size:18px;padding:12px 30px;background:#3182ce;color:#fff;border:none;border-radius:50px;font-weight:bold;cursor:pointer;box-shadow:0 5px 15px rgba(49,130,206,.4);}
+#mode-select-area { display: none; margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 25px; }
+.mode-title { color: #fff; font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+.btn-group { display: flex; gap: 15px; justify-content: center; }
+.mode-btn { flex: 1; padding: 15px; font-size: 16px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; color: #fff; transition: transform 0.1s; }
+.mode-btn:active { transform: scale(0.98); }
+.btn-large { background: #e67e22; box-shadow: 0 4px 12px rgba(230,126,34,0.4); }
+.btn-small { background: #2ecc71; box-shadow: 0 4px 12px rgba(46,204,113,0.4); }
+#start-error{color:#fc8181;margin-top:15px;font-weight:bold;}
+</style>
+</head>
+<body>
+
+<div class="start-box">
+    <h2>WBGT MONITOR SYSTEM</h2>
+    <p>設置する地域、または現場名を入力してください</p>
+    <div class="search-form">
+        <input type="text" id="start-input" class="start-input" placeholder="例：加古川市、舞洲、和歌山...">
+        <button onclick="searchLocation()" class="start-btn">検索</button>
+    </div>
+    <div id="start-error"></div>
+
+    <div id="mode-select-area">
+        <div class="mode-title" id="target-location-text"></div>
+        <div class="btn-group">
+            <button onclick="goToMonitor('large')" class="mode-btn btn-large">🖥️ 大画面版<br>(1920x1080)</button>
+            <button onclick="goToMonitor('small')" class="mode-btn btn-small">📱 小画面版<br>(従来レイアウト)</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let encodedName = "";
+
+async function searchLocation(){
+    const input = document.getElementById("start-input").value.trim();
+    const errorDiv = document.getElementById("start-error");
+    const modeArea = document.getElementById("mode-select-area");
+    
+    if(!input) return;
+    errorDiv.innerText = "位置を検索中...";
+    modeArea.style.display = "none";
+
+    try{
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(input)}&count=1&language=ja`;
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if(data.results && data.results.length > 0){
+            const resName = (data.results[0].admin1 ? data.results[0].admin1 : "") + data.results[0].name;
+            encodedName = encodeURIComponent(input); // 検索文字を保存
+            
+            errorDiv.innerText = "";
+            document.getElementById("target-location-text").innerText = `「${resName}」のモニターを起動します。`;
+            modeArea.style.display = "block"; // 枝分かれボタンを表示
+        } else {
+            errorDiv.innerText = `「${input}」が見つかりませんでした。`;
+        }
+    }catch(e){
+        errorDiv.innerText = "通信エラーが発生しました。";
+    }
+}
+
+function goToMonitor(mode) {
+    if(!encodedName) return;
+    if(mode === 'large') {
+        // 大画面版（新設）へ遷移
+        window.location.href = `warunai_large.html?name=${encodedName}`;
+    } else {
+        // 小画面版（既存のeeyan.html）へ遷移
+        window.location.href = `eeyan.html?name=${encodedName}`;
+    }
+}
+
+document.getElementById("start-input").addEventListener("keypress", function(e){
+    if(e.key === "Enter") searchLocation();
+});
+</script>
+</body>
+</html>
