@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=100vw, height=100vh, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>WBGTマルチサイネージ (単体一発起動版)</title>
+<title>WBGTマルチサイネージ (既存URL完全互換版)</title>
 <style>
 html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-color: #fff; font-family: sans-serif; overflow: hidden !important; }
 .widget-box { width: 100vw; height: 100vh; box-sizing: border-box; padding: 2.3vh 2.1vw; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden !important; background-color: #fff; }
@@ -44,11 +44,11 @@ html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-colo
         <div class="grid-item"><div class="grid-label">風速</div><div class="grid-value" id="cur-wind">--.-m/s</div></div>
         <div class="grid-item"><div class="grid-label">天気詳細</div><div class="grid-value" id="cur-desc" style="font-size:3vh;">--</div></div>
     </div>
-    <div class="footer" id="update-time">Open-Meteo 独立計算システム</div>
+    <div class="footer" id="update-time">Open-Meteo 同一ソース同期システム</div>
 </div>
 
 <script>
-// 💡【解決の鍵】Open-Meteoで国内の主要現場を100%特定するための、正確な緯度経度マスター
+// 👑【解決の核心】お天気版側のシステムと1ミリのズレもない、厳密な緯度経度マスター
 function getCoords(cityName) {
     const pure = cityName.replace(/[市区町村]$/, "").trim();
     const master = {
@@ -60,15 +60,10 @@ function getCoords(cityName) {
         "東京": { lat: 35.6895, lon: 139.6917 },
         "名古屋": { lat: 35.1814, lon: 136.9064 }
     };
-    // リストにない新規現場が追加された場合、自動でOpenWeather経由で座標を割り出すバックアップ付き
     return master[pure] || null;
 }
 
-function getWeatherEmoji(code) {
-    if (code < 2) return "☀️晴";
-    if (code < 50) return "☁️曇";
-    return "☔雨";
-}
+const icon = (c) => c < 2 ? "☀️晴" : (c < 50 ? "☁️曇" : "☔雨");
 
 function getWeatherDesc(code) {
     if (code === 0) return "快晴";
@@ -96,24 +91,9 @@ async function updateWbgtSystem() {
     
     document.getElementById("location-title").innerText = `${cityName}のWBGT`;
 
-    // 30分間は無駄な通信をしないキャッシュ機構（Magic Playerのリロード対策）
-    const cacheKey = `wbgt_standalone_cache_${cityName}`;
-    const cachedString = localStorage.getItem(cacheKey);
-    const nowTime = Date.now();
-
-    if (cachedString) {
-        try {
-            const cachedData = JSON.parse(cachedString);
-            if (cachedData && cachedData.timestamp && (nowTime - cachedData.timestamp < 1800000)) {
-                renderWbgt(cachedData.data, cachedData.timestamp);
-                return;
-            }
-        } catch(e) {}
-    }
-
     let coords = getCoords(cityName);
     
-    // もしマスターにない地名が来たら、自動でネット検索して位置を特定する（予備機能）
+    // バックアップ用（マスターにない場合のみ自動割り出し）
     if (!coords) {
         try {
             const geoRes = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(cityName)},JP&limit=1&appid=6b80c00ad3da39082b7e25c449d07c51`);
@@ -121,62 +101,52 @@ async function updateWbgtSystem() {
             if (geoData && geoData.length > 0) {
                 coords = { lat: geoData[0].lat, lon: geoData[0].lon };
             }
-        } catch (e) { console.error("地名検索エラー", e); }
+        } catch (e) { console.error(e); }
     }
 
-    // どうしても場所がわからない時はデフォルトで江南市にする
     if (!coords) coords = { lat: 35.3349, lon: 136.8722 };
 
     try {
-        // 💡【完全自立】お天気画面を頼らず、自分で直接Open-Meteoからピンポイントデータを取得！
+        // ⭐【シンプル解決】お天気版と完全に同じ通信リクエスト（30分キャッシュは全面廃止）
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&timezone=Asia%2FTokyo`;
         const res = await fetch(url);
         if (!res.ok) throw new Error();
         const data = await res.json();
 
-        localStorage.setItem(cacheKey, JSON.stringify({ data: data, timestamp: nowTime }));
-        renderWbgt(data, nowTime);
+        const current = data.current;
+        const temp = current.temperature_2m;
+        const humidity = current.relative_humidity_2m || 50;
+        const windSpeed = current.wind_speed_10m || 0;
+        const weatherCode = current.weather_code;
+
+        const wbgtVal = calcWbgt(temp, humidity).toFixed(1);
+        const level = getWbgtLevel(wbgtVal);
+
+        document.getElementById("weather-text").innerText = icon(weatherCode);
+        const numDiv = document.getElementById("wbgt-num");
+        numDiv.innerText = wbgtVal;
+        numDiv.style.setProperty("font-size", "31.5vh", "important");
+
+        document.getElementById("wbgt-card").style.backgroundColor = level.color;
+        document.getElementById("wbgt-status").innerText = level.text;
+
+        document.getElementById("cur-temp").innerText = `${temp.toFixed(1)}℃`;
+        document.getElementById("cur-humidity").innerText = `${humidity}%`;
+        document.getElementById("cur-wind").innerText = `${windSpeed.toFixed(1)}m/s`;
+        document.getElementById("cur-desc").innerText = getWeatherDesc(weatherCode);
+
+        const now = new Date();
+        document.getElementById("update-time").innerText = `最終更新時刻: ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')} (自動更新中)`;
 
     } catch (e) {
-        if (cachedString) {
-            const cachedData = JSON.parse(cachedString);
-            renderWbgt(cachedData.data, cachedData.timestamp);
-        } else {
-            document.getElementById("wbgt-status").innerText = "データ取得エラー";
-        }
+        document.getElementById("wbgt-status").innerText = "データ取得エラー";
     }
 }
 
-function renderWbgt(data, timestamp) {
-    const current = data.current;
-    const temp = current.temperature_2m;
-    const humidity = current.relative_humidity_2m || 50;
-    const windSpeed = current.wind_speed_10m || 0;
-    const weatherCode = current.weather_code;
-
-    // 天気サイネージと同じ温度ベースでWBGTを精密計算
-    const wbgtVal = calcWbgt(temp, humidity).toFixed(1);
-    const level = getWbgtLevel(wbgtVal);
-
-    document.getElementById("weather-text").innerText = getWeatherEmoji(weatherCode);
-    const numDiv = document.getElementById("wbgt-num");
-    numDiv.innerText = wbgtVal;
-    numDiv.style.setProperty("font-size", "31.5vh", "important");
-
-    document.getElementById("wbgt-card").style.backgroundColor = level.color;
-    document.getElementById("wbgt-status").innerText = level.text;
-
-    document.getElementById("cur-temp").innerText = `${temp.toFixed(1)}℃`;
-    document.getElementById("cur-humidity").innerText = `${humidity}%`;
-    document.getElementById("cur-wind").innerText = `${windSpeed.toFixed(1)}m/s`;
-    document.getElementById("cur-desc").innerText = getWeatherDesc(weatherCode);
-
-    const syncDate = new Date(timestamp);
-    document.getElementById("update-time").innerText = `データ更新時刻: ${syncDate.getHours()}:${String(syncDate.getMinutes()).padStart(2, '0')} (30分毎自動更新)`;
-}
-
+// 起動時に実行
 updateWbgtSystem();
-setInterval(updateWbgtSystem, 1800000); // 30分毎
+// 3分ごとにお天気版と同じ最新のOpen-Meteoのデータを直接取りに行く
+setInterval(updateWbgtSystem, 180000);
 </script>
 </body>
 </html>
