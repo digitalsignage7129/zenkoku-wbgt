@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=100vw, height=100vh, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>WBGTマルチサイネージ (既存URL完全互換版)</title>
+<title>WBGTマルチサイネージ (ポータル完全互換・独立型)</title>
 <style>
 html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-color: #fff; font-family: sans-serif; overflow: hidden !important; }
 .widget-box { width: 100vw; height: 100vh; box-sizing: border-box; padding: 2.3vh 2.1vw; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden !important; background-color: #fff; }
@@ -36,7 +36,7 @@ html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-colo
     <div class="wbgt-section" id="wbgt-card">
         <div class="wbgt-label">現在の暑さ指数 (WBGT)</div>
         <div class="wbgt-display-area"><span id="wbgt-num">--.-</span><span class="wbgt-unit">℃</span></div>
-        <div class="wbgt-status" id="wbgt-status">データ取得中...</div>
+        <div class="wbgt-status" id="wbgt-status">位置検索中...</div>
     </div>
     <div class="weather-grid">
         <div class="grid-item"><div class="grid-label">気温</div><div class="grid-value" id="cur-temp">--.-℃</div></div>
@@ -44,25 +44,10 @@ html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-colo
         <div class="grid-item"><div class="grid-label">風速</div><div class="grid-value" id="cur-wind">--.-m/s</div></div>
         <div class="grid-item"><div class="grid-label">天気詳細</div><div class="grid-value" id="cur-desc" style="font-size:3vh;">--</div></div>
     </div>
-    <div class="footer" id="update-time">Open-Meteo 同一ソース同期システム</div>
+    <div class="footer" id="update-time">Open-Meteo 独立分散同期システム</div>
 </div>
 
 <script>
-// 👑【解決の核心】お天気版側のシステムと1ミリのズレもない、厳密な緯度経度マスター
-function getCoords(cityName) {
-    const pure = cityName.replace(/[市区町村]$/, "").trim();
-    const master = {
-        "江南": { lat: 35.3349, lon: 136.8722 },
-        "名護": { lat: 26.5915, lon: 127.9774 },
-        "加古川": { lat: 34.7667, lon: 134.8333 },
-        "舞洲": { lat: 34.6661, lon: 135.3956 },
-        "大阪": { lat: 34.6937, lon: 135.5023 },
-        "東京": { lat: 35.6895, lon: 139.6917 },
-        "名古屋": { lat: 35.1814, lon: 136.9064 }
-    };
-    return master[pure] || null;
-}
-
 const icon = (c) => c < 2 ? "☀️晴" : (c < 50 ? "☁️曇" : "☔雨");
 
 function getWeatherDesc(code) {
@@ -85,29 +70,50 @@ function calcWbgt(temp, humidity) {
     return 0.725 * temp + 0.0368 * humidity + 0.00315 * temp * humidity - 3.2;
 }
 
+// 👑【今回の核心】ポータル画面と「100%同じロジック」でOpen-Meteoから座標を引く
+async function getExactCoords(cityName) {
+    // 既存の固定マスター（これとお天気版が合致していれば優先）
+    const master = {
+        "江南": { lat: 35.3349, lon: 136.8722 },
+        "名護": { lat: 26.5915, lon: 127.9774 },
+        "加古川": { lat: 34.7667, lon: 134.8333 },
+        "舞洲": { lat: 34.6661, lon: 135.3956 },
+        "大阪": { lat: 34.6937, lon: 135.5023 },
+        "東京": { lat: 35.6895, lon: 139.6917 },
+        "名古屋": { lat: 35.1814, lon: 136.9064 }
+    };
+    
+    const pure = cityName.replace(/[市区町村]$/, "").trim();
+    if (master[pure]) return master[pure];
+
+    // ⭐マスターにない地名の場合、ポータル画面（検索コード）と「完全に同じAPI」を叩いて座標を逆算する
+    try {
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=ja`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.results && data.results.length > 0) {
+            return { lat: data.results[0].latitude, lon: data.results[0].longitude };
+        }
+    } catch (e) {
+        console.error("位置検索エラー", e);
+    }
+    return null;
+}
+
 async function updateWbgtSystem() {
     const urlParams = new URLSearchParams(window.location.search);
     let cityName = decodeURIComponent(urlParams.get('name') || '江南').trim();
     
     document.getElementById("location-title").innerText = `${cityName}のWBGT`;
 
-    let coords = getCoords(cityName);
-    
-    // バックアップ用（マスターにない場合のみ自動割り出し）
-    if (!coords) {
-        try {
-            const geoRes = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(cityName)},JP&limit=1&appid=6b80c00ad3da39082b7e25c449d07c51`);
-            const geoData = await geoRes.json();
-            if (geoData && geoData.length > 0) {
-                coords = { lat: geoData[0].lat, lon: geoData[0].lon };
-            }
-        } catch (e) { console.error(e); }
-    }
+    // ポータルと全く同じ方法で座標を特定（これでズレの根本原因を粉砕します）
+    let coords = await getExactCoords(cityName);
 
+    // どうしても取得できない場合のセーフティ
     if (!coords) coords = { lat: 35.3349, lon: 136.8722 };
 
     try {
-        // ⭐【シンプル解決】お天気版と完全に同じ通信リクエスト（30分キャッシュは全面廃止）
+        // お天気版と同じく、リアルタイムに直接Open-Meteoを叩く（30分キャッシュは無し）
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&timezone=Asia%2FTokyo`;
         const res = await fetch(url);
         if (!res.ok) throw new Error();
@@ -136,16 +142,15 @@ async function updateWbgtSystem() {
         document.getElementById("cur-desc").innerText = getWeatherDesc(weatherCode);
 
         const now = new Date();
-        document.getElementById("update-time").innerText = `最終更新時刻: ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')} (自動更新中)`;
+        document.getElementById("update-time").innerText = `最終更新: ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
 
     } catch (e) {
         document.getElementById("wbgt-status").innerText = "データ取得エラー";
     }
 }
 
-// 起動時に実行
+// 起動＆3分ごとに更新
 updateWbgtSystem();
-// 3分ごとにお天気版と同じ最新のOpen-Meteoのデータを直接取りに行く
 setInterval(updateWbgtSystem, 180000);
 </script>
 </body>
