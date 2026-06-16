@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>WBGTマルチサイネージシステム (黒背景・バグ修正版)</title>
+<title>WBGTマルチサイネージシステム (黒背景・エラー修復版)</title>
 <style>
 /* 全体を真っ黒に固定、文字を白に */
 html,body{margin:0;padding:0;width:100vw;height:100vh;background-color:#000000;font-family:'Helvetica Neue',Arial,sans-serif;overflow:hidden!important;color:#ffffff;}
@@ -91,7 +91,6 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;background-color:#000000;f
 </div>
 
 <script>
-// 修正：元の変数の定義方法（マスターなし）に完全に差し戻しました
 let currentLat=null,currentLon=null,currentName="";
 function getWeatherText(e){return 0===e?"☀️晴":1===e||2===e||3===e?"⛅晴曇":45===e||48===e?"🌫️霧":51===e||53===e||55===e?"🌧️小雨":61===e||63===e||65===e?"☔雨":71===e||73===e||75===e?"❄️雪":80===e||81===e||82===e?"🌦️雨":95===e||96===e?"⚡雷雨":"☁️曇"}
 
@@ -123,7 +122,8 @@ function renderData(e){
     const g=new Date;document.getElementById("update-time").innerText=`同期: ${g.getMonth()+1}/${g.getDate()} ${g.getHours()}:${String(g.getMinutes()).padStart(2,"0")}`
 }
 
-async function executeLocationSearch(e,t=!1){try{const n=`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(e)}&count=1&language=ja`,c=await fetch(n),r=await r.json();if(r.results&&r.results.length > 0){const o=r.results[0],s=(o.admin1?o.admin1:"")+o.name;if(!t&&!confirm(`「 ${s} 」を取得しました。\nこの場所で間違いありませんか？`))return!1;currentLat=o.latitude,currentLon=o.longitude,currentName=s,localStorage.setItem("saved_wbgt_location",e);const i=window.location.protocol+"//"+window.location.host+window.location.pathname+`?name=${encodeURIComponent(e)}`;return window.history.replaceState({path:i},"",i),document.getElementById("start-screen").style.display="none",await updateDashboard(),!0}return alert(`「${e}」が見つかりませんでした。正しい地域名を入力してください。`),!1}catch(s){return alert("通信エラーが発生しました。"),!1}}
+// 👑【修正箇所】タイポを修復しました（r.json() -> c.json()）
+async function executeLocationSearch(e,t=!1){try{const n=`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(e)}&count=1&language=ja`,c=await fetch(n),r=await c.json();if(r.results&&r.results.length>0){const o=r.results[0],s=(o.admin1?o.admin1:"")+o.name;if(!t&&!confirm(`「 ${s} 」を取得しました。\nこの場所で間違いありませんか？`))return!1;currentLat=o.latitude,currentLon=o.longitude,currentName=s,localStorage.setItem("saved_wbgt_location",e);const i=window.location.protocol+"//"+window.location.host+window.location.pathname+`?name=${encodeURIComponent(e)}`;return window.history.replaceState({path:i},"",i),document.getElementById("start-screen").style.display="none",await updateDashboard(),!0}return alert(`「${e}」が見つかりませんでした。正しい地域名を入力してください。`),!1}catch(s){return alert("通信エラーが発生しました。"),!1}}
 async function initSearch(){const e=document.getElementById("start-input").value.trim();if(e){document.getElementById("start-error").innerText="位置を検索中...";(await executeLocationSearch(e,!1))||(document.getElementById("start-error").innerText="場所が見つからないか、キャンセルされました。")}}
 async function panelSearch(){const e=document.getElementById("panel-search-input").value.trim();e&&(await executeLocationSearch(e,!1))&&(document.getElementById("panel-search-input").value="")}
 function initSystem(){const e=new URLSearchParams(window.location.search).get("name"),t=localStorage.getItem("saved_wbgt_location");e?executeLocationSearch(e,!0):t?executeLocationSearch(t,!0):document.getElementById("start-screen").style.display="flex"}
