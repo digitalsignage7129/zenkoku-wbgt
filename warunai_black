@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=100vw, height=100vh, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>WBGTマルチサイネージ (大画面・黒背景版)</title>
+<style>
+/* 背景を完全に黒にし、文字を白に固定 */
+html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; background-color: #000000; font-family: sans-serif; overflow: hidden !important; color: #ffffff; }
+.widget-box { width: 100vw; height: 100vh; box-sizing: border-box; padding: 2.3vh 2.1vw; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden !important; background-color: #000000; }
+
+/* ヘッダーの区切り線も暗めにして焼き付き防止 */
+.header { display: flex; justify-content: space-between; align-items: center; border-bottom: 0.46vh solid #2d3748; height: 10.2vh; }
+.header-title-area { display: flex; flex-direction: column; }
+.header h1 { margin: 0; font-size: 3.9vh; color: #ffffff; font-weight: 900; line-height: 1.1; }
+.weather-icon-txt { font-size: 5.1vh; font-weight: 900; color: #63b3ed; }
+
+/* WBGTカード：初期背景を黒ベースに、枠線を太くして視認性をアップ */
+.wbgt-section { background: #000000; color: #ffffff; border: 0.6vh solid #2ecc71; border-radius: 2.2vh; text-align: center; height: 59.2vh; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; padding: 2.8vh 0; box-shadow: 0 0.9vh 2.3vh rgba(0, 0, 0, .5); }
+.wbgt-label { font-size: 3.3vh; font-weight: bold; letter-spacing: 0.1vw; margin: 0; line-height: 1; color: #ffffff; }
+.wbgt-display-area { display: flex; justify-content: center; align-items: flex-end; width: 100%; height: 38.9vh; margin: 0; padding: 0; }
+#wbgt-num { font-weight: 900 !important; line-height: 0.85 !important; letter-spacing: -0.3vw !important; }
+.wbgt-unit { font-size: 8.3vh !important; font-weight: 900 !important; margin-left: 0.8vw; margin-bottom: 3.2vh; color: #ffffff; }
+
+/* ステータス帯：黒背景上で目立つように半透明の黒で引き締め */
+.wbgt-status { font-size: 5.1vh; font-weight: 900; background: rgba(0, 0, 0, .5); padding: 0.9vh 6vw; border-radius: 4.6vh; display: inline-block; align-self: center; letter-spacing: 0.15vw; margin: 0; line-height: 1.2; color: #ffffff; border: 0.2vh solid rgba(255, 255, 255, 0.2); }
+
+/* 下部グリッド：焼き付き対策で背景を深いグレーにし、枠線で区切る */
+.weather-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5vw; height: 16.7vh; }
+.grid-item { background: #1a202c; border: 0.37vh solid #4a5568; border-radius: 1.5vh; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+.grid-label { font-size: 2.4vh; color: #cbd5e0; font-weight: bold; margin-bottom: 0.7vh; }
+.grid-value { font-size: 4.25vh; font-weight: 900; color: #ffffff; line-height: 1; }
+
+.footer { font-size: 1.67vh; color: #718096; text-align: center; border-top: 0.28vh solid #2d3748; height: 3.7vh; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div class="widget-box">
+    <div class="header">
+        <div class="header-title-area">
+            <h1 id="location-title">地域情報</h1>
+        </div>
+        <div id="weather-text" class="weather-icon-txt">--</div>
+    </div>
+    <div class="wbgt-section" id="wbgt-card">
+        <div class="wbgt-label">現在の暑さ指数 (WBGT)</div>
+        <div class="wbgt-display-area"><span id="wbgt-num">--.-</span><span class="wbgt-unit">℃</span></div>
+        <div class="wbgt-status" id="wbgt-status">位置検索中...</div>
+    </div>
+    <div class="weather-grid">
+        <div class="grid-item"><div class="grid-label">気温</div><div class="grid-value" id="cur-temp">--.-℃</div></div>
+        <div class="grid-item"><div class="grid-label">湿度</div><div class="grid-value" id="cur-humidity">--%</div></div>
+        <div class="grid-item"><div class="grid-label">風速</div><div class="grid-value" id="cur-wind">--.-m/s</div></div>
+        <div class="grid-item"><div class="grid-label">天気詳細</div><div class="grid-value" id="cur-desc" style="font-size:3vh;">--</div></div>
+    </div>
+    <div class="footer" id="update-time">Open-Meteo 独立分散同期システム</div>
+</div>
+
+<script>
+const icon = (c) => c < 2 ? "☀️晴" : (c < 50 ? "☁️曇" : "☔雨");
+
+function getWeatherDesc(code) {
+    if (code === 0) return "快晴";
+    if (code < 4) return "晴れ/曇り";
+    if (code < 50) return "霧";
+    return "雨";
+}
+
+// 暗い画面でも警告レベルがハッキリ遠くから識別できる配色
+function getWbgtLevel(wbgt) {
+    const val = parseFloat(wbgt);
+    if(val >= 31) return {color: "#ff3333", text: "危険（運動中止）"}; // より鮮明な赤
+    if(val >= 28) return {color: "#ff9900", text: "厳重警戒"};         // 視認性の高いオレンジ
+    if(val >= 25) return {color: "#ffcc00", text: "警戒"};             // 明るい黄
+    if(val >= 21) return {color: "#3399ff", text: "注意"};             // はっきりした青
+    return {color: "#2ecc71", text: "ほぼ安全"};                       // 安全の緑
+}
+
+function calcWbgt(temp, humidity) {
+    return 0.725 * temp + 0.0368 * humidity + 0.00315 * temp * humidity - 3.2;
+}
+
+async function getExactCoords(cityName) {
+    const master = {
+        "江南": { lat: 35.3349, lon: 136.8722 },
+        "名護": { lat: 26.5915, lon: 127.9774 },
+        "加古川": { lat: 34.7667, lon: 134.8333 },
+        "舞洲": { lat: 34.6661, lon: 135.3956 },
+        "大阪": { lat: 34.6937, lon: 135.5023 },
+        "東京": { lat: 35.6895, lon: 139.6917 },
+        "名古屋": { lat: 35.1814, lon: 136.9064 }
+    };
+    
+    const pure = cityName.replace(/[市区町村]$/, "").trim();
+    if (master[pure]) return master[pure];
+
+    try {
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=ja`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.results && data.results.length > 0) {
+            return { lat: data.results[0].latitude, lon: data.results[0].longitude };
+        }
+    } catch (e) {
+        console.error("位置検索エラー", e);
+    }
+    return null;
+}
+
+async function updateWbgtSystem() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let cityName = decodeURIComponent(urlParams.get('name') || '江南').trim();
+    
+    document.getElementById("location-title").innerText = `${cityName}のWBGT`;
+
+    let coords = await getExactCoords(cityName);
+    if (!coords) coords = { lat: 35.3349, lon: 136.8722 };
+
+    try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&timezone=Asia%2FTokyo`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+
+        const current = data.current;
+        const temp = current.temperature_2m;
+        const humidity = current.relative_humidity_2m || 50;
+        const windSpeed = current.wind_speed_10m || 0;
+        const weatherCode = current.weather_code;
+
+        const wbgtVal = calcWbgt(temp, humidity).toFixed(1);
+        const level = getWbgtLevel(wbgtVal);
+
+        document.getElementById("weather-text").innerText = icon(weatherCode);
+        const numDiv = document.getElementById("wbgt-num");
+        numDiv.innerText = wbgtVal;
+        numDiv.style.setProperty("font-size", "31.5vh", "important");
+
+        // 黒背景での視認性維持のため、カード全体の背景色を変え、さらに太い枠線でもレベルを表現します
+        const card = document.getElementById("wbgt-card");
+        card.style.backgroundColor = level.color;
+        card.style.borderColor = level.color;
+        
+        document.getElementById("wbgt-status").innerText = level.text;
+
+        document.getElementById("cur-temp").innerText = `${temp.toFixed(1)}℃`;
+        document.getElementById("cur-humidity").innerText = `${humidity}%`;
+        document.getElementById("cur-wind").innerText = `${windSpeed.toFixed(1)}m/s`;
+        document.getElementById("cur-desc").innerText = getWeatherDesc(weatherCode);
+
+        const now = new Date();
+        document.getElementById("update-time").innerText = `最終更新: ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    } catch (e) {
+        document.getElementById("wbgt-status").innerText = "データ取得エラー";
+    }
+}
+
+updateWbgtSystem();
+setInterval(updateWbgtSystem, 180000);
+</script>
+</body>
+</html>
