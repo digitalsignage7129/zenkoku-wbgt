@@ -32,8 +32,8 @@ jobs:
 
       - name: Commit and push if data changed
         run: |
-          git config local user.email "github-actions[bot]@users.noreply.github.com"
-          git config local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git add wbgt_data.json
-          # 変更がある場合のみコミット＆プッシュ（[skip ci] で無限ループ防止）
+          # 変更がある場合のみコミット＆プッシュ
           git diff --quiet && git diff --staged --quiet || (git commit -m "auto: Update WBGT and weather data [skip ci]" && git push)
