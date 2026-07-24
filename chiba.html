@@ -14,84 +14,85 @@
     html, body {
       width: 690px;
       height: 730px;
-      overflow: hidden; /* スクロール枠を消して画面ぴったりに固定 */
+      overflow: hidden; /* スクロール絶対防止 */
+      background-color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      color: #0f172a;
     }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
-      background-color: #f1f5f9;
-      color: #0f172a;
+    /* 全体コンテナ (690x730 ぴったりに固定) */
+    .container {
+      width: 690px;
+      height: 730px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      padding: 20px;
+      gap: 12px;
     }
 
-    /* ヘッダーエリア (高さ 約48px) */
+    /* 1. ヘッダーエリア (高さ 36px) */
     .header {
+      height: 36px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 3px solid #cbd5e1;
-      padding-bottom: 10px;
-      height: 48px;
+      border-bottom: 2px solid #cbd5e1;
+      padding-bottom: 6px;
     }
 
     .location-title {
-      font-size: 1.6rem;
+      font-size: 18px;
       font-weight: 800;
       color: #1e293b;
-      letter-spacing: 0.03em;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 430px;
+      max-width: 450px;
     }
 
     .update-time {
-      font-size: 1.1rem;
+      font-size: 13px;
       font-weight: 700;
       color: #64748b;
       white-space: nowrap;
     }
 
-    /* メインセクション: WBGT & 警戒度 (高さ 390px) */
+    /* 2. メイン表示: WBGT & 警戒度 (残り高さを可変で自動占有) */
     .main-section {
+      flex: 1;
       display: grid;
-      grid-template-columns: 1.1fr 1fr;
-      gap: 16px;
-      height: 390px;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      min-height: 0; /* 溢れ防止 */
     }
 
     .wbgt-box {
       background: #ffffff;
-      border: 3px solid #cbd5e1;
-      border-radius: 20px;
-      padding: 20px 12px;
-      text-align: center;
+      border: 2px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 16px 8px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
     }
 
     .wbgt-label {
-      font-size: 1.4rem;
+      font-size: 16px;
       font-weight: 800;
       color: #475569;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
 
     .wbgt-value-wrap {
       display: flex;
-      justify-content: center;
       align-items: baseline;
       gap: 4px;
     }
 
     .wbgt-value {
-      font-size: 6.5rem;
+      font-size: 76px;
       font-weight: 900;
       line-height: 1;
       color: #0f172a;
@@ -99,79 +100,78 @@
     }
 
     .wbgt-unit {
-      font-size: 2.2rem;
+      font-size: 24px;
       font-weight: 800;
       color: #475569;
     }
 
     /* 警戒度バナー */
     .level-banner {
-      height: 100%;
+      border-radius: 16px;
+      padding: 16px 8px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      border-radius: 20px;
-      padding: 20px 12px;
       text-align: center;
-      box-shadow: 0 8px 16px -2px rgba(0, 0, 0, 0.1);
-      transition: all 0.5s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.06);
+      transition: background-color 0.3s;
     }
 
     .level-sub {
-      font-size: 1.3rem;
+      font-size: 15px;
       font-weight: 800;
-      opacity: 0.95;
-      margin-bottom: 8px;
-      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+      opacity: 0.9;
+      letter-spacing: 0.05em;
     }
 
     .level-text {
-      font-size: 3.5rem;
+      font-size: 42px; /* 厳重警戒でも折り返さない絶妙なサイズ */
       font-weight: 900;
-      letter-spacing: 0.08em;
-      line-height: 1.15;
-      word-break: keep-all;
+      line-height: 1.1;
+      white-space: nowrap;
+      letter-spacing: 0.05em;
     }
 
-    /* サブ気象情報 4列カード (高さ 180px) */
+    /* 3. サブ気象情報 4列カード (高さ 130px) */
     .metrics-grid {
+      height: 130px;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      height: 180px;
+      gap: 10px;
     }
 
     .metric-card {
       background: #ffffff;
-      border: 3px solid #cbd5e1;
-      border-radius: 18px;
-      padding: 12px 6px;
-      text-align: center;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 10px 4px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
     }
 
     .metric-label {
-      font-size: 1.1rem;
+      font-size: 13px;
       font-weight: 800;
       color: #475569;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .metric-value {
-      font-size: 2.4rem;
+      font-size: 26px;
       font-weight: 900;
       color: #0f172a;
       font-variant-numeric: tabular-nums;
       line-height: 1;
+      white-space: nowrap;
     }
 
     .metric-unit {
-      font-size: 1.1rem;
+      font-size: 13px;
       font-weight: 800;
       color: #64748b;
       margin-left: 2px;
@@ -187,48 +187,50 @@
 </head>
 <body>
 
-  <!-- ヘッダー -->
-  <div class="header">
-    <div class="location-title" id="location">---</div>
-    <div class="update-time">更新: <span id="updated-at">--:--</span></div>
-  </div>
+  <div class="container">
+    <!-- ヘッダー -->
+    <div class="header">
+      <div class="location-title" id="location">---</div>
+      <div class="update-time">更新: <span id="updated-at">--:--</span></div>
+    </div>
 
-  <!-- メイン表示: WBGT & 警戒度 -->
-  <div class="main-section">
-    <div class="wbgt-box">
-      <div class="wbgt-label">暑さ指数 (WBGT)</div>
-      <div class="wbgt-value-wrap">
-        <span class="wbgt-value" id="wbgt">--.-</span>
-        <span class="wbgt-unit">℃</span>
+    <!-- メイン表示: WBGT & 警戒度 -->
+    <div class="main-section">
+      <div class="wbgt-box">
+        <div class="wbgt-label">暑さ指数 (WBGT)</div>
+        <div class="wbgt-value-wrap">
+          <span class="wbgt-value" id="wbgt">--.-</span>
+          <span class="wbgt-unit">℃</span>
+        </div>
+      </div>
+
+      <div class="level-banner" id="level-banner">
+        <div class="level-sub">熱中症警戒レベル</div>
+        <div class="level-text" id="level">--</div>
       </div>
     </div>
 
-    <div class="level-banner" id="level-banner">
-      <div class="level-sub">熱中症警戒レベル</div>
-      <div class="level-text" id="level">--</div>
-    </div>
-  </div>
+    <!-- 4項目気象データ -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">気温</div>
+        <div class="metric-value"><span id="temp">--.-</span><span class="metric-unit">℃</span></div>
+      </div>
 
-  <!-- 4項目気象データ -->
-  <div class="metrics-grid">
-    <div class="metric-card">
-      <div class="metric-label">気温</div>
-      <div class="metric-value"><span id="temp">--.-</span><span class="metric-unit">℃</span></div>
-    </div>
+      <div class="metric-card">
+        <div class="metric-label">湿度</div>
+        <div class="metric-value"><span id="humidity">--</span><span class="metric-unit">%</span></div>
+      </div>
 
-    <div class="metric-card">
-      <div class="metric-label">湿度</div>
-      <div class="metric-value"><span id="humidity">--</span><span class="metric-unit">%</span></div>
-    </div>
+      <div class="metric-card">
+        <div class="metric-label">風速</div>
+        <div class="metric-value"><span id="wind">--.-</span><span class="metric-unit">m/s</span></div>
+      </div>
 
-    <div class="metric-card">
-      <div class="metric-label">風速</div>
-      <div class="metric-value"><span id="wind">--.-</span><span class="metric-unit">m/s</span></div>
-    </div>
-
-    <div class="metric-card">
-      <div class="metric-label">天気</div>
-      <div class="metric-value" style="font-size: 2.1rem;" id="weather">--</div>
+      <div class="metric-card">
+        <div class="metric-label">天気</div>
+        <div class="metric-value" style="font-size: 22px;" id="weather">--</div>
+      </div>
     </div>
   </div>
 
