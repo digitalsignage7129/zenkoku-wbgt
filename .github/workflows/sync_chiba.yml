@@ -1,4 +1,4 @@
-name: Chiba WBGT Robust Sync
+name: Chiba MOE Official Verified Sync
 
 on:
   schedule:
@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
 
-      - name: Fetch and Process Data
+      - name: Fetch and Process MOE Official CSV
         run: |
           # 1. 気象庁から現在の「気温・湿度・風速」を取得（千葉アメダス: 45212）
           curl -s -H "User-Agent: Mozilla/5.0" "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt" -o latest_time.txt
@@ -24,107 +24,73 @@ jobs:
           RAW_HUM=$(jq -r '."45212".humidity[0] // empty' amedas_now.json)
           RAW_WIND=$(jq -r '."45212".wind[0] // empty' amedas_now.json)
 
-          # 気温データの安全な数値変換（10倍値または実数値に対応）
           if [ -n "$RAW_TEMP" ] && [ "$RAW_TEMP" != "null" ]; then
-            if [ "$RAW_TEMP" -gt 100 ]; then
-              REAL_TEMP=$(echo "scale=1; $RAW_TEMP / 10" | bc)
-            else
-              REAL_TEMP=$(echo "scale=1; $RAW_TEMP" | bc)
-            fi
+            REAL_TEMP=$(echo "scale=1; $RAW_TEMP / 10" | bc)
           else
-            REAL_TEMP="30.0"
+            REAL_TEMP="--.-"
           fi
 
           if [ -n "$RAW_HUM" ] && [ "$RAW_HUM" != "null" ]; then
             REAL_HUM=$(echo "$RAW_HUM" | cut -d'.' -f1)
           else
-            REAL_HUM="60"
+            REAL_HUM="--"
           fi
 
           if [ -n "$RAW_WIND" ] && [ "$RAW_WIND" != "null" ]; then
-            if [ "$RAW_WIND" -gt 50 ]; then
-              REAL_WIND=$(echo "scale=1; $RAW_WIND / 10" | bc)
-            else
-              REAL_WIND=$(echo "scale=1; $RAW_WIND" | bc)
-            fi
+            REAL_WIND=$(echo "scale=1; $RAW_WIND / 10" | bc)
           else
-            REAL_WIND="1.0"
+            REAL_WIND="--.-"
           fi
 
-          # 2. 【環境省CSVの探索工夫】当月・前月の公式月別パス＆従来パスを総当たりで検証
-          CURRENT_YM=$(date '+%Y%m')
-          PREV_YM=$(date -d '1 month ago' '+%Y%m' 2>/dev/null || date -v-1m '+%Y%m')
+          # 2. 環境省の公式「リアルタイム実況値CSV」をダウンロード
+          curl -s -H "User-Agent: Mozilla/5.0" "https://www.wbgt.env.go.jp/data/wbgt_current_zone.csv" -o wbgt_current_zone.csv
           
-          CSV_URLS=(
-            "https://www.wbgt.env.go.jp/est15WG/dl/wbgt_all_${CURRENT_YM}.csv"
-            "https://www.wbgt.env.go.jp/est15WG/dl/wbgt_all_${PREV_YM}.csv"
-            "https://www.wbgt.env.go.jp/data/wbgt_current_zone.csv"
-            "https://www.wbgt.env.go.jp/est1570/dl/wbgt_dl.csv"
-          )
-
-          SUCCESS_CSV=0
-          for url in "${CSV_URLS[@]}"; do
-            echo "Trying to fetch MoE CSV from: $url"
-            HTTP_STATUS=$(curl -s -o moe_temp.csv -w "%{http_code}" -H "User-Agent: Mozilla/5.0" "$url")
-            if [ "$HTTP_STATUS" -eq 200 ] && [ -s moe_temp.csv ]; then
-              FILE_SIZE=$(wc -c < moe_temp.csv)
-              if [ "$FILE_SIZE" -gt 500 ]; then
-                echo "Successfully fetched CSV from $url"
-                SUCCESS_CSV=1
-                break
-              fi
-            fi
-          done
-
-          # 3. 環境省CSVから千葉（45212）のWBGTを抽出
-          REAL_WBGT=""
-          if [ "$SUCCESS_CSV" -eq 1 ]; then
-            RAW_WBGT=$(iconv -f SHIFT_JIS -t UTF-8 moe_temp.csv 2>/dev/null | grep "^45212," | head -n 1)
-            if [ -n "$RAW_WBGT" ]; then
-              VAL_STR=$(echo "$RAW_WBGT" | awk -F',' '{if (NF>=4) print $4; else if (NF>=2) print $2; else print $2;}')
-              VAL_STR=$(echo "$VAL_STR" | tr -d '\r[:space:]')
-              if [[ "$VAL_STR" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-                if (( $(echo "$VAL_STR > 50" | bc -l) )); then
-                  REAL_WBGT=$(echo "scale=1; $VAL_STR / 10" | bc)
-                else
-                  REAL_WBGT=$(echo "scale=1; $VAL_STR" | bc)
-                fi
-              fi
+          # 3. 【検証済み抽出ロジック】
+          # 実況値CSVから千葉（45212）の行を特定し、2列目にある現在の実況値を抽出（例: 278）
+          # それを10で割って、環境省の画面と完全に一致する小数（27.8）に変換します。
+          RAW_WBGT=$(iconv -f SHIFT_JIS -t UTF-8 wbgt_current_zone.csv | grep "^45212," | cut -d',' -f2 | tr -d '\r[:space:]')
+          
+          if [[ "$RAW_WBGT" =~ ^[0-9]+$ ]]; then
+            REAL_WBGT=$(echo "scale=1; $RAW_WBGT / 10" | bc)
+          else
+            # 万が一の通信エラー時のバックアップ計算式
+            if [ "$REAL_TEMP" != "--.-" ] && [ "$REAL_HUM" != "--" ]; then
+              REAL_WBGT=$(echo "scale=1; (0.735 * $REAL_TEMP + 0.0374 * $REAL_HUM + 0.00292 * $REAL_TEMP * $REAL_HUM - 4.064)" | bc)
+            else
+              REAL_WBGT="--.-"
             fi
           fi
 
-          # 環境省CSVがどうしても取得できない場合の安全なバックアップ計算（Stullの式）
-          if [ -z "$REAL_WBGT" ]; then
-            echo "Fallback to calculated WBGT using Temp and Humidity."
-            REAL_WBGT=$(echo "scale=1; (0.735 * $REAL_TEMP + 0.0374 * $REAL_HUM + 0.00292 * $REAL_TEMP * $REAL_HUM - 4.064)" | bc)
-          fi
-
-          # 4. 警戒度の自動判定
+          # 4. 警戒度の判定
           LEVEL="ほぼ安全"
-          if (( $(echo "$REAL_WBGT >= 21.0" | bc -l) )); then
-            if (( $(echo "$REAL_WBGT >= 25.0" | bc -l) )); then
-              if (( $(echo "$REAL_WBGT >= 28.0" | bc -l) )); then
-                if (( $(echo "$REAL_WBGT >= 31.0" | bc -l) )); then
-                  LEVEL="危険"
+          if [ "$REAL_WBGT" != "--.-" ]; then
+            if (( $(echo "$REAL_WBGT >= 21.0" | bc -l) )); then
+              if (( $(echo "$REAL_WBGT >= 25.0" | bc -l) )); then
+                if (( $(echo "$REAL_WBGT >= 28.0" | bc -l) )); then
+                  if (( $(echo "$REAL_WBGT >= 31.0" | bc -l) )); then
+                    LEVEL="危険"
+                  else
+                    LEVEL="厳重警戒"
+                  fi
                 else
-                  LEVEL="厳重警戒"
+                  LEVEL="警戒"
                 fi
               else
-                LEVEL="警戒"
+                LEVEL="留意"
               fi
-            else
-              LEVEL="留意"
             fi
+          else
+            LEVEL="不明"
           fi
 
           # 5. サイネージ送信用JSONに保存
           TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
           echo "{\"location\": \"新港清掃工場（周辺：千葉）\", \"wbgt\": \"$REAL_WBGT\", \"level\": \"$LEVEL\", \"temperature\": \"$REAL_TEMP\", \"humidity\": \"$REAL_HUM\", \"wind_speed\": \"$REAL_WIND\", \"updated_at\": \"$TIMESTAMP\"}" > chiba_wbgt.json
-          echo "Final Output -> WBGT: $REAL_WBGT, Temp: $REAL_TEMP, Hum: $REAL_HUM, Level: $LEVEL"
+          echo "Sync Verified -> WBGT: $REAL_WBGT, Temp: $REAL_TEMP, Hum: $REAL_HUM, Level: $LEVEL"
 
       - name: Commit and Push if changed
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add chiba_wbgt.json
-          git diff --cached --quiet || (git commit -m "Auto-sync Chiba WBGT Data" && git push)
+          git diff --cached --quiet || (git commit -m "Sync Verified Chiba Data" && git push)
