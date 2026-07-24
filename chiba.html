@@ -1,56 +1,227 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>新港清掃工場 暑さ指数 (WBGT)</title>
-    <style>
-        body { font-family: sans-serif; text-align: center; background: #f4f6f8; margin: 0; padding: 40px; }
-        .card { background: white; max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h1 { font-size: 24px; color: #333; margin-bottom: 5px; }
-        .update { font-size: 14px; color: #777; margin-bottom: 20px; }
-        .wbgt-box { font-size: 64px; font-weight: bold; color: #d9534f; margin: 10px 0; }
-        .level { font-size: 28px; font-weight: bold; padding: 8px 20px; display: inline-block; border-radius: 6px; background: #fcf8e3; color: #8a6d3b; margin-bottom: 20px; }
-        .details { display: flex; justify-content: space-around; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
-        .detail-item { font-size: 18px; color: #555; }
-        .detail-val { font-weight: bold; font-size: 22px; color: #222; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>暑さ指数（WBGT）サイネージ</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #111827;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: #1f2937;
+      border-radius: 24px;
+      padding: 36px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      border: 1px solid #374151;
+    }
+
+    /* ヘッダーエリア */
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .location-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #9ca3af;
+      letter-spacing: 0.05em;
+    }
+
+    /* 警戒度バナー */
+    .level-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 10px 32px;
+      font-size: 2rem;
+      font-weight: 900;
+      border-radius: 50px;
+      text-align: center;
+      letter-spacing: 0.1em;
+      transition: all 0.5s ease;
+    }
+
+    /* WBGTメイン表示 */
+    .hero-section {
+      text-align: center;
+      padding: 30px 0;
+      border-bottom: 2px solid #374151;
+    }
+
+    .wbgt-title {
+      font-size: 1.4rem;
+      color: #d1d5db;
+      margin-bottom: 8px;
+    }
+
+    .wbgt-value-container {
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .wbgt-value {
+      font-size: 8rem;
+      font-weight: 900;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .wbgt-unit {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #9ca3af;
+    }
+
+    /* サブ情報（気温・湿度・風速）グリッド */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 28px;
+    }
+
+    .metric-card {
+      background: #111827;
+      padding: 20px;
+      border-radius: 16px;
+      text-align: center;
+      border: 1px solid #374151;
+    }
+
+    .metric-label {
+      font-size: 1rem;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 2.2rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* フッター（更新日時） */
+    .footer {
+      margin-top: 24px;
+      text-align: right;
+      font-size: 0.95rem;
+      color: #6b7280;
+    }
+
+    /* 警戒度別のカラー定義 */
+    .bg-danger { background-color: #ef4444; color: #ffffff; }       /* 危険: 赤 */
+    .bg-severe { background-color: #f97316; color: #ffffff; }       /* 厳重警戒: オレンジ */
+    .bg-warning { background-color: #eab308; color: #000000; }      /* 警戒: 黄 */
+    .bg-caution { background-color: #3b82f6; color: #ffffff; }      /* 留意: 青 */
+    .bg-safe { background-color: #10b981; color: #ffffff; }         /* ほぼ安全: 緑 */
+
+    /* スマホ・小型端末向け調整 */
+    @media (max-width: 640px) {
+      .wbgt-value { font-size: 5.5rem; }
+      .metrics-grid { grid-template-columns: 1fr; }
+      .location-name { font-size: 1.4rem; }
+      .level-badge { font-size: 1.5rem; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="card">
-    <h1 id="location">新港清掃工場 周辺の暑さ指数</h1>
-    <div class="update" id="update">最終更新: 読み込み中...</div>
-    
-    <div class="wbgt-box" id="wbgt">--.-</div>
-    <div class="level" id="level">取得中</div>
-
-    <div class="details">
-        <div class="detail-item">気温<br><span class="detail-val" id="temp">--.-</span> ℃</div>
-        <div class="detail-item">湿度<br><span class="detail-val" id="hum">--</span> ％</div>
-        <div class="detail-item">風速<br><span class="detail-val" id="wind">--.-</span> m/s</div>
+  <div class="container">
+    <div class="header">
+      <div class="location-name" id="location">読み込み中...</div>
+      <div class="level-badge" id="level-badge">--</div>
     </div>
-</div>
 
-<script>
-async function fetchData() {
-    try {
-        const res = await fetch('chiba_wbgt.json?t=' + new Date().getTime());
-        const data = await res.json();
-        
-        document.getElementById('location').innerText = data.location || "新港清掃工場 周辺の暑さ指数";
-        document.getElementById('update').innerText = "最終更新: " + (data.updated_at || "--");
-        document.getElementById('wbgt').innerText = data.wbgt !== undefined ? data.wbgt : "--.-";
-        document.getElementById('level').innerText = data.level || "不明";
-        document.getElementById('temp').innerText = data.temperature !== undefined ? data.temperature : "--.-";
-        document.getElementById('hum').innerText = data.humidity !== undefined ? data.humidity : "--";
-        document.getElementById('wind').innerText = data.wind_speed !== undefined ? data.wind_speed : "--.-";
-    } catch (e) {
-        console.error(e);
+    <div class="hero-section">
+      <div class="wbgt-title">暑さ指数 (WBGT)</div>
+      <div class="wbgt-value-container">
+        <span class="wbgt-value" id="wbgt">--.-</span>
+        <span class="wbgt-unit">℃</span>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">気温</div>
+        <div class="metric-value"><span id="temp">--</span> <small style="font-size: 1.2rem;">℃</small></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">湿度</div>
+        <div class="metric-value"><span id="humidity">--</span> <small style="font-size: 1.2rem;">%</small></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">風速</div>
+        <div class="metric-value"><span id="wind">--</span> <small style="font-size: 1.2rem;">m/s</small></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      最終更新: <span id="updated-at">----/--/-- --:--</span>
+    </div>
+  </div>
+
+  <script>
+    async function updateData() {
+      try {
+        // キャッシュを防ぐためタイムスタンプを付与してJSONを取得
+        const response = await fetch('./chiba_wbgt.json?t=' + new Date().getTime());
+        if (!response.ok) return;
+
+        const data = await response.json();
+
+        // テキストの更新
+        document.getElementById('location').textContent = data.location;
+        document.getElementById('wbgt').textContent = data.wbgt;
+        document.getElementById('temp').textContent = data.temperature;
+        document.getElementById('humidity').textContent = data.humidity;
+        document.getElementById('wind').textContent = data.wind_speed;
+        document.getElementById('updated-at').textContent = data.updated_at;
+
+        // 警戒度バナーの文字と色の更新
+        const badge = document.getElementById('level-badge');
+        badge.textContent = data.level;
+        badge.className = 'level-badge'; // リセット
+
+        const level = data.level;
+        if (level === '危険') {
+          badge.classList.add('bg-danger');
+        } else if (level === '厳重警戒') {
+          badge.classList.add('bg-severe');
+        } else if (level === '警戒') {
+          badge.classList.add('bg-warning');
+        } else if (level === '留意') {
+          badge.classList.add('bg-caution');
+        } else {
+          badge.classList.add('bg-safe');
+        }
+
+      } catch (error) {
+        console.error('Data fetch error:', error);
+      }
     }
-}
-fetchData();
-setInterval(fetchData, 60000);
-</script>
 
+    // 初回読み込みと60秒ごとの自動更新
+    updateData();
+    setInterval(updateData, 60000);
+  </script>
 </body>
 </html>
