@@ -13,10 +13,36 @@ HEADERS = {
 }
 
 # ------------------------------------------------------------------
-# 1. 気象庁の全観測所マスター情報を取得（URL修正済）
+# 気象庁特殊データ形式のパース用ヘルパー関数
+# ------------------------------------------------------------------
+def parse_jma_value(data_dict: dict, key: str, is_divide_10: bool = False):
+    """
+    気象庁JSONの特殊構造から値を安全に取り出す
+    例: "temp": [283, 0] -> 28.3 ℃
+        "humidity": [66, 0] -> 66 %
+    """
+    if not isinstance(data_dict, dict) or key not in data_dict:
+        return None
+    
+    val_list = data_dict[key]
+    if isinstance(val_list, list) and len(val_list) > 0:
+        raw_val = val_list[0]
+        if raw_val is None:
+            return None
+        try:
+            val = float(raw_val)
+            if is_divide_10:
+                val = round(val / 10.0, 1)
+            return val
+        except (ValueError, TypeError):
+            return None
+    return None
+
+
+# ------------------------------------------------------------------
+# 1. 気象庁の全観測所マスター情報を取得
 # ------------------------------------------------------------------
 def fetch_jma_station_master() -> dict:
-    # amedas_table.json ではなく amedastable.json が正しい公式URLです
     url = "https://www.jma.go.jp/bosai/amedas/const/amedastable.json"
     print("Fetching JMA Station Master...")
     try:
@@ -92,6 +118,7 @@ def fetch_jma_amedas_latest() -> dict:
     
     try:
         res = requests.get(url, headers=HEADERS, timeout=10)
+        # 最新時刻のファイルがない場合は1時間前を自動フォールバック
         if res.status_code == 404:
             prev_time = target_time - timedelta(hours=1)
             time_str = prev_time.strftime("%Y%m%d%H0000")
@@ -126,9 +153,10 @@ def main():
         moe_info = moe_data.get(st_id, {"wbgt": None, "level": "不明", "updated_at": None})
         jma_info = jma_data.get(st_id, {})
 
-        temp = jma_info.get("temp", [None])[0] if "temp" in jma_info else None
-        humidity = jma_info.get("humidity", [None])[0] if "humidity" in jma_info else None
-        wind = jma_info.get("wind", [None])[0] if "wind" in jma_info else None
+        # 気象庁のデータ構造に合わせてパース（気温と風速は10倍値を1/10に戻す）
+        temp = parse_jma_value(jma_info, "temp", is_divide_10=True)
+        humidity = parse_jma_value(jma_info, "humidity", is_divide_10=False)
+        wind = parse_jma_value(jma_info, "wind", is_divide_10=True)
 
         merged_stations.append({
             "station_id": st_id,
