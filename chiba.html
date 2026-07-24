@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>現場用 WBGT・気象情報表示器</title>
+  <meta name="viewport" content="width=690, height=730, initial-scale=1.0">
+  <title>現場用 WBGT・気象情報表示器 (690x730)</title>
   <style>
     * {
       box-sizing: border-box;
@@ -11,59 +11,73 @@
       padding: 0;
     }
 
+    html, body {
+      width: 690px;
+      height: 730px;
+      overflow: hidden; /* スクロール枠を消して画面ぴったりに固定 */
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
       background-color: #f1f5f9;
       color: #0f172a;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 24px;
+      padding: 20px;
     }
 
-    /* ヘッダーエリア */
+    /* ヘッダーエリア (高さ 約48px) */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 3px solid #cbd5e1;
-      padding-bottom: 16px;
+      padding-bottom: 10px;
+      height: 48px;
     }
 
     .location-title {
-      font-size: 2.2rem;
+      font-size: 1.6rem;
       font-weight: 800;
       color: #1e293b;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 430px;
     }
 
     .update-time {
-      font-size: 1.4rem;
+      font-size: 1.1rem;
       font-weight: 700;
       color: #64748b;
+      white-space: nowrap;
     }
 
-    /* メインセクション: WBGT & 警戒度 */
+    /* メインセクション: WBGT & 警戒度 (高さ 390px) */
     .main-section {
       display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 24px;
-      margin: 20px 0;
-      align-items: center;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 16px;
+      height: 390px;
     }
 
     .wbgt-box {
       background: #ffffff;
       border: 3px solid #cbd5e1;
-      border-radius: 24px;
-      padding: 32px;
+      border-radius: 20px;
+      padding: 20px 12px;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
 
     .wbgt-label {
-      font-size: 1.8rem;
+      font-size: 1.4rem;
       font-weight: 800;
       color: #475569;
       margin-bottom: 8px;
@@ -73,11 +87,11 @@
       display: flex;
       justify-content: center;
       align-items: baseline;
-      gap: 8px;
+      gap: 4px;
     }
 
     .wbgt-value {
-      font-size: 9.5rem;
+      font-size: 6.5rem;
       font-weight: 900;
       line-height: 1;
       color: #0f172a;
@@ -85,76 +99,82 @@
     }
 
     .wbgt-unit {
-      font-size: 3rem;
+      font-size: 2.2rem;
       font-weight: 800;
       color: #475569;
     }
 
-    /* 警戒度特大バナー */
+    /* 警戒度バナー */
     .level-banner {
       height: 100%;
-      min-height: 220px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      border-radius: 24px;
-      padding: 24px;
+      border-radius: 20px;
+      padding: 20px 12px;
       text-align: center;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 8px 16px -2px rgba(0, 0, 0, 0.1);
       transition: all 0.5s ease;
     }
 
     .level-sub {
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       font-weight: 800;
       opacity: 0.95;
       margin-bottom: 8px;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
     }
 
     .level-text {
-      font-size: 5rem;
+      font-size: 3.5rem;
       font-weight: 900;
-      letter-spacing: 0.1em;
-      line-height: 1.1;
+      letter-spacing: 0.08em;
+      line-height: 1.15;
+      word-break: keep-all;
     }
 
-    /* サブ気象情報 4列カード */
+    /* サブ気象情報 4列カード (高さ 180px) */
     .metrics-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
+      gap: 12px;
+      height: 180px;
     }
 
     .metric-card {
       background: #ffffff;
       border: 3px solid #cbd5e1;
-      border-radius: 20px;
-      padding: 24px;
+      border-radius: 18px;
+      padding: 12px 6px;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
 
     .metric-label {
-      font-size: 1.4rem;
+      font-size: 1.1rem;
       font-weight: 800;
       color: #475569;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .metric-value {
-      font-size: 3.5rem;
+      font-size: 2.4rem;
       font-weight: 900;
       color: #0f172a;
       font-variant-numeric: tabular-nums;
+      line-height: 1;
     }
 
     .metric-unit {
-      font-size: 1.6rem;
+      font-size: 1.1rem;
       font-weight: 800;
       color: #64748b;
-      margin-left: 4px;
+      margin-left: 2px;
     }
 
     /* 警戒度別カラー定義 */
@@ -163,14 +183,6 @@
     .bg-warning { background-color: #facc15; color: #0f172a; }  /* 警戒: 黄 */
     .bg-caution { background-color: #2563eb; color: #ffffff; }  /* 留意: 青 */
     .bg-safe    { background-color: #16a34a; color: #ffffff; }  /* ほぼ安全: 緑 */
-
-    /* レスポンシブ調整 */
-    @media (max-width: 1024px) {
-      .main-section { grid-template-columns: 1fr; }
-      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
-      .wbgt-value { font-size: 7rem; }
-      .level-text { font-size: 3.8rem; }
-    }
   </style>
 </head>
 <body>
@@ -216,7 +228,7 @@
 
     <div class="metric-card">
       <div class="metric-label">天気</div>
-      <div class="metric-value" style="font-size: 3rem;" id="weather">--</div>
+      <div class="metric-value" style="font-size: 2.1rem;" id="weather">--</div>
     </div>
   </div>
 
