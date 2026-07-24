@@ -1,32 +1,25 @@
-name: Chiba CSV Debugger
+name: Chiba Current CSV Debugger
 
 on:
-  workflow_dispatch:  # 手動実行のみ
+  workflow_dispatch:  # 手動実行
 
 jobs:
   debug:
     runs-on: ubuntu-latest
     steps:
-      - name: Download and Inspect Chiba CSV
+      - name: Inspect Current Zone CSV for 45212
         run: |
-          # 1. 当月の公式月別CSVをダウンロード
-          CURRENT_YM=$(date '+%Y%m')
-          URL="https://www.wbgt.env.go.jp/est15WG/dl/wbgt_all_${CURRENT_YM}.csv"
+          # 1. リアルタイム速報CSVをダウンロード
+          curl -s -H "User-Agent: Mozilla/5.0" "https://www.wbgt.env.go.jp/data/wbgt_current_zone.csv" -o current_zone.csv
           
-          echo "Target URL: $URL"
-          curl -s -H "User-Agent: Mozilla/5.0" "$URL" -o moe_monthly.csv
-          
-          if [ ! -s moe_monthly.csv ]; then
-            echo "Error: Failed to download CSV."
+          if [ ! -s current_zone.csv ]; then
+            echo "Error: Failed to download current_zone.csv"
             exit 1
           fi
 
-          echo "=== 1. 該当行の生データ（Shift-JIS -> UTF-8） ==="
-          iconv -f SHIFT_JIS -t UTF-8 moe_monthly.csv 2>/dev/null | grep "^45212,"
-
-          echo "=== 2. 列番号ごとの値の内訳 ==="
-          iconv -f SHIFT_JIS -t UTF-8 moe_monthly.csv 2>/dev/null | grep "^45212," | awk -F',' '{
+          echo "=== 千葉 (45212) 行の全カラム値内訳 ==="
+          iconv -f SHIFT_JIS -t UTF-8 current_zone.csv 2>/dev/null | grep "^45212," | awk -F',' '{
             for(i=1; i<=NF; i++) {
-              print "Col " i ": " $i
+              print "Col " i " : " $i
             }
           }'
