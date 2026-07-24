@@ -7,16 +7,17 @@ import requests
 # 日本時間 (JST = UTC+9) の定義
 JST = timezone(timedelta(hours=9))
 
-# 気象庁・環境省のBotブロック対策用 User-Agent
+# 気象庁・環境省ブロック対策用 User-Agent
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
 
 # ------------------------------------------------------------------
-# 1. 気象庁の全観測所マスター情報を取得
+# 1. 気象庁の全観測所マスター情報を取得（URL修正済）
 # ------------------------------------------------------------------
 def fetch_jma_station_master() -> dict:
-    url = "https://www.jma.go.jp/bosai/amedas/const/amedas_table.json"
+    # amedas_table.json ではなく amedastable.json が正しい公式URLです
+    url = "https://www.jma.go.jp/bosai/amedas/const/amedastable.json"
     print("Fetching JMA Station Master...")
     try:
         res = requests.get(url, headers=HEADERS, timeout=10)
@@ -91,7 +92,6 @@ def fetch_jma_amedas_latest() -> dict:
     
     try:
         res = requests.get(url, headers=HEADERS, timeout=10)
-        # 毎時00分直後で最新データがまだない場合は1時間前をフォールバック
         if res.status_code == 404:
             prev_time = target_time - timedelta(hours=1)
             time_str = prev_time.strftime("%Y%m%d%H0000")
