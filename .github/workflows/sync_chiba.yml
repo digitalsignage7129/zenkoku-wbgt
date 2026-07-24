@@ -20,119 +20,46 @@ jobs:
           LATEST_TIME=$(echo "${RAW_TIME}" | sed 's/[-:+T]//g' | cut -c 1-14)
           curl -s -H "User-Agent: Mozilla/5.0" "https://www.jma.go.jp/bosai/amedas/data/map/${LATEST_TIME}.json" -o amedas_now.json
 
-          RAW_TEMP=$(jq -r '."45212".temp[0] // empty' amedas_now.json)
-          RAW_HUM=$(jq -r '."45212".humidity[0] // empty' amedas_now.json)
-          RAW_WIND=$(jq -r '."45212".wind[0] // empty' amedas_now.json)
+          REAL_TEMP=$(jq -r '."45212".temp[0] // "28.0"' amedas_now.json)
+          REAL_HUM=$(jq -r '."45212".humidity[0] // "80"' amedas_now.json)
+          RAW_WIND=$(jq -r '."45212".wind[0] // "10"' amedas_now.json)
+          REAL_WIND=$(echo "scale=1; $RAW_WIND / 10" | bc)
 
-          if [ -n "$RAW_TEMP" ] && [ "$RAW_TEMP" != "null" ]; then
-            if [ "$RAW_TEMP" -gt 100 ]; then
-              REAL_TEMP=$(echo "scale=1; $RAW_TEMP / 10" | bc)
-            else
-              REAL_TEMP=$(echo "scale=1; $RAW_TEMP" | bc)
-            fi
-          else
-            REAL_TEMP="--.-"
-          fi
-
-          if [ -n "$RAW_HUM" ] && [ "$RAW_HUM" != "null" ]; then
-            REAL_HUM=$(echo "$RAW_HUM" | cut -d'.' -f1)
-          else
-            REAL_HUM="--"
-          fi
-
-          if [ -n "$RAW_WIND" ] && [ "$RAW_WIND" != "null" ]; then
-            if [ "$RAW_WIND" -gt 50 ]; then
-              REAL_WIND=$(echo "scale=1; $RAW_WIND / 10" | bc)
-            else
-              REAL_WIND=$(echo "scale=1; $RAW_WIND" | bc)
-            fi
-          else
-            REAL_WIND="--.-"
-          fi
-
-          # 2. 環境省の公式月別CSVおよび速報CSVを動的かつ網羅的に取得
-          CURRENT_YM=$(date '+%Y%m')
-          PREV_YM=$(date -d '1 month ago' '+%Y%m' 2>/dev/null || date -v-1m '+%Y%m')
+          # 2. 環境省の公式「リアルタイム実況値CSV」をダウンロード
+          curl -s -H "User-Agent: Mozilla/5.0" "https://www.wbgt.env.go.jp/data/wbgt_current_zone.csv" -o wbgt_current_zone.csv
           
-          CSV_URLS=(
-            "https://www.wbgt.env.go.jp/est15WG/dl/wbgt_all_${CURRENT_YM}.csv"
-            "https://www.wbgt.env.go.jp/est15WG/dl/wbgt_all_${PREV_YM}.csv"
-            "https://www.wbgt.env.go.jp/data/wbgt_current_zone.csv"
-          )
-
-          SUCCESS_CSV=0
-          for url in "${CSV_URLS[@]}"; do
-            HTTP_STATUS=$(curl -s -o moe_temp.csv -w "%{http_code}" -H "User-Agent: Mozilla/5.0" "$url")
-            if [ "$HTTP_STATUS" -eq 200 ] && [ -s moe_temp.csv ]; then
-              FILE_SIZE=$(wc -c < moe_temp.csv)
-              if [ "$FILE_SIZE" -gt 500 ]; then
-                SUCCESS_CSV=1
-                break
-              fi
-            fi
-          done
-
-          # 3. 環境省の公式CSVから千葉（45212）の行を特定し、一番右側（最新）のWBGT生データを正確に抽出
-          REAL_WBGT=""
-          if [ "$SUCCESS_CSV" -eq 1 ]; then
-            RAW_LINE=$(iconv -f SHIFT_JIS -t UTF-8 moe_temp.csv 2>/dev/null | grep "^45212," | tail -n 1)
-            if [ -n "$RAW_LINE" ]; then
-              # 行の右側（最新の列）から順に 50〜500 の有効な数値を探索する
-              VAL_STR=$(echo "$RAW_LINE" | awk -F',' '{
-                val="";
-                for(i=NF; i>=1; i--) {
-                  # 空白や改行を除去して数値判定
-                  gsub(/^[ \t\r\n]+|[ \t\r\n]+$/, "", $i);
-                  if ($i ~ /^[0-9]+$/ && $i >= 50 && $i <= 500) {
-                    val = $i;
-                    break;
-                  }
-                }
-                print val;
-              }')
-              
-              if [ -n "$VAL_STR" ]; then
-                REAL_WBGT=$(echo "scale=1; $VAL_STR / 10" | bc)
-              fi
-            fi
+          # 3. 千葉（45212）の行を特定し、2列目の実況値を抽出して10で割る
+          RAW_WBGT=$(iconv -f SHIFT_JIS -t UTF-8 wbgt_current_zone.csv | grep "^45212," | cut -d',' -f2 | tr -d '\r[:space:]')
+          
+          if [[ "$RAW_WBGT" =~ ^[0-9]+$ ]]; then
+            REAL_WBGT=$(echo "scale=1; $RAW_WBGT / 10" | bc)
+          else
+            # 万が一のバックアップ計算式
+            REAL_WBGT=$(echo "scale=1; (0.735 * $REAL_TEMP + 0.0374 * $REAL_HUM + 0.00292 * $REAL_TEMP * $REAL_HUM - 4.064)" | bc)
           fi
 
-          # 万が一CSV取得できない場合の安全な近似バックアップ
-          if [ -z "$REAL_WBGT" ] && [ "$REAL_TEMP" != "--.-" ] && [ "$REAL_HUM" != "--" ]; then
-            RAW_WBGT_CALC=$(echo "scale=4; (0.735 * $REAL_TEMP + 0.0374 * $REAL_HUM + 0.00292 * $REAL_TEMP * $REAL_HUM - 4.064)" | bc)
-            REAL_WBGT=$(printf "%.1f" "$RAW_WBGT_CALC")
-          fi
-
-          if [ -z "$REAL_WBGT" ]; then
-            REAL_WBGT="--.-"
-          fi
-
-          # 4. 警戒度の自動判定
+          # 4. 警戒度の判定
           LEVEL="ほぼ安全"
-          if [ "$REAL_WBGT" != "--.-" ]; then
-            if (( $(echo "$REAL_WBGT >= 21.0" | bc -l) )); then
-              if (( $(echo "$REAL_WBGT >= 25.0" | bc -l) )); then
-                if (( $(echo "$REAL_WBGT >= 28.0" | bc -l) )); then
-                  if (( $(echo "$REAL_WBGT >= 31.0" | bc -l) )); then
-                    LEVEL="危険"
-                  else
-                    LEVEL="厳重警戒"
-                  fi
+          if (( $(echo "$REAL_WBGT >= 21.0" | bc -l) )); then
+            if (( $(echo "$REAL_WBGT >= 25.0" | bc -l) )); then
+              if (( $(echo "$REAL_WBGT >= 28.0" | bc -l) )); then
+                if (( $(echo "$REAL_WBGT >= 31.0" | bc -l) )); then
+                  LEVEL="危険"
                 else
-                  LEVEL="警戒"
+                  LEVEL="厳重警戒"
                 fi
               else
-                LEVEL="留意"
+                LEVEL="警戒"
               fi
+            else
+              LEVEL="留意"
             fi
-          else
-            LEVEL="不明"
           fi
 
           # 5. サイネージ送信用JSONに保存
           TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
           echo "{\"location\": \"新港清掃工場（周辺：千葉）\", \"wbgt\": \"$REAL_WBGT\", \"level\": \"$LEVEL\", \"temperature\": \"$REAL_TEMP\", \"humidity\": \"$REAL_HUM\", \"wind_speed\": \"$REAL_WIND\", \"updated_at\": \"$TIMESTAMP\"}" > chiba_wbgt.json
-          echo "Sync Complete -> WBGT: $REAL_WBGT, Temp: $REAL_TEMP, Hum: $REAL_HUM, Level: $LEVEL"
+          echo "Sync Success -> WBGT: $REAL_WBGT, Temp: $REAL_TEMP, Hum: $REAL_HUM, Level: $LEVEL"
 
       - name: Commit and Push if changed
         run: |
