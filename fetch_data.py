@@ -7,9 +7,11 @@ def main():
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
 
     # ---------------------------------------------------------
-    # 1. 環境省から公式WBGT実測・推定値CSVを取得
+    # 1. 環境省から公式WBGTを取得（ID用と地点名用の2つの辞書を作成）
     # ---------------------------------------------------------
-    moe_wbgt_map = {}
+    moe_by_id = {}    # ID(5桁ゼロ埋め) -> WBGT
+    moe_by_name = {}  # 地点名(漢字) -> WBGT
+
     moe_urls = [
         "https://www.wbgt.env.go.jp/est15d/dl/wbgt_all_latest.csv",
         "https://www.wbgt.env.go.jp/prev15d/dl/wbgt_all_latest.csv"
@@ -32,19 +34,32 @@ def main():
                 for row in rows:
                     if len(row) < 5:
                         continue
-                    stn_id = row[0].strip()
+                    
+                    # 1. IDを5桁のゼロ埋め文字列に正規化 (例: "4101" -> "04101")
+                    raw_id = row[0].strip()
+                    clean_id = raw_id.zfill(5) if raw_id.isdigit() else raw_id
+                    
+                    # 2. 地点名取得
+                    stn_name = row[1].strip()
+
                     try:
                         raw_val = float(row[4].strip())
                         wbgt_val = raw_val / 10.0 if raw_val > 50 else raw_val
-                        moe_wbgt_map[stn_id] = round(wbgt_val, 1)
+                        wbgt_val = round(wbgt_val, 1)
+
+                        # 二重マッピング登録
+                        moe_by_id[clean_id] = wbgt_val
+                        if stn_name:
+                            moe_by_name[stn_name] = wbgt_val
+
                     except ValueError:
                         continue
 
-            if moe_wbgt_map:
-                print(f"環境省から {len(moe_wbgt_map)} 件の公式WBGTを取得完了")
+            if moe_by_id:
+                print(f"環境省から {len(moe_by_id)} 件の公式WBGTデータをロードしました。")
                 break
         except Exception as e:
-            print(f"環境省URL ({url}) 取得失敗: {e}")
+            print(f"環境省URL取得スキップ ({url}): {e}")
 
     # ---------------------------------------------------------
     # 2. 気象庁からアメダス実測値（気温・湿度・風速・雨量）を取得
@@ -69,7 +84,7 @@ def main():
         return
 
     # ---------------------------------------------------------
-    # 3. 2つのデータを統合して JSON を生成
+    # 3. 二重照合（ID正規化一致 ➔ 地点名一致）で結合
     # ---------------------------------------------------------
     output_stations = {}
 
@@ -78,14 +93,23 @@ def main():
         st_kana = st_info.get("knName", "")
         st_data = amedas_data.get(stn_id, {})
 
-        # 気象庁アメダスの実測値
+        # アメダス実測値の抽出
         temp = st_data.get("temp", [None])[0] if isinstance(st_data.get("temp"), list) else None
         humidity = st_data.get("humidity", [None])[0] if isinstance(st_data.get("humidity"), list) else None
         wind = st_data.get("wind", [None])[0] if isinstance(st_data.get("wind"), list) else None
         precip = st_data.get("precipitation1h", [0])[0] if isinstance(st_data.get("precipitation1h"), list) else 0
 
-        # 環境省の公式WBGT（存在しない小さな観測所の場合はアメダス実測から補正）
-        wbgt = moe_wbgt_map.get(stn_id)
+        # 気象庁IDの正規化 (5桁ゼロ埋め)
+        clean_jma_id = stn_id.zfill(5) if stn_id.isdigit() else stn_id
+
+        # 照合1: ID正規化マッチ
+        wbgt = moe_by_id.get(clean_jma_id)
+
+        # 照合2: 地点名(漢字)フォールバックマッチ
+        if wbgt is None and st_name in moe_by_name:
+            wbgt = moe_by_name[st_name]
+
+        # 照合3: それでも取れない極小観測所の場合の安全策推計
         if wbgt is None and temp is not None:
             hum_val = humidity if humidity is not None else 50
             wbgt = round(0.735 * temp + 0.0374 * hum_val + 0.00292 * temp * hum_val - 4.064, 1)
@@ -109,7 +133,7 @@ def main():
     with open("wbgt_data.json", "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 
-    print("wbgt_data.json の生成に成功しました。")
+    print("データ結合・JSON生成に成功しました。")
 
 if __name__ == "__main__":
     main()
