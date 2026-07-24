@@ -1,87 +1,240 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全国暑さ指数 (WBGT) & 気象データ検索</title>
-    <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 30px auto; padding: 0 20px; background: #f9f9f9; color: #333; }
-        h1 { font-size: 1.5rem; text-align: center; }
-        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
-        input { flex: 1; padding: 10px; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; }
-        button { padding: 10px 20px; font-size: 1rem; background: #0066cc; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background: #004999; }
-        .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        .error { color: #cc0000; font-weight: bold; }
-        .meta { font-size: 0.85rem; color: #666; text-align: right; margin-bottom: 10px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>WBGTマルチサイネージシステム (公式データ版)</title>
+<style>
+html,body{margin:0;padding:0;width:100vw;height:100vh;background-color:#fff;font-family:'Helvetica Neue',Arial,sans-serif;overflow:hidden!important;}
+#start-screen{position:fixed;top:0;left:0;width:100vw;height:100vh;background:linear-gradient(135deg,#1a202c 0%,#2d3748 100%);display:none;flex-direction:column;justify-content:center;align-items:center;z-index:9999;color:#fff;}
+.start-box{text-align:center;background:rgba(255,255,255,.1);padding:6vh 5vw;border-radius:24px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);box-shadow:0 20px 50px rgba(0,0,0,.3);}
+.start-box h2{font-size:4vh;margin:0 0 1vh 0;font-weight:900;}
+.start-box p{font-size:2vh;color:#cbd5e0;margin:0 0 4vh 0;}
+.start-search-container{display:flex;gap:15px;width:40vw;}
+.start-input{flex:1;font-size:2.5vh;padding:2vh 2.5vw;border:none;border-radius:50px;font-weight:bold;outline:none;}
+.start-btn{font-size:2.5vh;padding:2vh 4vw;background:#3182ce;color:#fff;border:none;border-radius:50px;font-weight:bold;cursor:pointer;box-shadow:0 5px 15px rgba(49,130,206,.4);}
+.widget-box{width:100vw;height:100vh;box-sizing:border-box;padding:1.5vh 3vw;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden!important;background-color:#fff;}
+.header{display:flex;justify-content:space-between;align-items:center;border-bottom:5px solid #edf2f7;height:11vh;}
+.header-title-area{display:flex;flex-direction:column;}
+.header h1{margin:0;font-size:4vh;color:#2d3748;font-weight:900;line-height:1.1;}
+.header .sub{font-size:1.8vh;color:#4a5568;font-weight:bold;}
+.search-container{display:flex;align-items:center;gap:8px;}
+.search-input{font-size:2.2vh;padding:.8vh 1.5vw;border:3px solid #cbd5e0;border-radius:30px;width:18vw;font-weight:bold;outline:none;color:#2d3748;}
+.search-btn{font-size:2.2vh;padding:.8vh 1.8vw;background-color:#3182ce;color:#fff;border:none;border-radius:30px;font-weight:bold;cursor:pointer;}
+.weather-icon-txt{font-size:5.5vh;font-weight:900;color:#3182ce;margin-left:15px;}
+.wbgt-section{background:#2ecc71;color:#fff;border-radius:24px;text-align:center;height:59vh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;padding:2vh 0;box-shadow:0 10px 25px rgba(0,0,0,.1);}
+.wbgt-label{font-size:3.5vh;font-weight:bold;letter-spacing:2px;margin:0;line-height:1;}
+.wbgt-display-area{display:flex;justify-content:center;align-items:center;width:100%;height:41vh;margin:0;padding:0;}
+#wbgt-num{font-weight:900!important;line-height:.9!important;letter-spacing:-6px!important;}
+.wbgt-unit{font-size:9vh!important;font-weight:900!important;margin-left:10px;align-self:flex-end;margin-bottom:5vh;}
+.wbgt-status{font-size:5vh;font-weight:900;background:rgba(0,0,0,.25);padding:.4vh 8vw;border-radius:50px;display:inline-block;align-self:center;letter-spacing:2px;margin:0;line-height:1.2;}
+.weather-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2vw;height:18vh;}
+.grid-item{background:#f7fafc;border:4px solid #e2e8f0;border-radius:16px;display:flex;flex-direction:column;justify-content:center;text-align:center;}
+.grid-label{font-size:2.5vh;color:#4a5568;font-weight:bold;margin-bottom:2px;}
+.grid-value{font-size:4.5vh;font-weight:900;color:#1a202c;line-height:1;}
+.footer{font-size:2vh;color:#a0aec0;text-align:center;border-top:3px solid #edf2f7;height:4vh;display:flex;align-items:center;justify-content:center;font-weight:bold;}
+</style>
 </head>
 <body>
 
-    <h1>全国暑さ指数 & 気象データ検索</h1>
-    <div id="meta" class="meta">データ読込中...</div>
-
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="例: 45112 または 千葉" />
-        <button onclick="searchData()">検索</button>
+<div id="start-screen">
+    <div class="start-box">
+        <h2>WBGT MONITOR SYSTEM</h2>
+        <p>設置する観測所名、または環境省コードを入力してください</p>
+        <div class="start-search-container">
+            <input type="text" id="start-input" class="start-input" placeholder="例：千葉、東京、45112...">
+            <button onclick="initSearch()" class="start-btn">モニター起動</button>
+        </div>
+        <div id="start-error" style="color:#fc8181;margin-top:15px;font-weight:bold;"></div>
     </div>
+</div>
 
-    <div id="result"></div>
+<div class="widget-box">
+    <div class="header">
+        <div class="header-title-area">
+            <h1 id="location-title">地域情報</h1>
+            <div class="sub" id="location-sub">環境省公式WBGT & 気象庁実測値</div>
+        </div>
+        <div class="search-container">
+            <input type="text" id="panel-search-input" class="search-input" placeholder="地域を変更...">
+            <button onclick="panelSearch()" class="search-btn">変更</button>
+            <div id="weather-text" class="weather-icon-txt">🌡️</div>
+        </div>
+    </div>
+    <div class="wbgt-section" id="wbgt-card">
+        <div class="wbgt-label" id="time-label">現在の暑さ指数 (WBGT)</div>
+        <div class="wbgt-display-area"><span id="wbgt-num">--.-</span><span class="wbgt-unit">℃</span></div>
+        <div class="wbgt-status" id="wbgt-status">取得中...</div>
+    </div>
+    <!-- 項目は気温・湿度・風速の3つに最適化 -->
+    <div class="weather-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="grid-item"><div class="grid-label">気温 (気象庁)</div><div class="grid-value" id="cur-temp">--.-℃</div></div>
+        <div class="grid-item"><div class="grid-label">湿度 (気象庁)</div><div class="grid-value" id="cur-humidity">--%</div></div>
+        <div class="grid-item"><div class="grid-label">風速 (気象庁)</div><div class="grid-value" id="cur-wind">--.-m/s</div></div>
+    </div>
+    <div class="footer" id="update-time">環境省・気象庁データ 自動同期</div>
+</div>
 
-    <script>
-        let globalData = null;
+<script>
+let globalData = null;
+let currentSearchKey = "";
 
-        // 起動時に JSON を取得
-        async function loadData() {
-            try {
-                const res = await fetch('wbgt_data.json');
-                if (!res.ok) throw new Error('データファイルが見つかりません');
-                globalData = await res.json();
-                document.getElementById('meta').innerText = `最終生成日時: ${new Date(globalData.metadata.generated_at).toLocaleString('ja-JP')} (全 ${globalData.metadata.total_stations} 地点)`;
-            } catch (e) {
-                document.getElementById('meta').innerText = 'データの読み込みに失敗しました';
-                console.error(e);
-            }
+// 警戒レベルに応じたカラー定義
+function getWbgtLevel(levelStr) {
+    if (levelStr === "危険") return { color: "#e74c3c", text: "危険（運動中止）" };
+    if (levelStr === "厳重警戒") return { color: "#e67e22", text: "厳重警戒" };
+    if (levelStr === "警戒") return { color: "#f1c40f", text: "警戒" };
+    if (levelStr === "留意") return { color: "#3498db", text: "留意" };
+    return { color: "#2ecc71", text: "ほぼ安全" };
+}
+
+// wbgt_data.json を一括取得
+async function loadMasterData() {
+    try {
+        const res = await fetch('wbgt_data.json');
+        if (!res.ok) throw new Error("JSONの読み込みに失敗しました");
+        globalData = await res.json();
+        return true;
+    } catch (e) {
+        console.error(e);
+        return false;
+    }
+}
+
+// ダッシュボードへの反映
+async function updateDashboard() {
+    if (!globalData || !currentSearchKey) return;
+
+    // 地点名または環境省コードでマッチング
+    const station = globalData.stations.find(s => 
+        s.station_id === currentSearchKey || s.name.includes(currentSearchKey)
+    );
+
+    const statusEl = document.getElementById("wbgt-status");
+
+    if (!station) {
+        statusEl.innerText = "観測所が見つかりません";
+        return;
+    }
+
+    // 画面タイトルの更新
+    document.getElementById("location-title").innerText = `${station.prefecture} ${station.name}`;
+    document.getElementById("location-sub").innerText = `環境省コード: ${station.station_id} / アメダスID: ${station.jma_amedas_id}`;
+
+    // WBGTデータの処理
+    const wbgtVal = station.moe_data.wbgt;
+    const numEl = document.getElementById("wbgt-num");
+
+    if (wbgtVal !== null) {
+        numEl.innerText = wbgtVal.toFixed(1);
+        numEl.style.setProperty("font-size", "32vh", "important");
+        
+        const levelInfo = getWbgtLevel(station.moe_data.level);
+        document.getElementById("wbgt-card").style.backgroundColor = levelInfo.color;
+        statusEl.innerText = `${station.moe_data.level}（${levelInfo.text}）`;
+    } else {
+        numEl.innerText = "--.-";
+        statusEl.innerText = "WBGTデータなし";
+        document.getElementById("wbgt-card").style.backgroundColor = "#718096";
+    }
+
+    // 気象庁実測値の処理
+    const temp = station.jma_data.temperature;
+    const humidity = station.jma_data.humidity;
+    const wind = station.jma_data.wind_speed;
+
+    document.getElementById("cur-temp").innerText = temp !== null ? `${temp.toFixed(1)}℃` : "データなし";
+    document.getElementById("cur-humidity").innerText = humidity !== null ? `${humidity}%` : "データなし";
+    document.getElementById("cur-wind").innerText = wind !== null ? `${wind.toFixed(1)}m/s` : "データなし";
+
+    // 更新時間の表示
+    const genTime = new Date(globalData.metadata.generated_at);
+    document.getElementById("update-time").innerText = `公式データ同期: ${genTime.getMonth()+1}/${genTime.getDate()} ${genTime.getHours()}:${String(genTime.getMinutes()).padStart(2,"0")} (全${globalData.metadata.total_stations}地点)`;
+}
+
+// 検索実行
+async function executeSearch(keyword) {
+    if (!globalData) {
+        const success = await loadMasterData();
+        if (!success) {
+            alert("wbgt_data.json の読み込みに失敗しました。");
+            return false;
         }
+    }
 
-        function searchData() {
-            if (!globalData) {
-                alert('データがまだ読み込まれていません');
-                return;
-            }
-            const keyword = document.getElementById('searchInput').value.trim();
-            if (!keyword) return;
+    const found = globalData.stations.some(s => 
+        s.station_id === keyword || s.name.includes(keyword)
+    );
 
-            // 環境省コード (station_id) または 地点名 (name) で部分一致・完全一致検索
-            const target = globalData.stations.find(s => 
-                s.station_id === keyword || s.name.includes(keyword)
-            );
+    if (found) {
+        currentSearchKey = keyword;
+        localStorage.setItem("saved_wbgt_keyword", keyword);
+        
+        // URLクエリの書き換え
+        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + `?name=${encodeURIComponent(keyword)}`;
+        window.history.replaceState({path: newUrl}, "", newUrl);
 
-            const resultDiv = document.getElementById('result');
-            if (!target) {
-                resultDiv.innerHTML = `<div class="card error">一致する観測所が見つかりませんでした。</div>`;
-                return;
-            }
+        document.getElementById("start-screen").style.display = "none";
+        await updateDashboard();
+        return true;
+    } else {
+        return false;
+    }
+}
 
-            resultDiv.innerHTML = `
-                <div class="card">
-                    <h2>${target.prefecture} ${target.name} (コード: ${target.station_id})</h2>
-                    <p><strong>【環境省 WBGT】</strong><br>
-                       暑さ指数: <strong>${target.moe_data.wbgt !== null ? target.moe_data.wbgt + '℃' : 'データなし'}</strong><br>
-                       警戒レベル: <span style="color: blue;">${target.moe_data.level}</span><br>
-                       更新時間: ${target.moe_data.updated_at || '不明'}
-                    </p>
-                    <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
-                    <p><strong>【気象庁 実測値】</strong><br>
-                       気温: ${target.jma_data.temperature !== null ? target.jma_data.temperature + '℃' : 'データなし'}<br>
-                       湿度: ${target.jma_data.humidity !== null ? target.jma_data.humidity + '%' : 'データなし'}<br>
-                       風速: ${target.jma_data.wind_speed !== null ? target.jma_data.wind_speed + ' m/s' : 'データなし'}
-                    </p>
-                </div>
-            `;
-        }
+async function initSearch() {
+    const keyword = document.getElementById("start-input").value.trim();
+    if (!keyword) return;
+    
+    document.getElementById("start-error").innerText = "データを検索中...";
+    const ok = await executeSearch(keyword);
+    if (!ok) {
+        document.getElementById("start-error").innerText = `「${keyword}」が見つかりませんでした。正しい地点名またはコードを入力してください。`;
+    }
+}
 
-        loadData();
-    </script>
+async function panelSearch() {
+    const keyword = document.getElementById("panel-search-input").value.trim();
+    if (!keyword) return;
+
+    const ok = await executeSearch(keyword);
+    if (ok) {
+        document.getElementById("panel-search-input").value = "";
+    } else {
+        alert(`「${keyword}」が見つかりませんでした。`);
+    }
+}
+
+// システム初期化
+async function initSystem() {
+    await loadMasterData();
+
+    const urlParams = new URLSearchParams(window.location.search).get("name");
+    const savedKey = localStorage.getItem("saved_wbgt_keyword");
+
+    if (urlParams) {
+        await executeSearch(urlParams);
+    } else if (savedKey) {
+        await executeSearch(savedKey);
+    } else {
+        document.getElementById("start-screen").style.display = "flex";
+    }
+}
+
+// イベントリスナー設定
+document.getElementById("start-input").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") initSearch();
+});
+document.getElementById("panel-search-input").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") panelSearch();
+});
+
+// 起動と定期リフレッシュ（10分ごとにJSONを再読み込みして最新化）
+initSystem();
+setInterval(async () => {
+    await loadMasterData();
+    updateDashboard();
+}, 600000);
+</script>
 </body>
 </html>
