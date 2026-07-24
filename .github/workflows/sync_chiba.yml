@@ -2,7 +2,6 @@ name: Chiba Official Sync
 
 on:
   schedule:
-    # 毎時 3分, 13分, 23分, 33分, 43分, 53分に自動実行（混雑回避のため数分ズラし）
     - cron: '3/10 * * * *'
   workflow_dispatch:
 
@@ -28,11 +27,16 @@ jobs:
 
           headers = {"User-Agent": "Mozilla/5.0"}
 
-          # 1. 環境省サイトから千葉（45212）の公式WBGT値を取得
-          moe_url = "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=03&prefecture=45&point=45212"
+          # デフォルト値・ダミー値は一切持たせない
           wbgt_val = None
+          temp_val = None
+          hum_val = None
+          wind_val = None
+          weather_val = "不明"
 
+          # 1. 環境省サイトから千葉（45212）の公式WBGT値を取得
           try:
+              moe_url = "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=03&prefecture=45&point=45212"
               req = urllib.request.Request(moe_url, headers=headers)
               with urllib.request.urlopen(req) as resp:
                   html = resp.read().decode('utf-8', errors='ignore')
@@ -42,10 +46,7 @@ jobs:
           except Exception as e:
               print(f"MOE fetch error: {e}")
 
-          # 2. 気象庁アメダスから気温・湿度・風速・天気を一括取得（10分ごとの実測値）
-          temp_val, hum_val, wind_val = "28.0", "80", "1.5"
-          weather_val = "晴れ"
-
+          # 2. 気象庁アメダスから気温・湿度・風速・天気を取得（失敗時は例外を発生させる）
           try:
               req_time = urllib.request.Request("https://www.jma.go.jp/bosai/amedas/data/latest_time.txt", headers=headers)
               with urllib.request.urlopen(req_time) as resp:
@@ -58,16 +59,14 @@ jobs:
                   map_data = json.loads(resp.read().decode('utf-8'))
                   chiba = map_data.get("45212", {})
 
-                  # 基本要素の取得
-                  if "temp" in chiba and chiba["temp"]:
-                      temp_val = str(chiba["temp"][0])
-                  if "humidity" in chiba and chiba["humidity"]:
+                  if "temp" in chiba and chiba["temp"] and chiba["temp"][0] is not None:
+                      temp_val = f"{float(chiba['temp'][0]):.1f}"
+                  if "humidity" in chiba and chiba["humidity"] and chiba["humidity"][0] is not None:
                       hum_val = str(int(chiba["humidity"][0]))
-                  if "wind" in chiba and chiba["wind"]:
-                      wind_val = str(chiba["wind"][0])
+                  if "wind" in chiba and chiba["wind"] and chiba["wind"][0] is not None:
+                      wind_val = f"{float(chiba['wind'][0]):.1f}"
 
-                  # 【実測値から天気をリアルタイム判定】
-                  # precipitation10m: 10分間降水量, sun10m: 10分間日照時間
+                  # 実測値から天気を判定
                   precip = chiba.get("precipitation10m", [0])[0] or 0
                   sun = chiba.get("sun10m", [0])[0] or 0
 
@@ -80,14 +79,15 @@ jobs:
 
           except Exception as e:
               print(f"JMA fetch error: {e}")
+              raise RuntimeError(f"Failed to fetch real-time weather data: {e}")
 
-          # 万が一環境省から取れなかった場合のフォールバック
+          # 必須データが一つでも欠けていたら処理を中断し、嘘のデータを書き込まない
+          if not temp_val or not hum_val or not wind_val:
+              raise ValueError("Critical weather data is missing. Aborting to prevent invalid display.")
+
+          # 環境省WBGTが万が一取得できなかった場合の安全対策（計算式でごまかさずエラーにするか、厳格に扱う）
           if not wbgt_val:
-              try:
-                  t, h = float(temp_val), float(hum_val)
-                  wbgt_val = f"{(0.735 * t + 0.0374 * h + 0.00292 * t * h - 4.064):.1f}"
-              except:
-                  wbgt_val = "27.8"
+              raise ValueError("Official WBGT data could not be retrieved from MOE.")
 
           # 警戒度の判定
           w = float(wbgt_val)
