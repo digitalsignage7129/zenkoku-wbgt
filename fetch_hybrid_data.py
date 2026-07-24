@@ -7,7 +7,8 @@ import requests
 
 JST = timezone(timedelta(hours=9))
 HEADERS = {
-    "User-Agent": "Mozilla/5.0"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Referer": "https://www.wbgt.env.go.jp/"
 }
 
 # ------------------------------------------------------------------
@@ -36,12 +37,32 @@ def parse_jma_value(data_dict: dict, key: str, is_divide_10: bool = False):
     return None
 
 def fetch_moe_wbgt_all() -> dict:
-    """環境省の公式リアルタイム実況値CSV（wbgt_current_zone.csv）から取得する"""
-    url = "https://www.wbgt.env.go.jp/data/wbgt_current_zone.csv"
-    print(f"Fetching MoE WBGT CSV from: {url}")
-    
-    res = requests.get(url, headers=HEADERS, timeout=10)
-    res.raise_for_status()
+    """環境省の公式CSVを複数の候補URLから総当たりで取得する（マルチフォールバック対応）"""
+    candidate_urls = [
+        "https://www.wbgt.env.go.jp/data/wbgt_current_zone.csv",
+        "https://www.wbgt.env.go.jp/est1570/dl/wbgt_dl.csv",
+        "https://www.wbgt.env.go.jp/data/wbgt_dl.csv",
+        "https://www.wbgt.env.go.jp/wbgt_dl.csv",
+        "https://www.wbgt.env.go.jp/est1570/d/wbgt_all_latest.csv",
+        "https://www.wbgt.env.go.jp/rs/wbgt_dl.csv"
+    ]
+
+    res = None
+    for url in candidate_urls:
+        print(f"Trying to fetch MoE WBGT CSV from: {url}")
+        try:
+            response = requests.get(url, headers=HEADERS, timeout=10)
+            print(f"Status code: {response.status_code}")
+            if response.status_code == 200 and len(response.content) > 100:
+                res = response
+                print(f"Successfully fetched MoE CSV from: {url}")
+                break
+        except Exception as e:
+            print(f"Failed to fetch {url}: {e}")
+            continue
+
+    if res is None:
+        raise RuntimeError("環境省のWBGT CSVの取得にすべての候補URLで失敗しました。")
 
     try:
         content = res.content.decode("shift_jis")
@@ -53,20 +74,27 @@ def fetch_moe_wbgt_all() -> dict:
     
     reader = csv.reader(io.StringIO(content))
     for row in reader:
-        if not row or len(row) < 2:
+        if not row or row[0].startswith("#"):
             continue
 
         station_code = row[0].strip()
-        raw_val_str = row[1].strip()
+        if not station_code.isdigit():
+            continue
 
-        # ヘッダー行や数値以外の行をスキップ
-        if not station_code.isdigit() or not raw_val_str.isdigit():
+        # CSVの列数に応じて値の位置を動的に判別（2カラム or 4カラム）
+        if len(row) >= 4:
+            raw_val_str = row[3].strip()
+        elif len(row) >= 2:
+            raw_val_str = row[1].strip()
+        else:
             continue
 
         try:
             raw_val = float(raw_val_str)
-            # 10で割って実際の小数値に変換（例: 293 -> 29.3）
-            wbgt_val = round(raw_val / 10.0, 1)
+            if raw_val > 50:
+                wbgt_val = round(raw_val / 10.0, 1)
+            else:
+                wbgt_val = round(raw_val, 1)
         except ValueError:
             continue
 
@@ -113,7 +141,7 @@ def main():
     res.raise_for_status()
     station_master = res.json()
 
-    # 2. 環境省 WBGTデータの取得（環境省基準を維持）
+    # 2. 環境省 WBGTデータの取得（環境省基準を厳格に維持）
     moe_data = fetch_moe_wbgt_all()
 
     # 3. 気象庁 アメダス実測値の取得
