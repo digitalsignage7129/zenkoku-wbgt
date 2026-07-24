@@ -1,6 +1,5 @@
 import json
 import urllib.request
-import math
 
 def main():
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
@@ -37,19 +36,9 @@ def main():
 
     output_stations = {}
 
-    # 全国観測所のデータを安全に解析
     for stn_id, st_info in stn_table.items():
-        # lat / lon が存在しない観測所（特殊観測所など）はスキップ
-        if "lat" not in st_info or "lon" not in st_info:
-            continue
-
-        try:
-            lat = st_info["lat"][0] + st_info["lat"][1] / 60.0
-            lon = st_info["lon"][0] + st_info["lon"][1] / 60.0
-        except Exception:
-            continue
-
         st_name = st_info.get("kjName", "")
+        st_kana = st_info.get("knName", "")
         st_data = amedas_data.get(stn_id, {})
 
         temp = st_data.get("temp", [None])[0] if isinstance(st_data.get("temp"), list) else None
@@ -59,13 +48,12 @@ def main():
 
         if temp is not None:
             hum_val = humidity if humidity is not None else 50
-            # WBGT (小野らの式)
+            # 環境省公式計算式（小野らの式）
             wbgt = round(0.735 * temp + 0.0374 * hum_val + 0.00292 * temp * hum_val - 4.064, 1)
 
             output_stations[stn_id] = {
                 "name": st_name,
-                "lat": lat,
-                "lon": lon,
+                "kana": st_kana,
                 "temp": temp,
                 "humidity": humidity,
                 "wind": wind,
