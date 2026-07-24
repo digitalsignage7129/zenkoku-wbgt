@@ -7,7 +7,8 @@ import requests
 
 JST = timezone(timedelta(hours=9))
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Referer": "https://www.wbgt.env.go.jp/"
 }
 
 # ------------------------------------------------------------------
@@ -36,14 +37,35 @@ def parse_jma_value(data_dict: dict, key: str, is_divide_10: bool = False):
     return None
 
 def fetch_moe_wbgt_all() -> dict:
-    """環境省の公式リアルタイム実況値CSVから全地点のWBGTを取得する"""
-    url = "https://www.wbgt.env.go.jp/data/wbgt_current_zone.csv"
-    print(f"Fetching MoE WBGT CSV from: {url}")
-    
-    res = requests.get(url, headers=HEADERS, timeout=10)
-    res.raise_for_status()
+    """環境省の公式CSVを複数の候補パスから総当たりで取得する"""
+    candidate_urls = [
+        "https://www.wbgt.env.go.jp/data/wbgt_current_zone.csv",
+        "https://www.wbgt.env.go.jp/est1570/dl/wbgt_dl.csv",
+        "https://www.wbgt.env.go.jp/data/wbgt_dl.csv",
+        "https://www.wbgt.env.go.jp/wbgt_dl.csv",
+        "https://www.wbgt.env.go.jp/est1570/d/wbgt_all_latest.csv",
+        "https://www.wbgt.env.go.jp/rs/wbgt_dl.csv",
+        "https://www.wbgt.env.go.jp/download/wbgt_dl.csv"
+    ]
 
-    # Shift-JISデコード
+    res = None
+    for url in candidate_urls:
+        print(f"Trying to fetch MoE WBGT CSV from: {url}")
+        try:
+            response = requests.get(url, headers=HEADERS, timeout=10)
+            print(f"Status code: {response.status_code}")
+            if response.status_code == 200 and len(response.content) > 100:
+                res = response
+                print(f"Successfully fetched MoE CSV from: {url}")
+                break
+        except Exception as e:
+            print(f"Failed to fetch {url}: {e}")
+            continue
+
+    if res is None:
+        raise RuntimeError("環境省のWBGT CSVの取得にすべての候補URLで失敗しました。")
+
+    # Shift-JISデコード（失敗時はUTF-8）
     try:
         content = res.content.decode("shift_jis")
     except UnicodeDecodeError:
@@ -62,8 +84,11 @@ def fetch_moe_wbgt_all() -> dict:
 
         try:
             raw_val = float(raw_val_str)
-            # CSVの値は10倍値（例: 293 -> 29.3）
-            wbgt_val = round(raw_val / 10.0, 1)
+            # 値が10倍されている場合は割る（50超なら10倍値とみなす）
+            if raw_val > 50:
+                wbgt_val = round(raw_val / 10.0, 1)
+            else:
+                wbgt_val = round(raw_val, 1)
         except ValueError:
             continue
 
@@ -89,7 +114,6 @@ def fetch_jma_amedas_latest() -> dict:
         res_time = requests.get(time_url, headers=HEADERS, timeout=10)
         res_time.raise_for_status()
         raw_time = res_time.text.strip()
-        # ISO8601形式（例: 2026-07-24T17:00:00+09:00）から数字のみ抽出
         formatted_time = re.sub(r'[-:+T]', '', raw_time)[:14]
     except Exception as e:
         print(f"Warning: Failed to fetch latest_time.txt ({e}), falling back to current hour.")
