@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>WBGTマルチサイネージ (気象庁全国アメダス完全対応)</title>
+<title>WBGTマルチサイネージ (気象庁公式データ完全対応)</title>
 <style>
 html,body{margin:0;padding:0;width:100vw;height:100vh;background-color:#fff;font-family:'Helvetica Neue',Arial,sans-serif;overflow:hidden!important;}
 #start-screen{position:fixed;top:0;left:0;width:100vw;height:100vh;background:linear-gradient(135deg,#1a202c 0%,#2d3748 100%);display:none;flex-direction:column;justify-content:center;align-items:center;z-index:9999;color:#fff;}
@@ -39,9 +39,9 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;background-color:#fff;font
 <div id="start-screen">
     <div class="start-box">
         <h2>WBGT MONITOR SYSTEM</h2>
-        <p>設置する地域、または現場名を入力してください</p>
+        <p>アメダス観測所名（例：千葉、八王子、八尾、石垣島）を入力してください</p>
         <div class="start-search-container">
-            <input type="text" id="start-input" class="start-input" placeholder="例：千葉市、八王子市、石垣島...">
+            <input type="text" id="start-input" class="start-input" placeholder="例：千葉、東京、大阪、八王子...">
             <button onclick="initSearch()" class="start-btn">モニター起動</button>
         </div>
         <div id="start-error" style="color:#fc8181;margin-top:15px;font-weight:bold;"></div>
@@ -55,7 +55,7 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;background-color:#fff;font
             <div class="sub" id="location-sub">気象庁アメダス実測値連動</div>
         </div>
         <div class="search-container">
-            <input type="text" id="panel-search-input" class="search-input" placeholder="全国の地域を変更...">
+            <input type="text" id="panel-search-input" class="search-input" placeholder="観測所名を検索...">
             <button onclick="panelSearch()" class="search-btn">変更</button>
         </div>
     </div>
@@ -74,19 +74,8 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;background-color:#fff;font
 </div>
 
 <script>
-let currentPlaceName = "千葉市";
-let allAmedasData = null;
-
-// 2点間の距離(km)計算
-function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
+let currentStationQuery = "千葉";
+let allData = null;
 
 function getWbgtLevel(e) {
     const t = parseFloat(e);
@@ -97,105 +86,86 @@ function getWbgtLevel(e) {
     return { color: "#2ecc71", text: "ほぼ安全" };
 }
 
-// 検索した場所の緯度経度から全国で最も近いアメダスを探す
-function findNearestStation(lat, lon) {
-    if (!allAmedasData || !allAmedasData.stations) return null;
-    let minDist = Infinity;
-    let nearest = null;
+// wbgt_data.json の中から部分一致するアメダス観測所を探す（完全ローカル検索）
+function findStation(query) {
+    if (!allData || !allData.stations) return null;
+    const q = query.trim().toLowerCase();
 
-    for (const [id, st] of Object.entries(allAmedasData.stations)) {
-        const dist = getDistance(lat, lon, st.lat, st.lon);
-        if (dist < minDist) {
-            minDist = dist;
-            nearest = st;
+    // 1. 完全一致（漢字）
+    for (const [id, st] of Object.entries(allData.stations)) {
+        if (st.name === q) return st;
+    }
+    // 2. 前方一致・部分一致（漢字・カタカナ）
+    for (const [id, st] of Object.entries(allData.stations)) {
+        if (st.name.includes(q) || (st.kana && st.kana.toLowerCase().includes(q))) {
+            return st;
         }
     }
-    return nearest;
+    return null;
 }
 
-async function renderDashboardByCoords(lat, lon, displayName) {
-    if (!allAmedasData) {
-        const res = await fetch("./wbgt_data.json?cache=" + new Date().getTime());
-        allAmedasData = await res.json();
-    }
-
-    const station = findNearestStation(lat, lon);
-    if (!station) {
-        alert("該当地域のアメダス観測データが見つかりませんでした。");
-        return;
-    }
-
-    document.getElementById("location-title").innerText = displayName;
-    document.getElementById("location-sub").innerText = `最寄り観測所: ${station.name}アメダス`;
-
-    const wbgtVal = station.wbgt.toFixed(1);
-    const numEl = document.getElementById("wbgt-num");
-    numEl.innerText = wbgtVal;
-    numEl.style.setProperty("font-size", "32vh", "important");
-
-    document.getElementById("cur-temp").innerText = station.temp !== null ? `${station.temp.toFixed(1)}℃` : "--";
-    document.getElementById("cur-humidity").innerText = station.humidity !== null ? `${station.humidity}%` : "--";
-    document.getElementById("cur-wind").innerText = station.wind !== null ? `${station.wind.toFixed(1)}m/s` : "--";
-    document.getElementById("cur-pop").innerText = `${station.precip.toFixed(1)}mm`;
-
-    const level = getWbgtLevel(wbgtVal);
-    document.getElementById("wbgt-card").style.backgroundColor = level.color;
-    document.getElementById("wbgt-status").innerText = level.text;
-
-    const timeStr = allAmedasData.updated_at ? allAmedasData.updated_at.replace("T", " ").substring(0, 16) : "";
-    document.getElementById("update-time").innerText = `気象庁実測データ同期: ${timeStr}`;
-    document.getElementById("start-screen").style.display = "none";
-}
-
-async function searchLocation(query, isAuto = false) {
-    if (!query) return;
+async function loadAndDisplay(query) {
     try {
-        // 地名から緯度経度を取得 (Open-Meteo Geocoding API)
-        const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=ja`);
-        const data = await res.json();
-
-        if (data.results && data.results.length > 0) {
-            const place = data.results[0];
-            const name = (place.admin1 ? place.admin1 : "") + place.name;
-
-            if (!isAuto && !confirm(`「 ${name} 」を取得しました。\nこの場所のアメダス実測値を表示しますか？`)) {
-                return;
-            }
-
-            const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?name=${encodeURIComponent(query)}`;
-            window.history.replaceState({ path: newUrl }, "", newUrl);
-
-            await renderDashboardByCoords(place.latitude, place.longitude, name);
-        } else {
-            alert(`「${query}」の位置情報が見つかりませんでした。正しい市町村名を入力してください。`);
+        if (!allData) {
+            const res = await fetch("./wbgt_data.json?cache=" + new Date().getTime());
+            if (!res.ok) throw new Error("JSONデータ読み込み失敗");
+            allData = await res.json();
         }
+
+        const station = findStation(query);
+        if (!station) {
+            alert(`「${query}」に一致するアメダス観測所が見つかりませんでした。\n（例：「千葉」「八王子」「八尾」「札幌」などで検索してください）`);
+            return;
+        }
+
+        document.getElementById("location-title").innerText = `${station.name} 観測所`;
+        document.getElementById("location-sub").innerText = `気象庁アメダス実測値`;
+
+        const wbgtVal = station.wbgt.toFixed(1);
+        const numEl = document.getElementById("wbgt-num");
+        numEl.innerText = wbgtVal;
+        numEl.style.setProperty("font-size", "32vh", "important");
+
+        document.getElementById("cur-temp").innerText = station.temp !== null ? `${station.temp.toFixed(1)}℃` : "--";
+        document.getElementById("cur-humidity").innerText = station.humidity !== null ? `${station.humidity}%` : "--";
+        document.getElementById("cur-wind").innerText = station.wind !== null ? `${station.wind.toFixed(1)}m/s` : "--";
+        document.getElementById("cur-pop").innerText = `${station.precip.toFixed(1)}mm`;
+
+        const level = getWbgtLevel(wbgtVal);
+        document.getElementById("wbgt-card").style.backgroundColor = level.color;
+        document.getElementById("wbgt-status").innerText = level.text;
+
+        const timeStr = allData.updated_at ? allData.updated_at.replace("T", " ").substring(0, 16) : "";
+        document.getElementById("update-time").innerText = `気象庁実測データ同期: ${timeStr}`;
+        document.getElementById("start-screen").style.display = "none";
+
+        // URLパラメータの更新
+        const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?name=${encodeURIComponent(query)}`;
+        window.history.replaceState({ path: newUrl }, "", newUrl);
+
     } catch (e) {
         console.error(e);
-        alert("位置情報の検索中にエラーが発生しました。");
+        document.getElementById("wbgt-status").innerText = "データ読み込みエラー";
     }
 }
 
 function initSearch() {
     const val = document.getElementById("start-input").value.trim();
-    if (val) searchLocation(val, false);
+    if (val) loadAndDisplay(val);
 }
 
 function panelSearch() {
     const val = document.getElementById("panel-search-input").value.trim();
     if (val) {
-        searchLocation(val, false);
+        loadAndDisplay(val);
         document.getElementById("panel-search-input").value = "";
     }
 }
 
 function initSystem() {
     const urlParam = new URLSearchParams(window.location.search).get("name");
-    if (urlParam) {
-        searchLocation(urlParam, true);
-    } else {
-        // デフォルトは千葉市
-        searchLocation("千葉市", true);
-    }
+    const target = urlParam ? urlParam : "千葉";
+    loadAndDisplay(target);
 }
 
 document.getElementById("start-input").addEventListener("keypress", (e) => { if (e.key === "Enter") initSearch(); });
