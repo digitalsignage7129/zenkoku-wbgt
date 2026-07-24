@@ -2,7 +2,8 @@ name: Chiba Official Sync
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # 10分ごとに自動更新
+    # 毎時 3分, 13分, 23分, 33分, 43分, 53分に自動実行（混雑回避のため数分ズラし）
+    - cron: '3/10 * * * *'
   workflow_dispatch:
 
 jobs:
