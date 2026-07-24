@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>WBGTマルチサイネージ (気象庁公式データ完全対応)</title>
+<title>WBGTマルチサイネージ (気象庁・環境省公式連動)</title>
 <style>
 html,body{margin:0;padding:0;width:100vw;height:100vh;background-color:#fff;font-family:'Helvetica Neue',Arial,sans-serif;overflow:hidden!important;}
 #start-screen{position:fixed;top:0;left:0;width:100vw;height:100vh;background:linear-gradient(135deg,#1a202c 0%,#2d3748 100%);display:none;flex-direction:column;justify-content:center;align-items:center;z-index:9999;color:#fff;}
@@ -39,12 +39,11 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;background-color:#fff;font
 <div id="start-screen">
     <div class="start-box">
         <h2>WBGT MONITOR SYSTEM</h2>
-        <p>アメダス観測所名（例：千葉、八王子、八尾、石垣島）を入力してください</p>
+        <p>地域・観測所名（例：千葉、八王子、大阪、石垣島）を入力してください</p>
         <div class="start-search-container">
             <input type="text" id="start-input" class="start-input" placeholder="例：千葉、東京、大阪、八王子...">
             <button onclick="initSearch()" class="start-btn">モニター起動</button>
         </div>
-        <div id="start-error" style="color:#fc8181;margin-top:15px;font-weight:bold;"></div>
     </div>
 </div>
 
@@ -52,7 +51,7 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;background-color:#fff;font
     <div class="header">
         <div class="header-title-area">
             <h1 id="location-title">地域情報</h1>
-            <div class="sub" id="location-sub">気象庁アメダス実測値連動</div>
+            <div class="sub" id="location-sub">気象庁アメダス実測値 ＆ 環境省WBGT</div>
         </div>
         <div class="search-container">
             <input type="text" id="panel-search-input" class="search-input" placeholder="観測所名を検索...">
@@ -60,25 +59,25 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;background-color:#fff;font
         </div>
     </div>
     <div class="wbgt-section" id="wbgt-card">
-        <div class="wbgt-label" id="time-label">現在の暑さ指数 (WBGT)</div>
+        <div class="wbgt-label">現在の暑さ指数 (環境省WBGT)</div>
         <div class="wbgt-display-area"><span id="wbgt-num">--.-</span><span class="wbgt-unit">℃</span></div>
         <div class="wbgt-status" id="wbgt-status">取得中...</div>
     </div>
     <div class="weather-grid">
-        <div class="grid-item"><div class="grid-label">気温 (アメダス)</div><div class="grid-value" id="cur-temp">--.-℃</div></div>
-        <div class="grid-item"><div class="grid-label">湿度 (アメダス)</div><div class="grid-value" id="cur-humidity">--%</div></div>
-        <div class="grid-item"><div class="grid-label">風速 (アメダス)</div><div class="grid-value" id="cur-wind">--.-m/s</div></div>
+        <div class="grid-item"><div class="grid-label">気温 (気象庁)</div><div class="grid-value" id="cur-temp">--.-℃</div></div>
+        <div class="grid-item"><div class="grid-label">湿度 (気象庁)</div><div class="grid-value" id="cur-humidity">--%</div></div>
+        <div class="grid-item"><div class="grid-label">風速 (気象庁)</div><div class="grid-value" id="cur-wind">--.-m/s</div></div>
         <div class="grid-item"><div class="grid-label">降水量 (1h)</div><div class="grid-value" id="cur-pop">--mm</div></div>
     </div>
     <div class="footer" id="update-time">気象庁・環境省 公式実測データ</div>
 </div>
 
 <script>
-let currentStationQuery = "千葉";
 let allData = null;
 
 function getWbgtLevel(e) {
     const t = parseFloat(e);
+    if (isNaN(t)) return { color: "#718096", text: "--" };
     if (t >= 31) return { color: "#e74c3c", text: "危険（運動中止）" };
     if (t >= 28) return { color: "#e67e22", text: "厳重警戒" };
     if (t >= 25) return { color: "#f1c40f", text: "警戒" };
@@ -86,16 +85,13 @@ function getWbgtLevel(e) {
     return { color: "#2ecc71", text: "ほぼ安全" };
 }
 
-// wbgt_data.json の中から部分一致するアメダス観測所を探す（完全ローカル検索）
 function findStation(query) {
     if (!allData || !allData.stations) return null;
     const q = query.trim().toLowerCase();
 
-    // 1. 完全一致（漢字）
     for (const [id, st] of Object.entries(allData.stations)) {
         if (st.name === q) return st;
     }
-    // 2. 前方一致・部分一致（漢字・カタカナ）
     for (const [id, st] of Object.entries(allData.stations)) {
         if (st.name.includes(q) || (st.kana && st.kana.toLowerCase().includes(q))) {
             return st;
@@ -108,44 +104,45 @@ async function loadAndDisplay(query) {
     try {
         if (!allData) {
             const res = await fetch("./wbgt_data.json?cache=" + new Date().getTime());
-            if (!res.ok) throw new Error("JSONデータ読み込み失敗");
+            if (!res.ok) throw new Error("JSON読み込み失敗");
             allData = await res.json();
         }
 
         const station = findStation(query);
         if (!station) {
-            alert(`「${query}」に一致するアメダス観測所が見つかりませんでした。\n（例：「千葉」「八王子」「八尾」「札幌」などで検索してください）`);
+            alert(`「${query}」に該当する観測所が見つかりませんでした。`);
             return;
         }
 
         document.getElementById("location-title").innerText = `${station.name} 観測所`;
-        document.getElementById("location-sub").innerText = `気象庁アメダス実測値`;
+        document.getElementById("location-sub").innerText = `気象庁アメダス実測値 ＆ 環境省WBGT`;
 
-        const wbgtVal = station.wbgt.toFixed(1);
+        // WBGT (環境省データ)
+        const wbgtVal = station.wbgt !== null && station.wbgt !== undefined ? Number(station.wbgt).toFixed(1) : "--.-";
         const numEl = document.getElementById("wbgt-num");
         numEl.innerText = wbgtVal;
         numEl.style.setProperty("font-size", "32vh", "important");
 
-        document.getElementById("cur-temp").innerText = station.temp !== null ? `${station.temp.toFixed(1)}℃` : "--";
-        document.getElementById("cur-humidity").innerText = station.humidity !== null ? `${station.humidity}%` : "--";
-        document.getElementById("cur-wind").innerText = station.wind !== null ? `${station.wind.toFixed(1)}m/s` : "--";
-        document.getElementById("cur-pop").innerText = `${station.precip.toFixed(1)}mm`;
+        // アメダス要素 (気象庁データ)
+        document.getElementById("cur-temp").innerText = station.temp !== null && station.temp !== undefined ? `${Number(station.temp).toFixed(1)}℃` : "--";
+        document.getElementById("cur-humidity").innerText = station.humidity !== null && station.humidity !== undefined ? `${station.humidity}%` : "--";
+        document.getElementById("cur-wind").innerText = station.wind !== null && station.wind !== undefined ? `${Number(station.wind).toFixed(1)}m/s` : "--";
+        document.getElementById("cur-pop").innerText = station.precip !== null && station.precip !== undefined ? `${Number(station.precip).toFixed(1)}mm` : "0.0mm";
 
         const level = getWbgtLevel(wbgtVal);
         document.getElementById("wbgt-card").style.backgroundColor = level.color;
         document.getElementById("wbgt-status").innerText = level.text;
 
         const timeStr = allData.updated_at ? allData.updated_at.replace("T", " ").substring(0, 16) : "";
-        document.getElementById("update-time").innerText = `気象庁実測データ同期: ${timeStr}`;
+        document.getElementById("update-time").innerText = `公式データ同期時刻: ${timeStr}`;
         document.getElementById("start-screen").style.display = "none";
 
-        // URLパラメータの更新
         const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?name=${encodeURIComponent(query)}`;
         window.history.replaceState({ path: newUrl }, "", newUrl);
 
     } catch (e) {
-        console.error(e);
-        document.getElementById("wbgt-status").innerText = "データ読み込みエラー";
+        console.error("表示エラー:", e);
+        document.getElementById("wbgt-status").innerText = "データ読み込み待ち";
     }
 }
 
