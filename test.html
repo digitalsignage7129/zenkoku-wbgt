@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>WBGTマルチサイネージシステム (気象庁アメダス連動)</title>
+<title>WBGTマルチサイネージシステム (環境省基準表示)</title>
 <style>
 html,body{margin:0;padding:0;width:100vw;height:100vh;background-color:#fff;font-family:'Helvetica Neue',Arial,sans-serif;overflow:hidden!important;}
 #start-screen{position:fixed;top:0;left:0;width:100vw;height:100vh;background:linear-gradient(135deg,#1a202c 0%,#2d3748 100%);display:none;flex-direction:column;justify-content:center;align-items:center;z-index:9999;color:#fff;}
@@ -21,7 +21,7 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;background-color:#fff;font
 .search-container{display:flex;align-items:center;gap:8px;}
 .search-input{font-size:2.2vh;padding:.8vh 1.5vw;border:3px solid #cbd5e0;border-radius:30px;width:18vw;font-weight:bold;outline:none;color:#2d3748;}
 .search-btn{font-size:2.2vh;padding:.8vh 1.8vw;background-color:#3182ce;color:#fff;border:none;border-radius:30px;font-weight:bold;cursor:pointer;}
-.weather-icon-txt{font-size:5.5vh;font-weight:900;color:#3182ce;margin-left:15px;}
+.weather-icon-txt{font-size:4.5vh;font-weight:900;color:#3182ce;margin-left:15px;white-space:nowrap;}
 .wbgt-section{background:#2ecc71;color:#fff;border-radius:24px;text-align:center;height:59vh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;padding:2vh 0;box-shadow:0 10px 25px rgba(0,0,0,.1);}
 .wbgt-label{font-size:3.5vh;font-weight:bold;letter-spacing:2px;margin:0;line-height:1;}
 .wbgt-display-area{display:flex;justify-content:center;align-items:center;width:100%;height:41vh;margin:0;padding:0;}
@@ -42,7 +42,7 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;background-color:#fff;font
         <h2>WBGT MONITOR SYSTEM</h2>
         <p>設置する地域、または現場名を入力してください</p>
         <div class="start-search-container">
-            <input type="text" id="start-input" class="start-input" placeholder="例：加古川市、舞洲、和歌山...">
+            <input type="text" id="start-input" class="start-input" placeholder="例：千葉市、加古川市、舞洲...">
             <button onclick="initSearch()" class="start-btn">モニター起動</button>
         </div>
         <div id="start-error" style="color:#fc8181;margin-top:15px;font-weight:bold;"></div>
@@ -53,7 +53,7 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;background-color:#fff;font
     <div class="header">
         <div class="header-title-area">
             <h1 id="location-title">地域情報</h1>
-            <div class="sub" id="location-sub">気象庁アメダス観測情報</div>
+            <div class="sub" id="location-sub">ピンポイント観測情報 (環境省方式算出)</div>
         </div>
         <div class="search-container">
             <input type="text" id="panel-search-input" class="search-input" placeholder="地域を変更...">
@@ -70,189 +70,219 @@ html,body{margin:0;padding:0;width:100vw;height:100vh;background-color:#fff;font
         <div class="grid-item"><div class="grid-label">気温</div><div class="grid-value" id="cur-temp">--.-℃</div></div>
         <div class="grid-item"><div class="grid-label">湿度</div><div class="grid-value" id="cur-humidity">--%</div></div>
         <div class="grid-item"><div class="grid-label">風速</div><div class="grid-value" id="cur-wind">--.-m/s</div></div>
-        <div class="grid-item"><div class="grid-label">降水 (1h)</div><div class="grid-value" id="cur-pop">--mm</div></div>
+        <div class="grid-item"><div class="grid-label">降水</div><div class="grid-value" id="cur-pop">--%</div></div>
     </div>
-    <div class="footer" id="update-time">気象庁アメダス 自動更新</div>
+    <div class="footer" id="update-time">環境省基準算定データ・自動更新</div>
 </div>
 
 <script>
 let currentLat = null, currentLon = null, currentName = "";
-let amedasTable = null; // アメダス観測所マスターデータ
 
-function getWbgtLevel(e){
+// WMOお天気コードから日本語とアイコンに変換
+function getWeatherText(e) {
+    if (e === 0) return "☀️ 晴れ";
+    if (e === 1 || e === 2 || e === 3) return "⛅ 晴時々曇";
+    if (e === 45 || e === 48) return "🌫️ 霧";
+    if (e >= 51 && e <= 55) return "🌧️ 小雨";
+    if (e >= 61 && e <= 65) return "☔ 雨";
+    if (e >= 71 && e <= 75) return "❄️ 雪";
+    if (e >= 80 && e <= 82) return "🌦️ にわか雨";
+    if (e >= 95 && e <= 99) return "⚡ 雷雨";
+    return "☁️ 曇り";
+}
+
+// 暑さ指数レベル判定
+function getWbgtLevel(e) {
     const t = parseFloat(e);
-    return t >= 31 ? {color:"#e74c3c", text:"危険（運動中止）"} :
-           t >= 28 ? {color:"#e67e22", text:"厳重警戒"} :
-           t >= 25 ? {color:"#f1c40f", text:"警戒"} :
-           t >= 21 ? {color:"#3498db", text:"注意"} :
-                     {color:"#2ecc71", text:"ほぼ安全"};
+    if (t >= 31) return { color: "#e74c3c", text: "危険（運動中止）" };
+    if (t >= 28) return { color: "#e67e22", text: "厳重警戒" };
+    if (t >= 25) return { color: "#f1c40f", text: "警戒" };
+    if (t >= 21) return { color: "#3498db", text: "注意" };
+    return { color: "#2ecc71", text: "ほぼ安全" };
 }
 
-// 気温と湿度から近似WBGTを計算
-function calcWbgt(temp, humidity){
-    return .725 * temp + .0368 * humidity + .00315 * temp * humidity - 3.2;
+/**
+ * 環境省「実況推定用算定式（小野らの式）」に基づくWBGT計算
+ * @param {number} Ta 気温 (℃)
+ * @param {number} RH 相対湿度 (%)
+ * @param {number} WS 風速 (m/s)
+ * @param {number} SR 全天日射量 (kW/m2)
+ */
+function calcEnvWbgt(Ta, RH, WS, SR) {
+    // 日射量が負数の場合は0に補正
+    const srKw = Math.max(0, SR / 1000); 
+    const wbgt = 0.735 * Ta + 0.0374 * RH + 0.00292 * Ta * RH + 7.619 * srKw - 4.557 * Math.pow(srKw, 2) - 0.0572 * WS - 4.064;
+    return Math.max(0, wbgt); // 最低値ガード
 }
 
-// 2点間の距離(km)を計算（ヒュベニの公式）
-function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // 地球の半径 (km)
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-}
-
-// 最寄りのアメダス観測所を探す
-async function getNearestAmedasStation(lat, lon) {
-    if (!amedasTable) {
-        const res = await fetch("https://www.jma.go.jp/bosai/amedas/const/amedastable.json");
-        amedasTable = await res.json();
-    }
-    let nearestStn = null;
-    let minDistance = Infinity;
-
-    for (const [stnId, stnInfo] of Object.entries(amedasTable)) {
-        // 緯度経度データ形式: [度, 分]
-        const stnLat = stnInfo.lat[0] + stnInfo.lat[1] / 60;
-        const stnLon = stnInfo.lon[0] + stnInfo.lon[1] / 60;
-        const dist = getDistance(lat, lon, stnLat, stnLon);
-        if (dist < minDistance) {
-            minDistance = dist;
-            nearestStn = { id: stnId, name: stnInfo.kjName, lat: stnLat, lon: stnLon };
-        }
-    }
-    return nearestStn;
-}
-
-async function updateDashboard(){
+async function updateDashboard() {
     if (!currentLat || !currentLon) return;
     const statusEl = document.getElementById("wbgt-status");
     
+    // キャッシュKey
+    const cacheKey = `wbgt_env_${currentLat.toFixed(3)}_${currentLon.toFixed(3)}`;
+    const cacheData = localStorage.getItem(cacheKey);
+    const cacheTime = localStorage.getItem(`${cacheKey}_time`);
+    const nowTime = new Date().getTime();
+
+    // 30分以内のキャッシュがあれば利用
+    if (cacheData && cacheTime && (nowTime - cacheTime < 1800000)) {
+        renderData(JSON.parse(cacheData));
+        return;
+    }
+
+    const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${currentLat}&longitude=${currentLon}&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,precipitation_probability,direct_normal_irradiance&timezone=Asia%2FTokyo&forecast_days=1`;
+
     try {
-        // 1. 最寄りのアメダス観測所を取得
-        const station = await getNearestAmedasStation(currentLat, currentLon);
-        if (!station) throw new Error("アメダス観測所が見つかりません");
-
-        // 2. 最新データの時刻（10分刻み）を取得するため最新のアメダスJSONを探す
-        // 直近の毎時00分/10分/20分...の時刻文字列を生成
-        const now = new Date();
-        // 処理の安全のため気象庁データの反映遅れ(約3〜5分)を考慮して少し前の時刻にする
-        now.setMinutes(now.getMinutes() - 5);
-        const min10 = Math.floor(now.getMinutes() / 10) * 10;
+        const res = await fetch(apiUrl);
+        if (!res.ok) throw new Error("気象データ取得失敗");
+        const data = await res.json();
         
-        const yyyy = now.getFullYear();
-        const mm = String(now.getMonth() + 1).padStart(2, '0');
-        const dd = String(now.getDate()).padStart(2, '0');
-        const hh = String(now.getHours()).padStart(2, '0');
-        const mi = String(min10).padStart(2, '0');
-        
-        const timeStr = `${yyyy}${mm}${dd}${hh}${mi}00`;
-        const jmaDataUrl = `https://www.jma.go.jp/bosai/amedas/data/map/${timeStr}.json`;
-
-        const res = await fetch(jmaDataUrl);
-        if (!res.ok) throw new Error("気象庁データ取得エラー");
-        const jmaData = await res.json();
-
-        const stnData = jmaData[station.id];
-        if (!stnData) throw new Error("該当観測所のデータが見つかりません");
-
-        // 気圧/湿度観測がない小さなアメダスの場合の対策
-        const temp = stnData.temp ? stnData.temp[0] : null;
-        const humidity = stnData.humidity ? stnData.humidity[0] : 50; // 湿度データが無い場合は代替値
-        const wind = stnData.wind ? stnData.wind[0] : 0;
-        const precip1h = stnData.precipitation1h ? stnData.precipitation1h[0] : 0;
-
-        if (temp === null) throw new Error("気温データが取得できません");
-
-        // WBGT算出
-        const wbgt = calcWbgt(temp, humidity).toFixed(1);
-
-        // 画面描画
-        document.getElementById("location-title").innerText = currentName;
-        document.getElementById("location-sub").innerText = `観測地点: ${station.name} (${hh}:${mi}時点)`;
-        document.getElementById("weather-text").innerText = "🌡️"; // アメダス単体では天気記号が無い場合があるため
-
-        const numEl = document.getElementById("wbgt-num");
-        numEl.innerText = wbgt;
-        numEl.style.setProperty("font-size", "32vh", "important");
-
-        document.getElementById("cur-temp").innerText = `${temp.toFixed(1)}℃`;
-        document.getElementById("cur-humidity").innerText = stnData.humidity ? `${humidity}%` : `--%`;
-        document.getElementById("cur-wind").innerText = `${wind.toFixed(1)}m/s`;
-        document.getElementById("cur-pop").innerText = `${precip1h.toFixed(1)}mm`;
-
-        const level = getWbgtLevel(wbgt);
-        document.getElementById("wbgt-card").style.backgroundColor = level.color;
-        statusEl.innerText = level.text;
-
-        document.getElementById("time-label").innerText = `現在（${hh}:${mi}）の暑さ指数`;
-        document.getElementById("update-time").innerText = `気象庁アメダス同期: ${yyyy}/${mm}/${dd} ${hh}:${mi}`;
-
+        localStorage.setItem(cacheKey, JSON.stringify(data));
+        localStorage.setItem(`${cacheKey}_time`, nowTime);
+        renderData(data);
     } catch (err) {
         console.error(err);
-        statusEl.innerText = "データ取得失敗";
-    }
-}
-
-async function executeLocationSearch(e, t = !1){
-    try {
-        // 位置検索（緯度経度の取得）のみOpen-Meteoのジオコーディングを利用
-        const n = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(e)}&count=1&language=ja`;
-        const c = await fetch(n);
-        const r = await c.json();
-        
-        if (r.results && r.results.length > 0) {
-            const o = r.results[0];
-            const s = (o.admin1 ? o.admin1 : "") + o.name;
-            if (!t && !confirm(`「 ${s} 」を取得しました。\nこの場所で間違いありませんか？`)) return !1;
-            
-            currentLat = o.latitude;
-            currentLon = o.longitude;
-            currentName = s;
-            localStorage.setItem("saved_wbgt_location", e);
-            
-            const i = window.location.protocol + "//" + window.location.host + window.location.pathname + `?name=${encodeURIComponent(e)}`;
-            window.history.replaceState({path: i}, "", i);
-            document.getElementById("start-screen").style.display = "none";
-            
-            await updateDashboard();
-            return !0;
+        if (cacheData) {
+            renderData(JSON.parse(cacheData));
+            statusEl.innerText += " (オフライン)";
+        } else {
+            statusEl.innerText = "データ取得失敗";
         }
-        alert(`「${e}」が見つかりませんでした。正しい地域名を入力してください。`);
-        return !1;
-    } catch (s) {
-        alert("通信エラーが発生しました。");
-        return !1;
     }
 }
 
-async function initSearch(){
-    const e = document.getElementById("start-input").value.trim();
-    if(e){
+function renderData(data) {
+    const hourly = data.hourly;
+    const now = new Date();
+    let index = 0;
+
+    // 現在時刻に一番近いタイムスロットを検索
+    for (let i = 0; i < hourly.time.length; i++) {
+        if (new Date(hourly.time[i]) >= now) {
+            index = i;
+            break;
+        }
+    }
+
+    const temp = hourly.temperature_2m[index];
+    const humidity = hourly.relative_humidity_2m[index];
+    const windKm = hourly.wind_speed_10m[index];
+    const windMs = windKm / 3.6; // km/h -> m/s 変換
+    const pop = hourly.precipitation_probability[index];
+    const solarRad = hourly.direct_normal_irradiance ? hourly.direct_normal_irradiance[index] : 0;
+    const weatherCode = hourly.weather_code[index];
+
+    // 環境省公式推定式でWBGT算出
+    const wbgtVal = calcEnvWbgt(temp, humidity, windMs, solarRad).toFixed(1);
+    const weatherTxt = getWeatherText(weatherCode);
+
+    document.getElementById("location-title").innerText = currentName;
+    document.getElementById("weather-text").innerText = weatherTxt;
+
+    const numEl = document.getElementById("wbgt-num");
+    numEl.innerText = wbgtVal;
+    numEl.style.setProperty("font-size", "32vh", "important");
+
+    document.getElementById("cur-temp").innerText = `${temp.toFixed(1)}℃`;
+    document.getElementById("cur-humidity").innerText = `${humidity}%`;
+    document.getElementById("cur-wind").innerText = `${windMs.toFixed(1)}m/s`;
+    document.getElementById("cur-pop").innerText = `${pop}%`;
+
+    const level = getWbgtLevel(wbgtVal);
+    document.getElementById("wbgt-card").style.backgroundColor = level.color;
+    document.getElementById("wbgt-status").innerText = level.text;
+
+    const slotTime = new Date(hourly.time[index]);
+    document.getElementById("time-label").innerText = `現在（${slotTime.getHours()}:00）の暑さ指数 (環境省基準)`;
+
+    const updateNow = new Date();
+    document.getElementById("update-time").innerText = `環境省基準データ更新: ${updateNow.getMonth() + 1}/${updateNow.getDate()} ${updateNow.getHours()}:${String(updateNow.getMinutes()).padStart(2, "0")}`;
+}
+
+async function executeLocationSearch(query, isAuto = false) {
+    if (!query) return false;
+    try {
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=ja`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.results && data.results.length > 0) {
+            const place = data.results[0];
+            const displayName = (place.admin1 ? place.admin1 : "") + place.name;
+
+            if (!isAuto && !confirm(`「 ${displayName} 」を取得しました。\n表示を切り替えますか？`)) {
+                return false;
+            }
+
+            currentLat = place.latitude;
+            currentLon = place.longitude;
+            currentName = displayName;
+
+            localStorage.setItem("saved_wbgt_location", query);
+
+            const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?name=${encodeURIComponent(query)}`;
+            window.history.replaceState({ path: newUrl }, "", newUrl);
+
+            document.getElementById("start-screen").style.display = "none";
+            await updateDashboard();
+            return true;
+        }
+
+        alert(`「${query}」が見つかりませんでした。別の地域名（例：千代田区、大阪市など）でお試しください。`);
+        return false;
+    } catch (err) {
+        console.error(err);
+        alert("位置情報の取得中に通信エラーが発生しました。");
+        return false;
+    }
+}
+
+async function initSearch() {
+    const val = document.getElementById("start-input").value.trim();
+    if (val) {
         document.getElementById("start-error").innerText = "位置を検索中...";
-        (await executeLocationSearch(e, !1)) || (document.getElementById("start-error").innerText = "場所が見つからないか、キャンセルされました。");
+        const success = await executeLocationSearch(val, false);
+        if (!success) {
+            document.getElementById("start-error").innerText = "場所が見つからないか、キャンセルされました。";
+        }
     }
 }
 
-async function panelSearch(){
-    const e = document.getElementById("panel-search-input").value.trim();
-    e && (await executeLocationSearch(e, !1)) && (document.getElementById("panel-search-input").value = "");
+async function panelSearch() {
+    const val = document.getElementById("panel-search-input").value.trim();
+    if (val) {
+        const success = await executeLocationSearch(val, false);
+        if (success) {
+            document.getElementById("panel-search-input").value = "";
+        }
+    }
 }
 
-function initSystem(){
-    const e = new URLSearchParams(window.location.search).get("name");
-    const t = localStorage.getItem("saved_wbgt_location");
-    e ? executeLocationSearch(e, !0) : t ? executeLocationSearch(t, !0) : document.getElementById("start-screen").style.display = "flex";
+function initSystem() {
+    const urlParam = new URLSearchParams(window.location.search).get("name");
+    const savedLoc = localStorage.getItem("saved_wbgt_location");
+
+    if (urlParam) {
+        executeLocationSearch(urlParam, true);
+    } else if (savedLoc) {
+        executeLocationSearch(savedLoc, true);
+    } else {
+        document.getElementById("start-screen").style.display = "flex";
+    }
 }
 
-document.getElementById("start-input").addEventListener("keypress", function(e){ "Enter" === e.key && initSearch(); });
-document.getElementById("panel-search-input").addEventListener("keypress", function(e){ "Enter" === e.key && panelSearch(); });
+// Enterキー入力での検索対応
+document.getElementById("start-input").addEventListener("keypress", function (e) {
+    if (e.key === "Enter") initSearch();
+});
+document.getElementById("panel-search-input").addEventListener("keypress", function (e) {
+    if (e.key === "Enter") panelSearch();
+});
 
+// システム初期化 & 10分ごとの定期更新
 initSystem();
-setInterval(updateDashboard, 600000); // 10分ごとに更新
+setInterval(updateDashboard, 600000);
 </script>
 </body>
 </html>
