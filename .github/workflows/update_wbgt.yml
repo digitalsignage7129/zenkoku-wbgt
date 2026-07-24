@@ -1,0 +1,39 @@
+name: Update WBGT Data
+
+on:
+  schedule:
+    # 毎時15分に自動実行（UTC時間表記のため 15 * * * * でOK）
+    - cron: '15 * * * *'
+  # GitHubの画面から手動で実行できるボタンも有効化
+  workflow_dispatch:
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # リポジトリへの書き込み権限（git push用）
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run data fetch script
+        run: python fetch_hybrid_data.py
+
+      - name: Commit and push if data changed
+        run: |
+          git config local user.email "github-actions[bot]@users.noreply.github.com"
+          git config local user.name "github-actions[bot]"
+          git add wbgt_data.json
+          # 変更がある場合のみコミット＆プッシュ（[skip ci] で無限ループ防止）
+          git diff --quiet && git diff --staged --quiet || (git commit -m "auto: Update WBGT and weather data [skip ci]" && git push)
