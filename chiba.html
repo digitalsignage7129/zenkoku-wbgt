@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>新港清掃工場 暑さ指数 (WBGT)</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #f4f6f8; margin: 0; padding: 40px; }
+        .card { background: white; max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { font-size: 24px; color: #333; margin-bottom: 5px; }
+        .update { font-size: 14px; color: #777; margin-bottom: 20px; }
+        .wbgt-box { font-size: 64px; font-weight: bold; color: #d9534f; margin: 10px 0; }
+        .level { font-size: 28px; font-weight: bold; padding: 8px 20px; display: inline-block; border-radius: 6px; background: #fcf8e3; color: #8a6d3b; margin-bottom: 20px; }
+        .details { display: flex; justify-content: space-around; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
+        .detail-item { font-size: 18px; color: #555; }
+        .detail-val { font-weight: bold; font-size: 22px; color: #222; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>新港清掃工場 周辺の暑さ指数</h1>
+    <div class="update" id="update">読み込み中...</div>
+    
+    <div class="wbgt-box" id="wbgt">--.-</div>
+    <div class="level" id="level">取得中</div>
+
+    <div class="details">
+        <div class="detail-item">気温<br><span class="detail-val" id="temp">--.-</span> ℃</div>
+        <div class="detail-item">湿度<br><span class="detail-val" id="hum">--</span> ％</div>
+        <div class="detail-item">風速<br><span class="detail-val" id="wind">--.-</span> m/s</div>
+    </div>
+</div>
+
+<script>
+async function fetchData() {
+    try {
+        const res = await fetch('chiba_wbgt.json?t=' + new Date().getTime());
+        const data = await res.json();
+        
+        document.getElementById('update').innerText = "最終更新: " + data.updated_at;
+        document.getElementById('wbgt').innerText = data.wbgt !== null ? data.wbgt : "--.-";
+        document.getElementById('level').innerText = data.level;
+        document.getElementById('temp').innerText = data.temperature !== null ? data.temperature : "--.-";
+        document.getElementById('hum').innerText = data.humidity !== null ? data.humidity : "--";
+        document.getElementById('wind').innerText = data.wind_speed !== null ? data.wind_speed : "--.-";
+    } catch (e) {
+        console.error(e);
+    }
+}
+fetchData();
+setInterval(fetchData, 60000);
+</script>
+
+</body>
+</html>
