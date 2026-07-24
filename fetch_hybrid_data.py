@@ -2,11 +2,13 @@ from datetime import datetime, timezone, timedelta
 import io
 import csv
 import json
+import re
 import requests
 
 JST = timezone(timedelta(hours=9))
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Referer": "https://www.wbgt.env.go.jp/"
 }
 
 # ------------------------------------------------------------------
@@ -35,16 +37,49 @@ def parse_jma_value(data_dict: dict, key: str, is_divide_10: bool = False):
     return None
 
 def fetch_moe_wbgt_all() -> dict:
-    """環境省の公式CSVから最新の全地点WBGTを取得する（複数URLフォールバック対応）"""
-    urls = [
+    """環境省のサイトから最新のCSVリンクを動的に探し出して取得する"""
+    entry_urls = [
+        "https://www.wbgt.env.go.jp/",
+        "https://www.wbgt.env.go.jp/est1570/dl/",
+        "https://www.wbgt.env.go.jp/download.php"
+    ]
+    
+    csv_url = None
+    for entry in entry_urls:
+        try:
+            print(f"Scanning entry page for CSV link: {entry}")
+            res = requests.get(entry, headers=HEADERS, timeout=10)
+            if res.status_code == 200:
+                links = re.findall(r'href=["\']([^"\']+\.csv[^"\']*)["\']', res.text, re.IGNORECASE)
+                for link in links:
+                    if "wbgt" in link.lower() or "dl" in link.lower() or "latest" in link.lower() or "all" in link.lower():
+                        if link.startswith("http"):
+                            csv_url = link
+                        elif link.startswith("/"):
+                            csv_url = "https://www.wbgt.env.go.jp" + link
+                        else:
+                            base_path = entry.rsplit("/", 1)[0]
+                            csv_url = base_path + "/" + link
+                        break
+            if csv_url:
+                break
+        except Exception as e:
+            print(f"Error scanning {entry}: {e}")
+            continue
+
+    candidate_urls = []
+    if csv_url:
+        candidate_urls.append(csv_url)
+    
+    candidate_urls.extend([
         "https://www.wbgt.env.go.jp/est1570/dl/wbgt_dl.csv",
         "https://www.wbgt.env.go.jp/est1570/d/wbgt_all_latest.csv",
         "https://www.wbgt.env.go.jp/data/wbgt_dl.csv",
         "https://www.wbgt.env.go.jp/wbgt_dl.csv"
-    ]
+    ])
 
     res = None
-    for url in urls:
+    for url in candidate_urls:
         print(f"Trying to fetch MoE WBGT CSV from: {url}")
         try:
             response = requests.get(url, headers=HEADERS, timeout=10)
@@ -56,7 +91,7 @@ def fetch_moe_wbgt_all() -> dict:
             continue
 
     if res is None:
-        raise RuntimeError("環境省のWBGT CSVの取得にすべての候補URLで失敗しました。")
+        raise RuntimeError("環境省のWBGT CSVの取得にすべての候補URLおよび動的検出で失敗しました。")
 
     try:
         content = res.content.decode("shift_jis")
