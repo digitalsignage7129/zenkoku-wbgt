@@ -7,8 +7,7 @@ import requests
 
 JST = timezone(timedelta(hours=9))
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Referer": "https://www.wbgt.env.go.jp/"
+    "User-Agent": "Mozilla/5.0"
 }
 
 # ------------------------------------------------------------------
@@ -37,59 +36,37 @@ def parse_jma_value(data_dict: dict, key: str, is_divide_10: bool = False):
     return None
 
 def fetch_moe_wbgt_all() -> dict:
-    """環境省の公式全地点実況値CSV（月別）を取得する"""
-    now_jst = datetime.now(JST)
-    current_ym = now_jst.strftime("%Y%m")
+    """環境省の公式リアルタイム実況値CSV（wbgt_current_zone.csv）から取得する"""
+    url = "https://www.wbgt.env.go.jp/data/wbgt_current_zone.csv"
+    print(f"Fetching MoE WBGT CSV from: {url}")
     
-    # 月初めなどの切り替わりを考慮し、当月と前月のURLを候補にする
-    prev_month_date = now_jst.replace(day=1) - timedelta(days=1)
-    prev_ym = prev_month_date.strftime("%Y%m")
-
-    candidate_urls = [
-        f"https://www.wbgt.env.go.jp/est15WG/dl/wbgt_all_{current_ym}.csv",
-        f"https://www.wbgt.env.go.jp/est15WG/dl/wbgt_all_{prev_ym}.csv",
-        "https://www.wbgt.env.go.jp/est15WG/dl/wbgt_all_latest.csv"
-    ]
-
-    res = None
-    for url in candidate_urls:
-        print(f"Trying to fetch MoE WBGT CSV from: {url}")
-        try:
-            response = requests.get(url, headers=HEADERS, timeout=15)
-            print(f"Status code: {response.status_code}")
-            if response.status_code == 200 and len(response.content) > 100:
-                res = response
-                print(f"Successfully fetched MoE CSV from: {url}")
-                break
-        except Exception as e:
-            print(f"Failed to fetch {url}: {e}")
-            continue
-
-    if res is None:
-        raise RuntimeError("環境省のWBGT実況値CSVの取得に失敗しました。")
+    res = requests.get(url, headers=HEADERS, timeout=10)
+    res.raise_for_status()
 
     try:
-        content = res.content.decode("utf-8")
-    except UnicodeDecodeError:
         content = res.content.decode("shift_jis")
+    except UnicodeDecodeError:
+        content = res.content.decode("utf-8-sig")
 
     parsed = {}
     now_str = datetime.now(JST).strftime("%Y-%m-%d %H:%M")
     
     reader = csv.reader(io.StringIO(content))
     for row in reader:
-        if not row or len(row) < 4 or row[0].startswith("#"):
+        if not row or len(row) < 2:
             continue
 
         station_code = row[0].strip()
-        raw_val_str = row[3].strip() # 3列目にWBGT実況値が格納されるフォーマット
+        raw_val_str = row[1].strip()
+
+        # ヘッダー行や数値以外の行をスキップ
+        if not station_code.isdigit() or not raw_val_str.isdigit():
+            continue
 
         try:
             raw_val = float(raw_val_str)
-            if raw_val > 50:
-                wbgt_val = round(raw_val / 10.0, 1)
-            else:
-                wbgt_val = round(raw_val, 1)
+            # 10で割って実際の小数値に変換（例: 293 -> 29.3）
+            wbgt_val = round(raw_val / 10.0, 1)
         except ValueError:
             continue
 
@@ -107,7 +84,7 @@ def fetch_moe_wbgt_all() -> dict:
     return parsed
 
 def fetch_jma_amedas_latest() -> dict:
-    """気象庁の最新アメダス実測値を取得する"""
+    """気象庁の最新アメダス実測値を取得する（latest_time.txtを参照）"""
     time_url = "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt"
     print(f"Fetching JMA latest time from: {time_url}")
     
@@ -129,15 +106,20 @@ def fetch_jma_amedas_latest() -> dict:
     return res.json()
 
 def main():
+    # 1. 気象庁観測所マスターの取得
     master_url = "https://www.jma.go.jp/bosai/amedas/const/amedastable.json"
     print("Fetching JMA Station Master...")
     res = requests.get(master_url, headers=HEADERS, timeout=10)
     res.raise_for_status()
     station_master = res.json()
 
+    # 2. 環境省 WBGTデータの取得（環境省基準を維持）
     moe_data = fetch_moe_wbgt_all()
+
+    # 3. 気象庁 アメダス実測値の取得
     jma_amedas = fetch_jma_amedas_latest()
 
+    # 4. マージ処理（環境省地点コードがベース）
     merged_stations = []
     for moe_id, moe_info in moe_data.items():
         jma_id = ID_EXCEPTIONS.get(moe_id, moe_id)
