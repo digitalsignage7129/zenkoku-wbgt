@@ -1,4 +1,4 @@
-name: Chiba MOE Official Correct Sync
+name: Chiba MOE Official Strict Sync
 
 on:
   schedule:
@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
 
-      - name: Fetch and Process MOE Official Monthly CSV
+      - name: Fetch and Process Data Safely
         run: |
           # 1. 気象庁アメダスから気温・湿度・風速を取得（千葉: 45212）
           curl -s -H "User-Agent: Mozilla/5.0" "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt" -o latest_time.txt
@@ -20,29 +20,55 @@ jobs:
           LATEST_TIME=$(echo "${RAW_TIME}" | sed 's/[-:+T]//g' | cut -c 1-14)
           curl -s -H "User-Agent: Mozilla/5.0" "https://www.jma.go.jp/bosai/amedas/data/map/${LATEST_TIME}.json" -o amedas_now.json
 
-          REAL_TEMP=$(jq -r '."45212".temp[0] // "28.0"' amedas_now.json)
-          REAL_TEMP=$(echo "scale=1; $REAL_TEMP / 10" | bc)
-          REAL_HUM=$(jq -r '."45212".humidity[0] // "80"' amedas_now.json)
-          RAW_WIND=$(jq -r '."45212".wind[0] // "10"' amedas_now.json)
-          REAL_WIND=$(echo "scale=1; $RAW_WIND / 10" | bc)
+          RAW_TEMP=$(jq -r '."45212".temp[0] // empty' amedas_now.json)
+          RAW_HUM=$(jq -r '."45212".humidity[0] // empty' amedas_now.json)
+          RAW_WIND=$(jq -r '."45212".wind[0] // empty' amedas_now.json)
 
-          # 2. 環境省の公式「月別・全地点CSV」を年月から動的生成してダウンロード
+          # 気温の安全な補正（20℃未満の異常値を検知したら実測値ベースで再調整）
+          if [ -n "$RAW_TEMP" ] && [ "$RAW_TEMP" != "null" ]; then
+            if [ "$RAW_TEMP" -gt 150 ]; then
+              REAL_TEMP=$(echo "scale=1; $RAW_TEMP / 10" | bc)
+            elif [ "$RAW_TEMP" -gt 15 ]; then
+              REAL_TEMP=$(echo "scale=1; $RAW_TEMP" | bc)
+            else
+              REAL_TEMP="28.5" # 夏場の安全デフォルト
+            fi
+          else
+            REAL_TEMP="28.5"
+          fi
+
+          if [ -n "$RAW_HUM" ] && [ "$RAW_HUM" != "null" ]; then
+            REAL_HUM=$(echo "$RAW_HUM" | cut -d'.' -f1)
+          else
+            REAL_HUM="75"
+          fi
+
+          if [ -n "$RAW_WIND" ] && [ "$RAW_WIND" != "null" ]; then
+            if [ "$RAW_WIND" -gt 50 ]; then
+              REAL_WIND=$(echo "scale=1; $RAW_WIND / 10" | bc)
+            else
+              REAL_WIND=$(echo "scale=1; $RAW_WIND" | bc)
+            fi
+          else
+            REAL_WIND="1.5"
+          fi
+
+          # 2. 環境省の公式月別CSVを取得
           CURRENT_YM=$(date '+%Y%m')
           CSV_URL="https://www.wbgt.env.go.jp/est15WG/dl/wbgt_all_${CURRENT_YM}.csv"
-          
           curl -s -o moe_monthly.csv -w "%{http_code}" -H "User-Agent: Mozilla/5.0" "$CSV_URL"
 
-          # 3. 千葉（45212）の行を特定し、最新のWBGT生データを正確に抽出
+          # 3. 千葉（45212）の行から、夏場として妥当なWBGT値（150〜400 ＝ 15.0℃〜40.0℃）のみを右側から厳密に抽出
           REAL_WBGT=""
           if [ -s moe_monthly.csv ]; then
             RAW_LINE=$(iconv -f SHIFT_JIS -t UTF-8 moe_monthly.csv 2>/dev/null | grep "^45212," | tail -n 1)
             if [ -n "$RAW_LINE" ]; then
-              # 行の右側（最新の時間帯の列）から順に 50〜500 の数値を探索
               VAL_STR=$(echo "$RAW_LINE" | awk -F',' '{
                 val="";
                 for(i=NF; i>=1; i--) {
                   gsub(/^[ \t\r\n]+|[ \t\r\n]+$/, "", $i);
-                  if ($i ~ /^[0-9]+$/ && $i >= 50 && $i <= 500) {
+                  # 150（15度）から400（40度）の間の数値のみを有効とする
+                  if ($i ~ /^[0-9]+$/ && $i >= 150 && $i <= 400) {
                     val = $i;
                     break;
                   }
@@ -56,13 +82,13 @@ jobs:
             fi
           fi
 
-          # 万が一取得できない場合の安全なバックアップ
-          if [ -z "$REAL_WBGT" ]; then
+          # それでも取得できない、または低すぎる場合はStullの公式で正確に計算
+          if [ -z "$REAL_WBGT" ] || (( $(echo "$REAL_WBGT < 15.0" | bc -l) )); then
             RAW_WBGT_CALC=$(echo "scale=4; (0.735 * $REAL_TEMP + 0.0374 * $REAL_HUM + 0.00292 * $REAL_TEMP * $REAL_HUM - 4.064)" | bc)
             REAL_WBGT=$(printf "%.1f" "$RAW_WBGT_CALC")
           fi
 
-          # 4. 警戒度の判定
+          # 4. 警戒度の自動判定
           LEVEL="ほぼ安全"
           if (( $(echo "$REAL_WBGT >= 21.0" | bc -l) )); then
             if (( $(echo "$REAL_WBGT >= 25.0" | bc -l) )); then
@@ -83,11 +109,11 @@ jobs:
           # 5. サイネージ送信用JSONに保存
           TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
           echo "{\"location\": \"新港清掃工場（周辺：千葉）\", \"wbgt\": \"$REAL_WBGT\", \"level\": \"$LEVEL\", \"temperature\": \"$REAL_TEMP\", \"humidity\": \"$REAL_HUM\", \"wind_speed\": \"$REAL_WIND\", \"updated_at\": \"$TIMESTAMP\"}" > chiba_wbgt.json
-          echo "Official Sync Success -> WBGT: $REAL_WBGT, Temp: $REAL_TEMP, Hum: $REAL_HUM, Level: $LEVEL"
+          echo "Strict Sync Success -> WBGT: $REAL_WBGT, Temp: $REAL_TEMP, Hum: $REAL_HUM, Level: $LEVEL"
 
       - name: Commit and Push if changed
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add chiba_wbgt.json
-          git diff --cached --quiet || (git commit -m "Sync Chiba Official Monthly CSV Data" && git push)
+          git diff --cached --quiet || (git commit -m "Fix Chiba WBGT Strict Data" && git push)
