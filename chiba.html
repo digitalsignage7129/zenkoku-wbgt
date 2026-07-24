@@ -18,8 +18,8 @@
 <body>
 
 <div class="card">
-    <h1>新港清掃工場 周辺の暑さ指数</h1>
-    <div class="update" id="update">読み込み中...</div>
+    <h1 id="location">新港清掃工場 周辺の暑さ指数</h1>
+    <div class="update" id="update">最終更新: 読み込み中...</div>
     
     <div class="wbgt-box" id="wbgt">--.-</div>
     <div class="level" id="level">取得中</div>
@@ -37,12 +37,13 @@ async function fetchData() {
         const res = await fetch('chiba_wbgt.json?t=' + new Date().getTime());
         const data = await res.json();
         
-        document.getElementById('update').innerText = "最終更新: " + data.updated_at;
-        document.getElementById('wbgt').innerText = data.wbgt !== null ? data.wbgt : "--.-";
-        document.getElementById('level').innerText = data.level;
-        document.getElementById('temp').innerText = data.temperature !== null ? data.temperature : "--.-";
-        document.getElementById('hum').innerText = data.humidity !== null ? data.humidity : "--";
-        document.getElementById('wind').innerText = data.wind_speed !== null ? data.wind_speed : "--.-";
+        document.getElementById('location').innerText = data.location || "新港清掃工場 周辺の暑さ指数";
+        document.getElementById('update').innerText = "最終更新: " + (data.updated_at || "--");
+        document.getElementById('wbgt').innerText = data.wbgt !== undefined ? data.wbgt : "--.-";
+        document.getElementById('level').innerText = data.level || "不明";
+        document.getElementById('temp').innerText = data.temperature !== undefined ? data.temperature : "--.-";
+        document.getElementById('hum').innerText = data.humidity !== undefined ? data.humidity : "--";
+        document.getElementById('wind').innerText = data.wind_speed !== undefined ? data.wind_speed : "--.-";
     } catch (e) {
         console.error(e);
     }
