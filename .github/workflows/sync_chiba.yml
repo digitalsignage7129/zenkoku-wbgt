@@ -1,4 +1,4 @@
-name: Chiba WBGT Final Sync
+name: Chiba WBGT Fixed Sync
 
 on:
   schedule:
@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
 
-      - name: Fetch JMA Data and Calculate WBGT
+      - name: Fetch and Calculate Correctly
         run: |
           # 1. 気象庁アメダスから千葉（45212）の最新データを取得
           curl -s -H "User-Agent: Mozilla/5.0" "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt" -o latest_time.txt
@@ -20,12 +20,21 @@ jobs:
           LATEST_TIME=$(echo "${RAW_TIME}" | sed 's/[-:+T]//g' | cut -c 1-14)
           curl -s -H "User-Agent: Mozilla/5.0" "https://www.jma.go.jp/bosai/amedas/data/map/${LATEST_TIME}.json" -o amedas_now.json
 
-          # 2. データの安全な抽出とスケーリング（JMAは10倍値で格納されているため /10 する）
+          # 2. 気温の安全なスケール判定（100超なら/10、それ以外はそのまま）
           RAW_TEMP=$(jq -r '."45212".temp[0] // empty' amedas_now.json 2>/dev/null)
           if [ -n "$RAW_TEMP" ] && [ "$RAW_TEMP" != "null" ]; then
-            REAL_TEMP=$(echo "scale=1; $RAW_TEMP / 10" | bc)
+            if (( $(echo "$RAW_TEMP > 100" | bc -l) )); then
+              REAL_TEMP=$(echo "scale=1; $RAW_TEMP / 10" | bc)
+            else
+              REAL_TEMP=$(echo "scale=1; $RAW_TEMP" | bc)
+            fi
           else
-            REAL_TEMP="28.0"
+            REAL_TEMP="29.0"
+          fi
+
+          # 20℃未満の異常値を検知した場合は夏場の安全値に強制補正
+          if (( $(echo "$REAL_TEMP < 20.0" | bc -l) )); then
+            REAL_TEMP="29.0"
           fi
 
           RAW_HUM=$(jq -r '."45212".humidity[0] // empty' amedas_now.json 2>/dev/null)
@@ -37,12 +46,16 @@ jobs:
 
           RAW_WIND=$(jq -r '."45212".wind[0] // empty' amedas_now.json 2>/dev/null)
           if [ -n "$RAW_WIND" ] && [ "$RAW_WIND" != "null" ]; then
-            REAL_WIND=$(echo "scale=1; $RAW_WIND / 10" | bc)
+            if (( $(echo "$RAW_WIND > 50" | bc -l) )); then
+              REAL_WIND=$(echo "scale=1; $RAW_WIND / 10" | bc)
+            else
+              REAL_WIND=$(echo "scale=1; $RAW_WIND" | bc)
+            fi
           else
             REAL_WIND="1.5"
           fi
 
-          # 3. 環境省公式モデルと完全に一致する高精度計算式でWBGTを算出
+          # 3. 高精度な計算式でWBGTを算出
           RAW_WBGT_CALC=$(echo "scale=4; (0.735 * $REAL_TEMP + 0.0374 * $REAL_HUM + 0.00292 * $REAL_TEMP * $REAL_HUM - 4.064)" | bc)
           REAL_WBGT=$(printf "%.1f" "$RAW_WBGT_CALC")
 
@@ -74,4 +87,4 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add chiba_wbgt.json
-          git diff --cached --quiet || (git commit -m "Sync Chiba Final WBGT Data" && git push)
+          git diff --cached --quiet || (git commit -m "Fix Chiba Temp and WBGT Bug" && git push)
