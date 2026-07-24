@@ -3,48 +3,63 @@ import urllib.request
 import math
 
 def main():
-    headers = {'User-Agent': 'Mozilla/5.0'}
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
 
-    # 1. 気象庁アメダス観測所マスターデータ（全国約1300箇所）を取得
-    req_table = urllib.request.Request("https://www.jma.go.jp/bosai/amedas/const/amedastable.json", headers=headers)
-    with urllib.request.urlopen(req_table) as res:
-        stn_table = json.loads(res.read().decode())
+    # 1. 気象庁アメダス観測所マスターデータ取得
+    try:
+        req_table = urllib.request.Request("https://www.jma.go.jp/bosai/amedas/const/amedastable.json", headers=headers)
+        with urllib.request.urlopen(req_table, timeout=10) as res:
+            stn_table = json.loads(res.read().decode())
+    except Exception as e:
+        print(f"Error fetching amedastable.json: {e}")
+        return
 
-    # 2. 最新のアメダス観測時刻を取得
-    req_time = urllib.request.Request("https://www.jma.go.jp/bosai/amedas/data/latest_time.json", headers=headers)
-    with urllib.request.urlopen(req_time) as res:
-        latest_time_str = json.loads(res.read().decode())
+    # 2. 最新の観測時刻を取得
+    try:
+        req_time = urllib.request.Request("https://www.jma.go.jp/bosai/amedas/data/latest_time.json", headers=headers)
+        with urllib.request.urlopen(req_time, timeout=10) as res:
+            latest_time_str = json.loads(res.read().decode())
+    except Exception as e:
+        print(f"Error fetching latest_time.json: {e}")
+        return
 
-    # 時刻フォーマット変換 (YYYYMMDDHHMM00)
     time_formatted = latest_time_str.replace("-", "").replace(":", "").replace("T", "").split("+")[0]
     amedas_url = f"https://www.jma.go.jp/bosai/amedas/data/map/{time_formatted}.json"
 
-    # 3. 全観測所の最新実測値データを一括取得
-    req_amedas = urllib.request.Request(amedas_url, headers=headers)
-    with urllib.request.urlopen(req_amedas) as res:
-        amedas_data = json.loads(res.read().decode())
+    # 3. 実測値データ取得
+    try:
+        req_amedas = urllib.request.Request(amedas_url, headers=headers)
+        with urllib.request.urlopen(req_amedas, timeout=10) as res:
+            amedas_data = json.loads(res.read().decode())
+    except Exception as e:
+        print(f"Error fetching amedas data from {amedas_url}: {e}")
+        return
 
     output_stations = {}
 
-    # 全国すべての観測所データを整形
+    # 全国観測所のデータを安全に解析
     for stn_id, st_info in stn_table.items():
-        # 緯度・経度を度数法に変換 [度, 分] -> 小数点
-        lat = st_info["lat"][0] + st_info["lat"][1] / 60.0
-        lon = st_info["lon"][0] + st_info["lon"][1] / 60.0
-        st_name = st_info.get("kjName", "")
+        # lat / lon が存在しない観測所（特殊観測所など）はスキップ
+        if "lat" not in st_info or "lon" not in st_info:
+            continue
 
+        try:
+            lat = st_info["lat"][0] + st_info["lat"][1] / 60.0
+            lon = st_info["lon"][0] + st_info["lon"][1] / 60.0
+        except Exception:
+            continue
+
+        st_name = st_info.get("kjName", "")
         st_data = amedas_data.get(stn_id, {})
 
-        temp = st_data.get("temp", [None])[0]
-        humidity = st_data.get("humidity", [None])[0]
-        wind = st_data.get("wind", [None])[0]
-        precip = st_data.get("precipitation1h", [0])[0]
+        temp = st_data.get("temp", [None])[0] if isinstance(st_data.get("temp"), list) else None
+        humidity = st_data.get("humidity", [None])[0] if isinstance(st_data.get("humidity"), list) else None
+        wind = st_data.get("wind", [None])[0] if isinstance(st_data.get("wind"), list) else None
+        precip = st_data.get("precipitation1h", [0])[0] if isinstance(st_data.get("precipitation1h"), list) else 0
 
-        # 気温が存在する有効な観測所のみ保存
         if temp is not None:
             hum_val = humidity if humidity is not None else 50
-            
-            # 環境省公式推定式(小野らの式)でアメダス実測値からWBGTを算出
+            # WBGT (小野らの式)
             wbgt = round(0.735 * temp + 0.0374 * hum_val + 0.00292 * temp * hum_val - 4.064, 1)
 
             output_stations[stn_id] = {
@@ -54,7 +69,7 @@ def main():
                 "temp": temp,
                 "humidity": humidity,
                 "wind": wind,
-                "precip": precip,
+                "precip": precip if precip is not None else 0,
                 "wbgt": wbgt
             }
 
@@ -63,9 +78,9 @@ def main():
         "stations": output_stations
     }
 
-    # 全国データを1つのJSONに出力
     with open("wbgt_data.json", "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False)
+    print("Successfully updated wbgt_data.json")
 
 if __name__ == "__main__":
     main()
