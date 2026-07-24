@@ -1,4 +1,4 @@
-name: Chiba WBGT Ultimate Sync
+name: Chiba MOE Official Sync
 
 on:
   schedule:
@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
 
-      - name: Fetch and Process Official Data
+      - name: Fetch and Process MOE Official CSV
         run: |
           # 1. 気象庁アメダスから気温・湿度・風速を取得（千葉: 45212）
           curl -s -H "User-Agent: Mozilla/5.0" "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt" -o latest_time.txt
@@ -50,7 +50,7 @@ jobs:
             REAL_WIND="--.-"
           fi
 
-          # 2. 環境省の公式CSVを月別も含めて総当たりで取得（千葉の45212は月別CSVに存在するため）
+          # 2. 環境省の公式月別CSVおよび速報CSVを動的かつ網羅的に取得
           CURRENT_YM=$(date '+%Y%m')
           PREV_YM=$(date -d '1 month ago' '+%Y%m' 2>/dev/null || date -v-1m '+%Y%m')
           
@@ -58,7 +58,6 @@ jobs:
             "https://www.wbgt.env.go.jp/est15WG/dl/wbgt_all_${CURRENT_YM}.csv"
             "https://www.wbgt.env.go.jp/est15WG/dl/wbgt_all_${PREV_YM}.csv"
             "https://www.wbgt.env.go.jp/data/wbgt_current_zone.csv"
-            "https://www.wbgt.env.go.jp/est1570/dl/wbgt_dl.csv"
           )
 
           SUCCESS_CSV=0
@@ -73,7 +72,7 @@ jobs:
             fi
           done
 
-          # 3. 環境省の公式CSVから千葉（45212）の行を特定し、WBGT生データを確実に抽出
+          # 3. 環境省の公式CSVから千葉（45212）の行を特定し、WBGT生データを正確に抽出
           REAL_WBGT=""
           if [ "$SUCCESS_CSV" -eq 1 ]; then
             RAW_LINE=$(iconv -f SHIFT_JIS -t UTF-8 moe_temp.csv 2>/dev/null | grep "^45212," | head -n 1)
@@ -93,7 +92,7 @@ jobs:
             fi
           fi
 
-          # 万が一CSV取得に失敗した場合のみ、安全な近似式にフォールバック
+          # 万が一CSV取得できない場合の安全な近似バックアップ
           if [ -z "$REAL_WBGT" ] && [ "$REAL_TEMP" != "--.-" ] && [ "$REAL_HUM" != "--" ]; then
             RAW_WBGT_CALC=$(echo "scale=4; (0.735 * $REAL_TEMP + 0.0374 * $REAL_HUM + 0.00292 * $REAL_TEMP * $REAL_HUM - 4.064)" | bc)
             REAL_WBGT=$(printf "%.1f" "$RAW_WBGT_CALC")
@@ -135,4 +134,4 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add chiba_wbgt.json
-          git diff --cached --quiet || (git commit -m "Sync Chiba WBGT Official Data" && git push)
+          git diff --cached --quiet || (git commit -m "Sync Chiba Official WBGT Data" && git push)
