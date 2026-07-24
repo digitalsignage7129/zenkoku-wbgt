@@ -72,18 +72,23 @@ jobs:
             fi
           done
 
-          # 3. 環境省の公式CSVから千葉（45212）の行を特定し、WBGT生データを正確に抽出
+          # 3. 環境省の公式CSVから千葉（45212）の行を特定し、一番右側（最新）のWBGT生データを正確に抽出
           REAL_WBGT=""
           if [ "$SUCCESS_CSV" -eq 1 ]; then
-            RAW_LINE=$(iconv -f SHIFT_JIS -t UTF-8 moe_temp.csv 2>/dev/null | grep "^45212," | head -n 1)
+            RAW_LINE=$(iconv -f SHIFT_JIS -t UTF-8 moe_temp.csv 2>/dev/null | grep "^45212," | tail -n 1)
             if [ -n "$RAW_LINE" ]; then
+              # 行の右側（最新の列）から順に 50〜500 の有効な数値を探索する
               VAL_STR=$(echo "$RAW_LINE" | awk -F',' '{
-                for(i=1; i<=NF; i++) {
+                val="";
+                for(i=NF; i>=1; i--) {
+                  # 空白や改行を除去して数値判定
+                  gsub(/^[ \t\r\n]+|[ \t\r\n]+$/, "", $i);
                   if ($i ~ /^[0-9]+$/ && $i >= 50 && $i <= 500) {
-                    print $i;
-                    exit;
+                    val = $i;
+                    break;
                   }
                 }
+                print val;
               }')
               
               if [ -n "$VAL_STR" ]; then
