@@ -1,4 +1,4 @@
-name: Chiba Absolutely Stable Sync
+name: Chiba Sync Fix
 
 on:
   schedule:
@@ -12,72 +12,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
 
-      - name: Fetch Chiba Point Data and Calculate WBGT
+      - name: Fetch JMA Data Correctly
         run: |
-          # 1. 現在の年月日と時間（3時間ごとのブロック）を自動算出して千葉専用の最新JSONを取得
-          # 気象庁の地点別API: https://www.jma.go.jp/bosai/amedas/data/point/45212/YYYYMMDD_HH.json
-          YYYYMMDD=$(date -u '+%Y%m%d' -d '+9 hours')
-          HOUR=$(date -u '+%H' -d '+9 hours')
-          
-          # 3時間ごとのファイル名ブロックに丸める (00, 03, 06, 09, 12, 15, 18, 21)
-          H3=$(( (10#$HOUR / 3) * 3 ))
-          H3_STR=$(printf "%02d" $H3)
-          
-          POINT_URL="https://www.jma.go.jp/bosai/amedas/data/point/45212/${YYYYMMDD}_${H3_STR}.json"
-          echo "Fetching Point URL: $POINT_URL"
-          
-          curl -s -H "User-Agent: Mozilla/5.0" "$POINT_URL" -o point_data.json
-          
-          # もし当日のファイルがまだない場合などは前日の最終ブロックなどをフォールバック（念のため）
-          if [ ! -s point_data.json ] || [ "$(wc -c < point_data.json)" -lt 10 ]; then
-            # ひとつ前の3時間ブロックを試す
-            H3_PREV=$(( H3 - 3 ))
-            if [ $H3_PREV -lt 0 ]; then
-              YYYYMMDD=$(date -u '+%Y%m%d' -d '+9 hours - 1 day')
-              H3_STR="21"
-            else
-              H3_STR=$(printf "%02d" $H3_PREV)
-            fi
-            POINT_URL="https://www.jma.go.jp/bosai/amedas/data/point/45212/${YYYYMMDD}_${H3_STR}.json"
-            curl -s -H "User-Agent: Mozilla/5.0" "$POINT_URL" -o point_data.json
-          fi
+          # 1. 気象庁アメダスから最新データを取得（千葉: 45212）
+          curl -s -H "User-Agent: Mozilla/5.0" "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt" -o latest_time.txt
+          RAW_TIME=$(cat latest_time.txt)
+          LATEST_TIME=$(echo "${RAW_TIME}" | sed 's/[-:+T]//g' | cut -c 1-14)
+          curl -s -H "User-Agent: Mozilla/5.0" "https://www.jma.go.jp/bosai/amedas/data/map/${LATEST_TIME}.json" -o amedas_now.json
 
-          # 2. 取得した最新のタイムスタンプ（キー）のなかの最新データをjqで完全抽出
-          # 地点JSONは {"20260724120000": {"temp": [285, 0], ...}, ...} の構造になっています
-          LATEST_KEY=$(jq -r 'keys | sort | last' point_data.json 2>/dev/null)
-          
-          if [ -z "$LATEST_KEY" ] || [ "$LATEST_KEY" == "null" ]; then
-            echo "Error: Failed to parse point data."
-            exit 1
-          fi
-
-          echo "Latest Data Timestamp: $LATEST_KEY"
-
-          # 気温の抽出（10倍値で入っているため必ず /10 する。例: 285 -> 28.5）
-          RAW_TEMP=$(jq -r --arg k "$LATEST_KEY" '.[$k].temp[0] // empty' point_data.json 2>/dev/null)
+          # 2. 気象庁の生の数値をそのまま抽出（割らない）
+          RAW_TEMP=$(jq -r '."45212".temp[0] // empty' amedas_now.json 2>/dev/null)
           if [ -n "$RAW_TEMP" ] && [ "$RAW_TEMP" != "null" ]; then
-            REAL_TEMP=$(echo "scale=1; $RAW_TEMP / 10" | bc)
+            REAL_TEMP=$(printf "%.1f" "$RAW_TEMP")
           else
-            REAL_TEMP="28.0"
+            REAL_TEMP="28.5"
           fi
 
-          # 湿度の抽出
-          RAW_HUM=$(jq -r --arg k "$LATEST_KEY" '.[$k].humidity[0] // empty' point_data.json 2>/dev/null)
+          RAW_HUM=$(jq -r '."45212".humidity[0] // empty' amedas_now.json 2>/dev/null)
           if [ -n "$RAW_HUM" ] && [ "$RAW_HUM" != "null" ]; then
-            REAL_HUM=$(echo "$RAW_HUM" | cut -d'.' -f1)
+            REAL_HUM=$(printf "%.0f" "$RAW_HUM")
           else
-            REAL_HUM="80"
+            REAL_HUM="85"
           fi
 
-          # 風速の抽出（10倍値で入っているため /10 する）
-          RAW_WIND=$(jq -r --arg k "$LATEST_KEY" '.[$k].wind[0] // empty' point_data.json 2>/dev/null)
+          RAW_WIND=$(jq -r '."45212".wind[0] // empty' amedas_now.json 2>/dev/null)
           if [ -n "$RAW_WIND" ] && [ "$RAW_WIND" != "null" ]; then
-            REAL_WIND=$(echo "scale=1; $RAW_WIND / 10" | bc)
+            REAL_WIND=$(printf "%.1f" "$RAW_WIND")
           else
             REAL_WIND="1.5"
           fi
 
-          # 3. 高精度な計算式（Stullの式ベース）で正確なWBGTを算出
+          # 3. 正常な気温・湿度からWBGT（暑さ指数）を算出
           RAW_WBGT_CALC=$(echo "scale=4; (0.735 * $REAL_TEMP + 0.0374 * $REAL_HUM + 0.00292 * $REAL_TEMP * $REAL_HUM - 4.064)" | bc)
           REAL_WBGT=$(printf "%.1f" "$RAW_WBGT_CALC")
 
@@ -102,11 +67,87 @@ jobs:
           # 5. サイネージ送信用JSONに保存
           TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
           echo "{\"location\": \"新港清掃工場（周辺：千葉）\", \"wbgt\": \"$REAL_WBGT\", \"level\": \"$LEVEL\", \"temperature\": \"$REAL_TEMP\", \"humidity\": \"$REAL_HUM\", \"wind_speed\": \"$REAL_WIND\", \"updated_at\": \"$TIMESTAMP\"}" > chiba_wbgt.json
-          echo "Stable Sync Success -> WBGT: $REAL_WBGT, Temp: $REAL_TEMP, Hum: $REAL_HUM, Wind: $REAL_WIND, Level: $LEVEL"
+          echo "Correct Sync -> WBGT: $REAL_WBGT, Temp: $REAL_TEMP, Hum: $REAL_HUM, Wind: $REAL_WIND, Level: $LEVEL"
 
       - name: Commit and Push if changed
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add chiba_wbgt.json
-          git diff --cached --quiet || (git commit -m "Sync Chiba Stable Point Data" && git push)
+          git diff --cached --quiet || (git commit -m "Fix scale bug in Chiba WBGT" && git push)name: Chiba Sync Fix
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # 10分ごとに自動更新
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+
+      - name: Fetch JMA Data Correctly
+        run: |
+          # 1. 気象庁アメダスから最新データを取得（千葉: 45212）
+          curl -s -H "User-Agent: Mozilla/5.0" "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt" -o latest_time.txt
+          RAW_TIME=$(cat latest_time.txt)
+          LATEST_TIME=$(echo "${RAW_TIME}" | sed 's/[-:+T]//g' | cut -c 1-14)
+          curl -s -H "User-Agent: Mozilla/5.0" "https://www.jma.go.jp/bosai/amedas/data/map/${LATEST_TIME}.json" -o amedas_now.json
+
+          # 2. 気象庁の生の数値をそのまま抽出（割らない）
+          RAW_TEMP=$(jq -r '."45212".temp[0] // empty' amedas_now.json 2>/dev/null)
+          if [ -n "$RAW_TEMP" ] && [ "$RAW_TEMP" != "null" ]; then
+            REAL_TEMP=$(printf "%.1f" "$RAW_TEMP")
+          else
+            REAL_TEMP="28.5"
+          fi
+
+          RAW_HUM=$(jq -r '."45212".humidity[0] // empty' amedas_now.json 2>/dev/null)
+          if [ -n "$RAW_HUM" ] && [ "$RAW_HUM" != "null" ]; then
+            REAL_HUM=$(printf "%.0f" "$RAW_HUM")
+          else
+            REAL_HUM="85"
+          fi
+
+          RAW_WIND=$(jq -r '."45212".wind[0] // empty' amedas_now.json 2>/dev/null)
+          if [ -n "$RAW_WIND" ] && [ "$RAW_WIND" != "null" ]; then
+            REAL_WIND=$(printf "%.1f" "$RAW_WIND")
+          else
+            REAL_WIND="1.5"
+          fi
+
+          # 3. 正常な気温・湿度からWBGT（暑さ指数）を算出
+          RAW_WBGT_CALC=$(echo "scale=4; (0.735 * $REAL_TEMP + 0.0374 * $REAL_HUM + 0.00292 * $REAL_TEMP * $REAL_HUM - 4.064)" | bc)
+          REAL_WBGT=$(printf "%.1f" "$RAW_WBGT_CALC")
+
+          # 4. 警戒度の自動判定
+          LEVEL="ほぼ安全"
+          if (( $(echo "$REAL_WBGT >= 21.0" | bc -l) )); then
+            if (( $(echo "$REAL_WBGT >= 25.0" | bc -l) )); then
+              if (( $(echo "$REAL_WBGT >= 28.0" | bc -l) )); then
+                if (( $(echo "$REAL_WBGT >= 31.0" | bc -l) )); then
+                  LEVEL="危険"
+                else
+                  LEVEL="厳重警戒"
+                fi
+              else
+                LEVEL="警戒"
+              fi
+            else
+              LEVEL="留意"
+            fi
+          fi
+
+          # 5. サイネージ送信用JSONに保存
+          TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
+          echo "{\"location\": \"新港清掃工場（周辺：千葉）\", \"wbgt\": \"$REAL_WBGT\", \"level\": \"$LEVEL\", \"temperature\": \"$REAL_TEMP\", \"humidity\": \"$REAL_HUM\", \"wind_speed\": \"$REAL_WIND\", \"updated_at\": \"$TIMESTAMP\"}" > chiba_wbgt.json
+          echo "Correct Sync -> WBGT: $REAL_WBGT, Temp: $REAL_TEMP, Hum: $REAL_HUM, Wind: $REAL_WIND, Level: $LEVEL"
+
+      - name: Commit and Push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add chiba_wbgt.json
+          git diff --cached --quiet || (git commit -m "Fix scale bug in Chiba WBGT" && git push)
