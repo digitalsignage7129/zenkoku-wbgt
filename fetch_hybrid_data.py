@@ -6,7 +6,7 @@ import requests
 
 JST = timezone(timedelta(hours=9))
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
 
 # ------------------------------------------------------------------
@@ -35,12 +35,28 @@ def parse_jma_value(data_dict: dict, key: str, is_divide_10: bool = False):
     return None
 
 def fetch_moe_wbgt_all() -> dict:
-    """環境省の公式CSVから最新の全地点WBGTを取得する"""
-    url = "https://www.wbgt.env.go.jp/est1570/dl/wbgt_dl.csv"
-    print(f"Fetching MoE WBGT CSV from: {url}")
-    
-    res = requests.get(url, headers=HEADERS, timeout=10)
-    res.raise_for_status()
+    """環境省の公式CSVから最新の全地点WBGTを取得する（複数URLフォールバック対応）"""
+    urls = [
+        "https://www.wbgt.env.go.jp/est1570/dl/wbgt_dl.csv",
+        "https://www.wbgt.env.go.jp/est1570/d/wbgt_all_latest.csv",
+        "https://www.wbgt.env.go.jp/data/wbgt_dl.csv",
+        "https://www.wbgt.env.go.jp/wbgt_dl.csv"
+    ]
+
+    res = None
+    for url in urls:
+        print(f"Trying to fetch MoE WBGT CSV from: {url}")
+        try:
+            response = requests.get(url, headers=HEADERS, timeout=10)
+            if response.status_code == 200:
+                res = response
+                print(f"Successfully fetched MoE CSV from: {url}")
+                break
+        except Exception:
+            continue
+
+    if res is None:
+        raise RuntimeError("環境省のWBGT CSVの取得にすべての候補URLで失敗しました。")
 
     try:
         content = res.content.decode("shift_jis")
@@ -105,16 +121,15 @@ def main():
     res.raise_for_status()
     station_master = res.json()
 
-    # 2. 環境省 WBGTデータ取得
+    # 2. 環境省 WBGTデータ取得（環境省基準を維持）
     moe_data = fetch_moe_wbgt_all()
 
     # 3. 気象庁 アメダス実測値取得
     jma_amedas = fetch_jma_amedas_latest()
 
-    # 4. マージ処理（環境省WBGT ＋ 気象庁気象データ）
+    # 4. マージ処理（環境省WBGT 基準 ＋ 気象庁気象データ）
     merged_stations = []
     for moe_id, moe_info in moe_data.items():
-        # 環境省IDから気象庁IDへの変換（例外対応）
         jma_id = ID_EXCEPTIONS.get(moe_id, moe_id)
 
         master_info = station_master.get(jma_id, {})
