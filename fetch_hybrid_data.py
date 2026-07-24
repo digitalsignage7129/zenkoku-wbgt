@@ -1,159 +1,145 @@
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import io
 import csv
 import json
 import requests
 
-# ------------------------------------------------------------------
-# 1. 地点マッピング定義 (環境省コード <-> 気象庁アメダスID & 地点名)
-# ------------------------------------------------------------------
-# 環境省の5桁コードと気象庁アメダスコードは基本的に共通ですが、
-# 特殊な拠点や表記揺れに対応するためマッピングテーブルを保持します。
-STATION_MAP = {
-    "47412": {"jma_id": "47412", "name": "札幌", "pref": "北海道"},
-    "47401": {"jma_id": "47401", "name": "稚内", "pref": "北海道"},
-    "47575": {"jma_id": "47575", "name": "青森", "pref": "青森県"},
-    "44132": {"jma_id": "44132", "name": "東京", "pref": "東京都"},
-    "56227": {"jma_id": "56227", "name": "名古屋", "pref": "愛知県"},
-    "62078": {"jma_id": "62078", "name": "大阪", "pref": "大阪府"},
-    "82182": {"jma_id": "82182", "name": "福岡", "pref": "福岡県"},
-    # 必要に応じて主要拠点・全拠点（約840地点）を追加可能
-}
-
+# 日本時間 (JST = UTC+9) の定義
+JST = timezone(timedelta(hours=9))
 
 # ------------------------------------------------------------------
-# 2. WBGTレベル（警戒度区分）判定ヘルパー
+# 1. 気象庁の全観測所マスター情報（名前・都道府県）を取得
 # ------------------------------------------------------------------
-def get_wbgt_level(wbgt_value: float) -> str:
-    """環境省基準に基づくWBGTレベル判定"""
-    if wbgt_value < 21.0:
-        return "ほぼ安全"
-    elif wbgt_value < 25.0:
-        return "留意"
-    elif wbgt_value < 28.0:
-        return "警戒"
-    elif wbgt_value < 31.0:
-        return "厳重警戒"
-    else:
-        return "危険"
-
-
-# ------------------------------------------------------------------
-# 3. 環境省 CSV パース処理
-# ------------------------------------------------------------------
-def fetch_and_parse_moe_csv() -> dict:
-    """
-    環境省 熱中症予防情報サイトから最新WBGT CSVをダウンロードしてパースする
-    返り値: { "station_id": {"wbgt": float, "level": str, "updated_at": str} }
-    """
-    # 最新の実測値・推測値が配信されている公式CSV URL
-    url = "https://www.wbgt.env.go.jp/est1570/d/wbgt_all_latest.csv"
-
-    print("Fetching CSV from Ministry of the Environment (MoE)...")
+def fetch_jma_station_master() -> dict:
+    """全国のアメダス観測所コードと名称・都道府県の対応表を取得"""
+    url = "https://www.jma.go.jp/bosai/amedas/const/amedas_table.json"
+    print("Fetching JMA Station Master...")
     try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-
-        # 環境省のCSVは Shift-JIS または UTF-8（BOM付き）で配信されるためフォールバック処理
-        try:
-            content = response.content.decode("shift_jis")
-        except UnicodeDecodeError:
-            content = response.content.decode("utf-8-sig")
-
-        parsed_wbgt = {}
-        reader = csv.reader(io.StringIO(content))
-
-        for row in reader:
-            # 空行やヘッダー・コメント行のスキップ処理
-            if not row or len(row) < 5 or row[0].startswith("#"):
-                continue
-
-            station_code = row[0].strip()
-            date_str = row[1].strip()  # 例: "20260724"
-            time_str = row[2].strip()  # 例: "16" または "1600"
-            raw_val = row[3].strip()   # 例: "252" (25.2℃の意味) または "25.2"
-
-            # 数値への変換 (10倍表記の整数形式と小数表記の両方に対応)
-            try:
-                wbgt_val = float(raw_val)
-                if wbgt_val > 50:  # 10倍表示 (例: 252 -> 25.2)
-                    wbgt_val = round(wbgt_val / 10.0, 1)
-            except ValueError:
-                continue
-
-            # 日時のフォーマット整列 (YYYY-MM-DD HH:00)
-            formatted_time = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]} {time_str.zfill(2)[:2]}:00"
-
-            parsed_wbgt[station_code] = {
-                "wbgt": wbgt_val,
-                "level": get_wbgt_level(wbgt_val),
-                "updated_at": formatted_time
-            }
-
-        return parsed_wbgt
-
+        res = requests.get(url, timeout=10)
+        res.raise_for_status()
+        return res.json()
     except Exception as e:
-        print(f"Error fetching/parsing MoE CSV: {e}")
+        print(f"Error fetching station master: {e}")
         return {}
 
 
 # ------------------------------------------------------------------
-# 4. 気象庁 (JMA) アメダスデータ取得処理
+# 2. 環境省 CSV から全地点のWBGTを取得
 # ------------------------------------------------------------------
-def fetch_jma_amedas() -> dict:
-    """気象庁公式アメダスJSON（最新値）を取得"""
-    # 実際の実装では最新時刻（YYYYMMDDHH0000）を動的に計算してURLを生成します
-    now_str = datetime.now().strftime("%Y%m%d%H0000")
-    url = f"https://www.jma.go.jp/bosai/amedas/data/map/{now_str}.json"
-
-    print("Fetching AMEDAS data from JMA...")
+def fetch_moe_wbgt_all() -> dict:
+    """環境省から最新の全地点WBGTを取得"""
+    url = "https://www.wbgt.env.go.jp/est1570/d/wbgt_all_latest.csv"
+    print("Fetching MoE WBGT CSV...")
     try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        return response.json()
+        res = requests.get(url, timeout=10)
+        res.raise_for_status()
+
+        try:
+            content = res.content.decode("shift_jis")
+        except UnicodeDecodeError:
+            content = res.content.decode("utf-8-sig")
+
+        parsed = {}
+        reader = csv.reader(io.StringIO(content))
+        for row in reader:
+            if not row or len(row) < 4 or row[0].startswith("#"):
+                continue
+
+            station_code = row[0].strip()
+            date_str = row[1].strip()
+            time_str = row[2].strip()
+            raw_val = row[3].strip()
+
+            try:
+                wbgt_val = float(raw_val)
+                if wbgt_val > 50:  # 10倍表示の補正 (例: 252 -> 25.2)
+                    wbgt_val = round(wbgt_val / 10.0, 1)
+            except ValueError:
+                continue
+
+            # レベル判定
+            if wbgt_val < 21.0: level = "ほぼ安全"
+            elif wbgt_val < 25.0: level = "留意"
+            elif wbgt_val < 28.0: level = "警戒"
+            elif wbgt_val < 31.0: level = "厳重警戒"
+            else: level = "危険"
+
+            formatted_time = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]} {time_str.zfill(2)[:2]}:00"
+            parsed[station_code] = {
+                "wbgt": wbgt_val,
+                "level": level,
+                "updated_at": formatted_time
+            }
+        return parsed
+    except Exception as e:
+        print(f"Error fetching MoE CSV: {e}")
+        return {}
+
+
+# ------------------------------------------------------------------
+# 3. 気象庁 アメダス実測値を取得（JST時間を厳密指定）
+# ------------------------------------------------------------------
+def fetch_jma_amedas_latest() -> dict:
+    """日本時間(JST)基準で気象庁の最新アメダスJSONを取得"""
+    now_jst = datetime.now(JST)
+    
+    # 毎時00分のタイムスタンプを生成 (例: 20260724160000)
+    target_time = now_jst.replace(minute=0, second=0, microsecond=0)
+    time_str = target_time.strftime("%Y%m%d%H0000")
+    
+    url = f"https://www.jma.go.jp/bosai/amedas/data/map/{time_str}.json"
+    print(f"Fetching JMA AMeDAS data from: {url}")
+    
+    try:
+        res = requests.get(url, timeout=10)
+        # 毎時00分直後でまだデータがない場合は1時間前をフォールバック試行
+        if res.status_code == 404:
+            prev_time = target_time - timedelta(hours=1)
+            time_str = prev_time.strftime("%Y%m%d%H0000")
+            url = f"https://www.jma.go.jp/bosai/amedas/data/map/{time_str}.json"
+            print(f"Fallback to previous hour: {url}")
+            res = requests.get(url, timeout=10)
+
+        res.raise_for_status()
+        return res.json()
     except Exception as e:
         print(f"Error fetching JMA data: {e}")
         return {}
 
 
 # ------------------------------------------------------------------
-# 5. データ統合・JSON出力処理
+# 4. 全地点マージ処理
 # ------------------------------------------------------------------
-def build_hybrid_dataset():
-    moe_wbgt_map = fetch_and_parse_moe_csv()
-    jma_raw_data = fetch_jma_amedas()
+def main():
+    station_master = fetch_jma_station_master()
+    moe_data = fetch_moe_wbgt_all()
+    jma_data = fetch_jma_amedas_latest()
 
     merged_stations = []
 
-    # マッピングテーブルに登録された地点を順に処理
-    for moe_id, meta in STATION_MAP.items():
-        jma_id = meta["jma_id"]
+    # 全観測所マスターをループ（全国約840地点）
+    for st_id, master_info in station_master.items():
+        name = master_info.get("kjName", "")
+        pref = master_info.get("prefName", "")
 
-        # 環境省データ（公式WBGT）
-        wbgt_info = moe_wbgt_map.get(moe_id, {
-            "wbgt": None,
-            "level": "不明",
-            "updated_at": None
-        })
+        # 環境省データ
+        moe_info = moe_data.get(st_id, {"wbgt": None, "level": "不明", "updated_at": None})
 
-        # 気象庁アメダスデータ（気温・湿度・風速・雨量など）
-        jma_info = jma_raw_data.get(jma_id, {})
+        # 気象庁データ
+        jma_info = jma_data.get(st_id, {})
         temp = jma_info.get("temp", [None])[0] if "temp" in jma_info else None
         humidity = jma_info.get("humidity", [None])[0] if "humidity" in jma_info else None
         wind = jma_info.get("wind", [None])[0] if "wind" in jma_info else None
 
         merged_stations.append({
-            "station_id": moe_id,
-            "jma_amedas_id": jma_id,
-            "name": meta["name"],
-            "prefecture": meta["pref"],
-            # 環境省データ（一切計算せず公式値を採用）
+            "station_id": st_id,
+            "name": name,
+            "prefecture": pref,
             "moe_data": {
-                "wbgt": wbgt_info["wbgt"],
-                "level": wbgt_info["level"],
-                "updated_at": wbgt_info["updated_at"]
+                "wbgt": moe_info["wbgt"],
+                "level": moe_info["level"],
+                "updated_at": moe_info["updated_at"]
             },
-            # 気象庁アメダス実測データ
             "jma_data": {
                 "temperature": temp,
                 "humidity": humidity,
@@ -161,12 +147,10 @@ def build_hybrid_dataset():
             }
         })
 
-    # 最終的なJSON出力
     output_data = {
         "metadata": {
-            "generated_at": datetime.now().isoformat(),
-            "source_moe": "https://www.wbgt.env.go.jp/",
-            "source_jma": "https://www.jma.go.jp/"
+            "generated_at": datetime.now(JST).isoformat(),
+            "total_stations": len(merged_stations)
         },
         "stations": merged_stations
     }
@@ -174,7 +158,7 @@ def build_hybrid_dataset():
     with open("wbgt_data.json", "w", encoding="utf-8") as f:
         json.dump(output_data, f, ensure_ascii=False, indent=2)
 
-    print(f"Successfully merged {len(merged_stations)} stations into wbgt_data.json!")
+    print(f"Successfully updated wbgt_data.json with {len(merged_stations)} stations!")
 
 if __name__ == "__main__":
-    build_hybrid_dataset()
+    main()
