@@ -27,7 +27,7 @@ jobs:
 
           headers = {"User-Agent": "Mozilla/5.0"}
 
-          # 1. 環境省サイトから千葉（45212）の公式WBGT値（27.8等）を直接取得
+          # 1. 環境省サイトから千葉（45212）の公式WBGT値を取得
           moe_url = "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=03&prefecture=45&point=45212"
           wbgt_val = None
 
@@ -35,14 +35,13 @@ jobs:
               req = urllib.request.Request(moe_url, headers=headers)
               with urllib.request.urlopen(req) as resp:
                   html = resp.read().decode('utf-8', errors='ignore')
-                  # タグ内の数値（15.0〜40.0）をピンポイント抽出
                   matches = re.findall(r'>(1[5-9]\.[0-9]|2[0-9]\.[0-9]|3[0-9]\.[0-9])<', html)
                   if matches:
                       wbgt_val = matches[0]
           except Exception as e:
               print(f"MOE fetch error: {e}")
 
-          # 2. 気象庁アメダスから正確な気温・湿度・風速を取得
+          # 2. 気象庁アメダスから気温・湿度・風速を取得
           temp_val, hum_val, wind_val = "28.0", "80", "1.5"
           try:
               req_time = urllib.request.Request("https://www.jma.go.jp/bosai/amedas/data/latest_time.txt", headers=headers)
@@ -65,7 +64,28 @@ jobs:
           except Exception as e:
               print(f"JMA fetch error: {e}")
 
-          # 万が一環境省から取れなかった場合のみバックアップ計算
+          # 3. 気象庁APIから現在の概況（天気）を取得
+          weather_val = "晴れ"
+          try:
+              forecast_url = "https://www.jma.go.jp/bosai/forecast/data/forecast/120000.json"
+              req_f = urllib.request.Request(forecast_url, headers=headers)
+              with urllib.request.urlopen(req_f) as resp:
+                  f_data = json.loads(resp.read().decode('utf-8'))
+                  w_text = f_data[0]["timeSeries"][0]["areas"][0]["weathers"][0]
+                  if "晴" in w_text:
+                      weather_val = "晴れ"
+                  elif "雨" in w_text:
+                      weather_val = "雨"
+                  elif "曇" in w_text or "くもり" in w_text:
+                      weather_val = "くもり"
+                  elif "雪" in w_text:
+                      weather_val = "雪"
+                  else:
+                      weather_val = w_text[:6]
+          except Exception as e:
+              print(f"Weather fetch error: {e}")
+
+          # 万が一環境省から取れなかった場合のフォールバック
           if not wbgt_val:
               try:
                   t, h = float(temp_val), float(hum_val)
@@ -73,7 +93,7 @@ jobs:
               except:
                   wbgt_val = "27.8"
 
-          # 3. 警戒度の判定
+          # 警戒度の判定
           w = float(wbgt_val)
           if w >= 31.0:
               level = "危険"
@@ -86,7 +106,7 @@ jobs:
           else:
               level = "ほぼ安全"
 
-          # 4. 指定されたデザインのJSON出力
+          # JSON出力
           jst = timezone(timedelta(hours=9))
           now_str = datetime.now(jst).strftime("%Y-%m-%d %H:%M")
 
@@ -97,6 +117,7 @@ jobs:
               "temperature": str(temp_val),
               "humidity": str(hum_val),
               "wind_speed": str(wind_val),
+              "weather": str(weather_val),
               "updated_at": now_str
           }
 
@@ -111,4 +132,4 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add chiba_wbgt.json
-          git diff --cached --quiet || (git commit -m "Restore Clean Design & Sync MOE Official WBGT" && git push)
+          git diff --cached --quiet || (git commit -m "Update Chiba WBGT & Weather Data" && git push)
