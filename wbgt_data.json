@@ -1,4 +1,8240 @@
 {
-  "updated_at": "データ取得日時不明",
-  "stations": {}
+  "updated_at": "2026-07-24T16:00:00+09:00",
+  "stations": {
+    "11001": {
+      "name": "宗谷岬",
+      "kana": "ソウヤミサキ",
+      "temp": 17.0,
+      "humidity": 86,
+      "wind": 8.7,
+      "precip": 0.0,
+      "wbgt": 15.9
+    },
+    "11016": {
+      "name": "稚内",
+      "kana": "ワッカナイ",
+      "temp": 18.2,
+      "humidity": 75,
+      "wind": 6.3,
+      "precip": 0.0,
+      "wbgt": 16.1
+    },
+    "11046": {
+      "name": "礼文",
+      "kana": "レブン",
+      "temp": 18.6,
+      "humidity": 80,
+      "wind": 5.8,
+      "precip": 0.0,
+      "wbgt": 16.9
+    },
+    "11061": {
+      "name": "声問",
+      "kana": "コエトイ：稚内空港",
+      "temp": 17.6,
+      "humidity": null,
+      "wind": 7.5,
+      "precip": 0.0,
+      "wbgt": 13.3
+    },
+    "11076": {
+      "name": "浜鬼志別",
+      "kana": "ハマオニシベツ",
+      "temp": 16.9,
+      "humidity": 94,
+      "wind": 8.1,
+      "precip": 0.0,
+      "wbgt": 16.5
+    },
+    "11091": {
+      "name": "本泊",
+      "kana": "モトドマリ：利尻空港",
+      "temp": 19.4,
+      "humidity": null,
+      "wind": 8.4,
+      "precip": 0.0,
+      "wbgt": 14.9
+    },
+    "11121": {
+      "name": "沼川",
+      "kana": "ヌマカワ",
+      "temp": 17.7,
+      "humidity": 75,
+      "wind": 4.9,
+      "precip": 0.0,
+      "wbgt": 15.6
+    },
+    "11151": {
+      "name": "沓形",
+      "kana": "クツガタ",
+      "temp": 21.7,
+      "humidity": 72,
+      "wind": 1.6,
+      "precip": 0.0,
+      "wbgt": 19.1
+    },
+    "11176": {
+      "name": "豊富",
+      "kana": "トヨトミ",
+      "temp": 18.8,
+      "humidity": 71,
+      "wind": 5.5,
+      "precip": 0.0,
+      "wbgt": 16.3
+    },
+    "11206": {
+      "name": "浜頓別",
+      "kana": "ハマトンベツ",
+      "temp": 17.5,
+      "humidity": 74,
+      "wind": 4.7,
+      "precip": 0.0,
+      "wbgt": 15.3
+    },
+    "11276": {
+      "name": "中頓別",
+      "kana": "ナカトンベツ",
+      "temp": 18.7,
+      "humidity": 70,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 16.1
+    },
+    "11291": {
+      "name": "北見枝幸",
+      "kana": "キタミエサシ",
+      "temp": 17.4,
+      "humidity": 78,
+      "wind": 4.9,
+      "precip": 0.0,
+      "wbgt": 15.6
+    },
+    "11316": {
+      "name": "歌登",
+      "kana": "ウタノボリ",
+      "temp": 17.3,
+      "humidity": 81,
+      "wind": 3.9,
+      "precip": 0.0,
+      "wbgt": 15.8
+    },
+    "12011": {
+      "name": "中川",
+      "kana": "ナカガワ",
+      "temp": 18.8,
+      "humidity": 76,
+      "wind": 4.6,
+      "precip": 0.0,
+      "wbgt": 16.8
+    },
+    "12041": {
+      "name": "音威子府",
+      "kana": "オトイネップ",
+      "temp": 18.4,
+      "humidity": 83,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 17.0
+    },
+    "12141": {
+      "name": "美深",
+      "kana": "ビフカ",
+      "temp": 20.9,
+      "humidity": 67,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 17.9
+    },
+    "12181": {
+      "name": "名寄",
+      "kana": "ナヨロ",
+      "temp": 21.3,
+      "humidity": 77,
+      "wind": 1.1,
+      "precip": 0.0,
+      "wbgt": 19.3
+    },
+    "12231": {
+      "name": "下川",
+      "kana": "シモカワ",
+      "temp": 18.9,
+      "humidity": 76,
+      "wind": 5.0,
+      "precip": 0.0,
+      "wbgt": 16.9
+    },
+    "12261": {
+      "name": "士別",
+      "kana": "シベツ",
+      "temp": 21.0,
+      "humidity": 71,
+      "wind": 4.7,
+      "precip": 0.0,
+      "wbgt": 18.4
+    },
+    "12266": {
+      "name": "朝日",
+      "kana": "アサヒ",
+      "temp": 22.5,
+      "humidity": 67,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 19.4
+    },
+    "12301": {
+      "name": "和寒",
+      "kana": "ワッサム",
+      "temp": 22.8,
+      "humidity": 68,
+      "wind": 4.9,
+      "precip": 0.0,
+      "wbgt": 19.8
+    },
+    "12386": {
+      "name": "江丹別",
+      "kana": "エタンベツ",
+      "temp": 24.1,
+      "humidity": 71,
+      "wind": 1.2,
+      "precip": 0.0,
+      "wbgt": 21.3
+    },
+    "12396": {
+      "name": "比布",
+      "kana": "ピップ",
+      "temp": 24.0,
+      "humidity": 74,
+      "wind": 4.4,
+      "precip": 0.0,
+      "wbgt": 21.5
+    },
+    "12411": {
+      "name": "上川",
+      "kana": "カミカワ",
+      "temp": 23.4,
+      "humidity": 66,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 20.1
+    },
+    "12442": {
+      "name": "旭川",
+      "kana": "アサヒカワ",
+      "temp": 25.4,
+      "humidity": 66,
+      "wind": 4.3,
+      "precip": 0.0,
+      "wbgt": 22.0
+    },
+    "12451": {
+      "name": "東川",
+      "kana": "ヒガシカワ",
+      "temp": 25.3,
+      "humidity": 65,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 21.8
+    },
+    "12501": {
+      "name": "東神楽",
+      "kana": "ヒガシカグラ：旭川空港",
+      "temp": 24.5,
+      "humidity": null,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 19.4
+    },
+    "12512": {
+      "name": "志比内",
+      "kana": "シビナイ",
+      "temp": 24.7,
+      "humidity": 71,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 21.9
+    },
+    "12551": {
+      "name": "美瑛",
+      "kana": "ビエイ",
+      "temp": 25.3,
+      "humidity": 71,
+      "wind": 0.8,
+      "precip": 0.0,
+      "wbgt": 22.4
+    },
+    "12596": {
+      "name": "上富良野",
+      "kana": "カミフラノ",
+      "temp": 25.8,
+      "humidity": 64,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 22.1
+    },
+    "12626": {
+      "name": "富良野",
+      "kana": "フラノ",
+      "temp": 24.2,
+      "humidity": 76,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 21.9
+    },
+    "12632": {
+      "name": "麓郷",
+      "kana": "ロクゴウ",
+      "temp": 21.9,
+      "humidity": 74,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 19.5
+    },
+    "12691": {
+      "name": "幾寅",
+      "kana": "イクトラ",
+      "temp": 19.3,
+      "humidity": 85,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 18.1
+    },
+    "12746": {
+      "name": "占冠",
+      "kana": "シムカップ",
+      "temp": 20.8,
+      "humidity": 95,
+      "wind": 1.1,
+      "precip": 5.5,
+      "wbgt": 20.5
+    },
+    "13061": {
+      "name": "天塩",
+      "kana": "テシオ",
+      "temp": 22.1,
+      "humidity": 70,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 19.3
+    },
+    "13086": {
+      "name": "遠別",
+      "kana": "エンベツ",
+      "temp": 21.8,
+      "humidity": 68,
+      "wind": 5.4,
+      "precip": 0.0,
+      "wbgt": 18.8
+    },
+    "13121": {
+      "name": "初山別",
+      "kana": "ショサンベツ",
+      "temp": 24.6,
+      "humidity": 71,
+      "wind": 4.3,
+      "precip": 0.0,
+      "wbgt": 21.8
+    },
+    "13146": {
+      "name": "焼尻",
+      "kana": "ヤギシリ",
+      "temp": 23.1,
+      "humidity": 75,
+      "wind": 4.9,
+      "precip": 0.0,
+      "wbgt": 20.8
+    },
+    "13181": {
+      "name": "羽幌",
+      "kana": "ハボロ",
+      "temp": 25.4,
+      "humidity": 68,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 22.2
+    },
+    "13261": {
+      "name": "達布",
+      "kana": "タップ",
+      "temp": 25.8,
+      "humidity": 66,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 22.3
+    },
+    "13277": {
+      "name": "留萌",
+      "kana": "ルモイ",
+      "temp": 23.5,
+      "humidity": 77,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 21.4
+    },
+    "13311": {
+      "name": "増毛",
+      "kana": "マシケ",
+      "temp": 23.5,
+      "humidity": 81,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 21.8
+    },
+    "13321": {
+      "name": "幌糠",
+      "kana": "ホロヌカ",
+      "temp": 26.0,
+      "humidity": 70,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 23.0
+    },
+    "14026": {
+      "name": "浜益",
+      "kana": "ハママス",
+      "temp": 24.2,
+      "humidity": 94,
+      "wind": 4.1,
+      "precip": 0.0,
+      "wbgt": 23.9
+    },
+    "14071": {
+      "name": "厚田",
+      "kana": "アツタ",
+      "temp": 25.2,
+      "humidity": 75,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 22.8
+    },
+    "14101": {
+      "name": "新篠津",
+      "kana": "シンシノツ",
+      "temp": 25.9,
+      "humidity": 68,
+      "wind": 5.1,
+      "precip": 0.0,
+      "wbgt": 22.7
+    },
+    "14116": {
+      "name": "山口",
+      "kana": "ヤマグチ",
+      "temp": 25.8,
+      "humidity": 74,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 23.2
+    },
+    "14121": {
+      "name": "石狩",
+      "kana": "イシカリ",
+      "temp": 24.9,
+      "humidity": 89,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 24.0
+    },
+    "14136": {
+      "name": "江別",
+      "kana": "エベツ",
+      "temp": 24.0,
+      "humidity": 77,
+      "wind": 7.0,
+      "precip": 0.0,
+      "wbgt": 21.9
+    },
+    "14163": {
+      "name": "札幌",
+      "kana": "サッポロ",
+      "temp": 28.3,
+      "humidity": 66,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 24.7
+    },
+    "14206": {
+      "name": "恵庭島松",
+      "kana": "エニワシママツ",
+      "temp": 22.3,
+      "humidity": 89,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 21.5
+    },
+    "14286": {
+      "name": "支笏湖畔",
+      "kana": "シコツコハン",
+      "temp": 19.9,
+      "humidity": 95,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 19.6
+    },
+    "14296": {
+      "name": "千歳",
+      "kana": "チトセ：新千歳空港",
+      "temp": 21.1,
+      "humidity": null,
+      "wind": 5.6,
+      "precip": 0.0,
+      "wbgt": 16.4
+    },
+    "15041": {
+      "name": "朱鞠内",
+      "kana": "シュマリナイ",
+      "temp": 21.7,
+      "humidity": 77,
+      "wind": 1.6,
+      "precip": 0.0,
+      "wbgt": 19.6
+    },
+    "15076": {
+      "name": "幌加内",
+      "kana": "ホロカナイ",
+      "temp": 22.3,
+      "humidity": 72,
+      "wind": 3.5,
+      "precip": 0.0,
+      "wbgt": 19.7
+    },
+    "15116": {
+      "name": "石狩沼田",
+      "kana": "イシカリヌマタ",
+      "temp": 26.4,
+      "humidity": 76,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 24.0
+    },
+    "15156": {
+      "name": "秩父別",
+      "kana": "チップベツ",
+      "temp": 25.4,
+      "humidity": 76,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 23.1
+    },
+    "15161": {
+      "name": "深川",
+      "kana": "フカガワ",
+      "temp": 26.1,
+      "humidity": 65,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 22.5
+    },
+    "15231": {
+      "name": "空知吉野",
+      "kana": "ソラチヨシノ",
+      "temp": 25.6,
+      "humidity": 74,
+      "wind": 1.0,
+      "precip": 0.0,
+      "wbgt": 23.1
+    },
+    "15241": {
+      "name": "滝川",
+      "kana": "タキカワ",
+      "temp": 25.5,
+      "humidity": 84,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 24.1
+    },
+    "15251": {
+      "name": "芦別",
+      "kana": "アシベツ",
+      "temp": 26.6,
+      "humidity": 67,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 23.2
+    },
+    "15311": {
+      "name": "月形",
+      "kana": "ツキガタ",
+      "temp": 25.6,
+      "humidity": 72,
+      "wind": 4.0,
+      "precip": 0.0,
+      "wbgt": 22.8
+    },
+    "15321": {
+      "name": "美唄",
+      "kana": "ビバイ",
+      "temp": 23.9,
+      "humidity": 84,
+      "wind": 2.7,
+      "precip": 1.0,
+      "wbgt": 22.5
+    },
+    "15356": {
+      "name": "岩見沢",
+      "kana": "イワミザワ",
+      "temp": 24.8,
+      "humidity": 76,
+      "wind": 4.9,
+      "precip": 0.0,
+      "wbgt": 22.5
+    },
+    "15431": {
+      "name": "長沼",
+      "kana": "ナガヌマ",
+      "temp": 23.9,
+      "humidity": 72,
+      "wind": 5.7,
+      "precip": 0.0,
+      "wbgt": 21.2
+    },
+    "15442": {
+      "name": "夕張",
+      "kana": "ユウバリ",
+      "temp": 22.4,
+      "humidity": 89,
+      "wind": 1.0,
+      "precip": 0.0,
+      "wbgt": 21.5
+    },
+    "16026": {
+      "name": "美国",
+      "kana": "ビクニ",
+      "temp": 24.8,
+      "humidity": 72,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 22.1
+    },
+    "16061": {
+      "name": "神恵内",
+      "kana": "カモエナイ",
+      "temp": 27.3,
+      "humidity": 76,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 24.9
+    },
+    "16076": {
+      "name": "余市",
+      "kana": "ヨイチ",
+      "temp": 25.4,
+      "humidity": 71,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 22.5
+    },
+    "16091": {
+      "name": "小樽",
+      "kana": "オタル",
+      "temp": 25.0,
+      "humidity": 80,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 23.1
+    },
+    "16156": {
+      "name": "共和",
+      "kana": "キョウワ",
+      "temp": 27.3,
+      "humidity": 59,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 22.9
+    },
+    "16206": {
+      "name": "蘭越",
+      "kana": "ランコシ",
+      "temp": 26.3,
+      "humidity": 71,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 23.4
+    },
+    "16217": {
+      "name": "倶知安",
+      "kana": "クッチャン",
+      "temp": 25.3,
+      "humidity": 76,
+      "wind": 6.8,
+      "precip": 0.0,
+      "wbgt": 23.0
+    },
+    "16252": {
+      "name": "寿都",
+      "kana": "スッツ",
+      "temp": 25.2,
+      "humidity": 75,
+      "wind": 6.2,
+      "precip": 0.0,
+      "wbgt": 22.8
+    },
+    "16281": {
+      "name": "真狩",
+      "kana": "マッカリ",
+      "temp": 20.4,
+      "humidity": 90,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 19.7
+    },
+    "16286": {
+      "name": "喜茂別",
+      "kana": "キモベツ",
+      "temp": 24.9,
+      "humidity": 76,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 22.6
+    },
+    "16321": {
+      "name": "黒松内",
+      "kana": "クロマツナイ",
+      "temp": 23.7,
+      "humidity": 76,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 21.5
+    },
+    "17036": {
+      "name": "雄武",
+      "kana": "オウム",
+      "temp": 17.2,
+      "humidity": 83,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 15.9
+    },
+    "17076": {
+      "name": "興部",
+      "kana": "オコッペ",
+      "temp": 16.8,
+      "humidity": 90,
+      "wind": 3.4,
+      "precip": 0.0,
+      "wbgt": 16.1
+    },
+    "17091": {
+      "name": "西興部",
+      "kana": "ニシオコッペ",
+      "temp": 15.6,
+      "humidity": 91,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 15.0
+    },
+    "17112": {
+      "name": "紋別",
+      "kana": "モンベツ",
+      "temp": 16.9,
+      "humidity": 87,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 15.9
+    },
+    "17116": {
+      "name": "紋別小向",
+      "kana": "モンベツコムカイ：紋別空港",
+      "temp": 16.9,
+      "humidity": null,
+      "wind": 3.4,
+      "precip": 0.0,
+      "wbgt": 12.7
+    },
+    "17166": {
+      "name": "湧別",
+      "kana": "ユウベツ",
+      "temp": 16.9,
+      "humidity": 83,
+      "wind": 4.8,
+      "precip": 0.0,
+      "wbgt": 15.6
+    },
+    "17196": {
+      "name": "滝上",
+      "kana": "タキノウエ",
+      "temp": 16.8,
+      "humidity": 87,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 15.8
+    },
+    "17246": {
+      "name": "常呂",
+      "kana": "トコロ",
+      "temp": 16.8,
+      "humidity": 78,
+      "wind": 4.9,
+      "precip": 0.0,
+      "wbgt": 15.0
+    },
+    "17306": {
+      "name": "遠軽",
+      "kana": "エンガル",
+      "temp": 17.3,
+      "humidity": 82,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 15.9
+    },
+    "17316": {
+      "name": "佐呂間",
+      "kana": "サロマ",
+      "temp": 17.4,
+      "humidity": 84,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 16.1
+    },
+    "17341": {
+      "name": "網走",
+      "kana": "アバシリ",
+      "temp": 16.4,
+      "humidity": 80,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 14.8
+    },
+    "17351": {
+      "name": "宇登呂",
+      "kana": "ウトロ",
+      "temp": 17.7,
+      "humidity": 77,
+      "wind": 1.0,
+      "precip": 0.0,
+      "wbgt": 15.8
+    },
+    "17482": {
+      "name": "白滝",
+      "kana": "シラタキ",
+      "temp": 15.5,
+      "humidity": 92,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 14.9
+    },
+    "17501": {
+      "name": "生田原",
+      "kana": "イクタハラ",
+      "temp": 16.3,
+      "humidity": 93,
+      "wind": 1.1,
+      "precip": 0.0,
+      "wbgt": 15.8
+    },
+    "17521": {
+      "name": "北見",
+      "kana": "キタミ",
+      "temp": 17.9,
+      "humidity": 93,
+      "wind": 3.4,
+      "precip": 0.0,
+      "wbgt": 17.4
+    },
+    "17531": {
+      "name": "女満別",
+      "kana": "メマンベツ：女満別空港",
+      "temp": 16.6,
+      "humidity": null,
+      "wind": 4.1,
+      "precip": 0.0,
+      "wbgt": 12.4
+    },
+    "17546": {
+      "name": "小清水",
+      "kana": "コシミズ",
+      "temp": 17.0,
+      "humidity": 83,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 15.7
+    },
+    "17561": {
+      "name": "斜里",
+      "kana": "シャリ",
+      "temp": 17.0,
+      "humidity": 77,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 15.1
+    },
+    "17596": {
+      "name": "留辺蘂",
+      "kana": "ルベシベ",
+      "temp": 16.0,
+      "humidity": 97,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 15.9
+    },
+    "17607": {
+      "name": "境野",
+      "kana": "サカイノ",
+      "temp": 16.6,
+      "humidity": 95,
+      "wind": 0.7,
+      "precip": 0.0,
+      "wbgt": 16.3
+    },
+    "17631": {
+      "name": "美幌",
+      "kana": "ビホロ",
+      "temp": 17.2,
+      "humidity": 83,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 15.9
+    },
+    "17717": {
+      "name": "津別",
+      "kana": "ツベツ",
+      "temp": 17.8,
+      "humidity": 79,
+      "wind": 3.5,
+      "precip": 0.0,
+      "wbgt": 16.1
+    },
+    "18038": {
+      "name": "羅臼",
+      "kana": "ラウス",
+      "temp": 16.1,
+      "humidity": 84,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 14.9
+    },
+    "18136": {
+      "name": "標津",
+      "kana": "シベツ",
+      "temp": 15.3,
+      "humidity": 95,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 15.0
+    },
+    "18161": {
+      "name": "上標津",
+      "kana": "カミシベツ",
+      "temp": 14.6,
+      "humidity": 95,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 14.3
+    },
+    "18171": {
+      "name": "中標津",
+      "kana": "ナカシベツ",
+      "temp": 15.3,
+      "humidity": 90,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 14.6
+    },
+    "18174": {
+      "name": "根室中標津",
+      "kana": "ネムロナカシベツ：中標津空港",
+      "temp": 15.5,
+      "humidity": null,
+      "wind": 3.7,
+      "precip": 0.0,
+      "wbgt": 11.5
+    },
+    "18256": {
+      "name": "別海",
+      "kana": "ベツカイ",
+      "temp": 15.9,
+      "humidity": 88,
+      "wind": 1.5,
+      "precip": 0.0,
+      "wbgt": 15.0
+    },
+    "18273": {
+      "name": "根室",
+      "kana": "ネムロ",
+      "temp": 14.1,
+      "humidity": 86,
+      "wind": 5.0,
+      "precip": 0.0,
+      "wbgt": 13.1
+    },
+    "18281": {
+      "name": "納沙布",
+      "kana": "ノサップ",
+      "temp": 14.1,
+      "humidity": 94,
+      "wind": 6.3,
+      "precip": 0.0,
+      "wbgt": 13.7
+    },
+    "18311": {
+      "name": "厚床",
+      "kana": "アットコ",
+      "temp": 14.6,
+      "humidity": 97,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 14.4
+    },
+    "19021": {
+      "name": "川湯",
+      "kana": "カワユ",
+      "temp": 17.0,
+      "humidity": 83,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 15.7
+    },
+    "19051": {
+      "name": "弟子屈",
+      "kana": "テシカガ",
+      "temp": 15.5,
+      "humidity": 100,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 15.6
+    },
+    "19076": {
+      "name": "阿寒湖畔",
+      "kana": "アカンコハン",
+      "temp": 16.0,
+      "humidity": 96,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 15.8
+    },
+    "19151": {
+      "name": "標茶",
+      "kana": "シベチャ",
+      "temp": 16.2,
+      "humidity": 100,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 16.3
+    },
+    "19191": {
+      "name": "鶴居",
+      "kana": "ツルイ",
+      "temp": 17.9,
+      "humidity": 87,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 16.9
+    },
+    "19261": {
+      "name": "中徹別",
+      "kana": "ナカテシベツ",
+      "temp": 16.2,
+      "humidity": 97,
+      "wind": 1.5,
+      "precip": 0.5,
+      "wbgt": 16.1
+    },
+    "19311": {
+      "name": "榊町",
+      "kana": "サカキマチ",
+      "temp": 14.0,
+      "humidity": 100,
+      "wind": 3.5,
+      "precip": 0.0,
+      "wbgt": 14.1
+    },
+    "19347": {
+      "name": "鶴丘",
+      "kana": "ツルオカ：釧路空港",
+      "temp": 14.8,
+      "humidity": null,
+      "wind": 4.0,
+      "precip": 0.0,
+      "wbgt": 10.8
+    },
+    "19376": {
+      "name": "太田",
+      "kana": "オオタ",
+      "temp": 15.2,
+      "humidity": 100,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 15.3
+    },
+    "19416": {
+      "name": "白糠",
+      "kana": "シラヌカ",
+      "temp": 15.8,
+      "humidity": 95,
+      "wind": 1.1,
+      "precip": 0.0,
+      "wbgt": 15.5
+    },
+    "19432": {
+      "name": "釧路",
+      "kana": "クシロ",
+      "temp": 16.8,
+      "humidity": 88,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 15.9
+    },
+    "19451": {
+      "name": "知方学",
+      "kana": "チッポマナイ",
+      "temp": 14.1,
+      "humidity": 96,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 13.8
+    },
+    "20146": {
+      "name": "陸別",
+      "kana": "リクベツ",
+      "temp": 18.4,
+      "humidity": 73,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 16.1
+    },
+    "20186": {
+      "name": "ぬかびら源泉郷",
+      "kana": "ヌカビラゲンセンキョウ",
+      "temp": 17.1,
+      "humidity": 100,
+      "wind": 0.5,
+      "precip": 0.0,
+      "wbgt": 17.2
+    },
+    "20266": {
+      "name": "上士幌",
+      "kana": "カミシホロ",
+      "temp": 16.8,
+      "humidity": 100,
+      "wind": 2.1,
+      "precip": 0.5,
+      "wbgt": 16.9
+    },
+    "20276": {
+      "name": "足寄",
+      "kana": "アショロ",
+      "temp": 18.0,
+      "humidity": 97,
+      "wind": 2.1,
+      "precip": 1.0,
+      "wbgt": 17.9
+    },
+    "20341": {
+      "name": "本別",
+      "kana": "ホンベツ",
+      "temp": 18.0,
+      "humidity": 96,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 17.8
+    },
+    "20356": {
+      "name": "新得",
+      "kana": "シントク",
+      "temp": 18.9,
+      "humidity": 92,
+      "wind": 1.0,
+      "precip": 0.0,
+      "wbgt": 18.3
+    },
+    "20361": {
+      "name": "鹿追",
+      "kana": "シカオイ",
+      "temp": 17.8,
+      "humidity": 88,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 16.9
+    },
+    "20371": {
+      "name": "駒場",
+      "kana": "コマバ",
+      "temp": 17.9,
+      "humidity": 86,
+      "wind": 3.5,
+      "precip": 0.0,
+      "wbgt": 16.8
+    },
+    "20421": {
+      "name": "芽室",
+      "kana": "メムロ",
+      "temp": 19.1,
+      "humidity": 80,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 17.4
+    },
+    "20432": {
+      "name": "帯広",
+      "kana": "オビヒロ",
+      "temp": 19.1,
+      "humidity": 83,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 17.7
+    },
+    "20441": {
+      "name": "池田",
+      "kana": "イケダ",
+      "temp": 17.9,
+      "humidity": 84,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 16.6
+    },
+    "20506": {
+      "name": "浦幌",
+      "kana": "ウラホロ",
+      "temp": 17.9,
+      "humidity": 79,
+      "wind": 1.6,
+      "precip": 0.0,
+      "wbgt": 16.2
+    },
+    "20551": {
+      "name": "帯広泉",
+      "kana": "オビヒロイズミ：帯広空港",
+      "temp": 18.0,
+      "humidity": null,
+      "wind": 4.0,
+      "precip": 0.0,
+      "wbgt": 13.7
+    },
+    "20556": {
+      "name": "糠内",
+      "kana": "ヌカナイ",
+      "temp": 18.4,
+      "humidity": 82,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 16.9
+    },
+    "20601": {
+      "name": "上札内",
+      "kana": "カミサツナイ",
+      "temp": 16.3,
+      "humidity": 95,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 16.0
+    },
+    "20606": {
+      "name": "更別",
+      "kana": "サラベツ",
+      "temp": 16.8,
+      "humidity": 92,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 16.2
+    },
+    "20631": {
+      "name": "大津",
+      "kana": "オオツ",
+      "temp": 17.5,
+      "humidity": 85,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 16.3
+    },
+    "20696": {
+      "name": "大樹",
+      "kana": "タイキ",
+      "temp": 16.9,
+      "humidity": 98,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 16.9
+    },
+    "20751": {
+      "name": "広尾",
+      "kana": "ヒロオ",
+      "temp": 16.3,
+      "humidity": 100,
+      "wind": 1.2,
+      "precip": 0.5,
+      "wbgt": 16.4
+    },
+    "21111": {
+      "name": "厚真",
+      "kana": "アツマ",
+      "temp": 21.5,
+      "humidity": 86,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 20.4
+    },
+    "21126": {
+      "name": "穂別",
+      "kana": "ホベツ",
+      "temp": 22.4,
+      "humidity": 91,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 21.8
+    },
+    "21161": {
+      "name": "大滝",
+      "kana": "オオタキ",
+      "temp": 22.9,
+      "humidity": 86,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 21.7
+    },
+    "21171": {
+      "name": "森野",
+      "kana": "モリノ",
+      "temp": 19.0,
+      "humidity": 100,
+      "wind": 1.1,
+      "precip": 0.5,
+      "wbgt": 19.2
+    },
+    "21187": {
+      "name": "苫小牧",
+      "kana": "トマコマイ",
+      "temp": 19.9,
+      "humidity": null,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 15.3
+    },
+    "21226": {
+      "name": "大岸",
+      "kana": "オオキシ",
+      "temp": 21.5,
+      "humidity": 96,
+      "wind": 0.5,
+      "precip": 0.0,
+      "wbgt": 21.4
+    },
+    "21261": {
+      "name": "白老",
+      "kana": "シラオイ",
+      "temp": 19.9,
+      "humidity": 91,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 19.3
+    },
+    "21276": {
+      "name": "鵡川",
+      "kana": "ムカワ",
+      "temp": 19.8,
+      "humidity": 91,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 19.2
+    },
+    "21297": {
+      "name": "伊達",
+      "kana": "ダテ",
+      "temp": 22.7,
+      "humidity": 79,
+      "wind": 5.7,
+      "precip": 0.0,
+      "wbgt": 20.8
+    },
+    "21312": {
+      "name": "登別",
+      "kana": "ノボリベツ",
+      "temp": 18.8,
+      "humidity": 97,
+      "wind": 0.6,
+      "precip": 0.0,
+      "wbgt": 18.7
+    },
+    "21323": {
+      "name": "室蘭",
+      "kana": "ムロラン",
+      "temp": 20.0,
+      "humidity": 92,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 19.4
+    },
+    "22036": {
+      "name": "日高",
+      "kana": "ヒダカ",
+      "temp": 21.5,
+      "humidity": 89,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 20.7
+    },
+    "22141": {
+      "name": "日高門別",
+      "kana": "ヒダカモンベツ",
+      "temp": 19.4,
+      "humidity": 100,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 19.6
+    },
+    "22156": {
+      "name": "新和",
+      "kana": "シンワ",
+      "temp": 22.7,
+      "humidity": 79,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 20.8
+    },
+    "22241": {
+      "name": "静内",
+      "kana": "シズナイ",
+      "temp": 19.5,
+      "humidity": 99,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 19.6
+    },
+    "22291": {
+      "name": "三石",
+      "kana": "ミツイシ",
+      "temp": 20.7,
+      "humidity": 90,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 20.0
+    },
+    "22306": {
+      "name": "中杵臼",
+      "kana": "ナカキネウス",
+      "temp": 20.1,
+      "humidity": 93,
+      "wind": 0.8,
+      "precip": 0.0,
+      "wbgt": 19.6
+    },
+    "22327": {
+      "name": "浦河",
+      "kana": "ウラカワ",
+      "temp": 19.9,
+      "humidity": 90,
+      "wind": 4.4,
+      "precip": 0.0,
+      "wbgt": 19.2
+    },
+    "22391": {
+      "name": "えりも岬",
+      "kana": "エリモミサキ",
+      "temp": 16.2,
+      "humidity": 100,
+      "wind": 8.4,
+      "precip": 0.0,
+      "wbgt": 16.3
+    },
+    "23031": {
+      "name": "長万部",
+      "kana": "オシャマンベ",
+      "temp": 22.0,
+      "humidity": 86,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 20.8
+    },
+    "23086": {
+      "name": "八雲",
+      "kana": "ヤクモ",
+      "temp": 21.6,
+      "humidity": 100,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 21.9
+    },
+    "23166": {
+      "name": "森",
+      "kana": "モリ",
+      "temp": 24.2,
+      "humidity": 80,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 22.4
+    },
+    "23206": {
+      "name": "川汲",
+      "kana": "カックミ",
+      "temp": 21.6,
+      "humidity": 87,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 20.6
+    },
+    "23226": {
+      "name": "北斗",
+      "kana": "ホクト",
+      "temp": 23.5,
+      "humidity": 82,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 21.9
+    },
+    "23232": {
+      "name": "函館",
+      "kana": "ハコダテ",
+      "temp": 24.1,
+      "humidity": 79,
+      "wind": 6.8,
+      "precip": 0.0,
+      "wbgt": 22.2
+    },
+    "23281": {
+      "name": "高松",
+      "kana": "タカマツ：函館空港",
+      "temp": 22.8,
+      "humidity": null,
+      "wind": 6.6,
+      "precip": 0.0,
+      "wbgt": 17.9
+    },
+    "23326": {
+      "name": "木古内",
+      "kana": "キコナイ",
+      "temp": 22.5,
+      "humidity": 91,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 21.9
+    },
+    "23376": {
+      "name": "松前",
+      "kana": "マツマエ",
+      "temp": 24.3,
+      "humidity": 87,
+      "wind": 5.2,
+      "precip": 0.0,
+      "wbgt": 23.2
+    },
+    "24041": {
+      "name": "せたな",
+      "kana": "セタナ",
+      "temp": 24.1,
+      "humidity": 77,
+      "wind": 4.0,
+      "precip": 0.0,
+      "wbgt": 21.9
+    },
+    "24051": {
+      "name": "今金",
+      "kana": "イマカネ",
+      "temp": 24.1,
+      "humidity": 75,
+      "wind": 5.6,
+      "precip": 0.0,
+      "wbgt": 21.7
+    },
+    "24101": {
+      "name": "奥尻",
+      "kana": "オクシリ",
+      "temp": 25.5,
+      "humidity": 82,
+      "wind": 6.6,
+      "precip": 0.0,
+      "wbgt": 23.9
+    },
+    "24141": {
+      "name": "熊石",
+      "kana": "クマイシ",
+      "temp": 26.7,
+      "humidity": 70,
+      "wind": 3.4,
+      "precip": 0.0,
+      "wbgt": 23.6
+    },
+    "24156": {
+      "name": "米岡",
+      "kana": "ヨネオカ：奥尻空港",
+      "temp": 26.8,
+      "humidity": null,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 21.4
+    },
+    "24201": {
+      "name": "鶉",
+      "kana": "ウズラ",
+      "temp": 25.9,
+      "humidity": 75,
+      "wind": 4.7,
+      "precip": 0.0,
+      "wbgt": 23.4
+    },
+    "24217": {
+      "name": "江差",
+      "kana": "エサシ",
+      "temp": 26.5,
+      "humidity": 71,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 23.6
+    },
+    "31001": {
+      "name": "大間",
+      "kana": "オオマ",
+      "temp": 22.7,
+      "humidity": 95,
+      "wind": 4.8,
+      "precip": 0.0,
+      "wbgt": 22.5
+    },
+    "31111": {
+      "name": "むつ",
+      "kana": "ムツ",
+      "temp": 21.7,
+      "humidity": 88,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 20.8
+    },
+    "31121": {
+      "name": "小田野沢",
+      "kana": "オダノサワ",
+      "temp": 20.9,
+      "humidity": 92,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 20.4
+    },
+    "31136": {
+      "name": "今別",
+      "kana": "イマベツ",
+      "temp": 24.9,
+      "humidity": 79,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 22.9
+    },
+    "31156": {
+      "name": "脇野沢",
+      "kana": "ワキノサワ",
+      "temp": 22.8,
+      "humidity": 88,
+      "wind": 5.4,
+      "precip": 0.0,
+      "wbgt": 21.8
+    },
+    "31186": {
+      "name": "市浦",
+      "kana": "シウラ",
+      "temp": 24.8,
+      "humidity": 81,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 23.1
+    },
+    "31201": {
+      "name": "蟹田",
+      "kana": "カニタ",
+      "temp": 23.0,
+      "humidity": 85,
+      "wind": 4.3,
+      "precip": 0.0,
+      "wbgt": 21.7
+    },
+    "31296": {
+      "name": "五所川原",
+      "kana": "ゴショガワラ",
+      "temp": 26.0,
+      "humidity": 75,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 23.5
+    },
+    "31312": {
+      "name": "青森",
+      "kana": "アオモリ",
+      "temp": 25.3,
+      "humidity": 78,
+      "wind": 7.7,
+      "precip": 0.0,
+      "wbgt": 23.2
+    },
+    "31332": {
+      "name": "野辺地",
+      "kana": "ノヘジ",
+      "temp": 22.0,
+      "humidity": 89,
+      "wind": 4.7,
+      "precip": 0.0,
+      "wbgt": 21.2
+    },
+    "31336": {
+      "name": "六ケ所",
+      "kana": "ロッカショ",
+      "temp": 20.9,
+      "humidity": 100,
+      "wind": 0.6,
+      "precip": 0.0,
+      "wbgt": 21.1
+    },
+    "31366": {
+      "name": "鰺ケ沢",
+      "kana": "アジガサワ",
+      "temp": 24.9,
+      "humidity": 88,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 23.9
+    },
+    "31386": {
+      "name": "青森大谷",
+      "kana": "アオモリオオタニ：青森空港",
+      "temp": 26.1,
+      "humidity": null,
+      "wind": 3.9,
+      "precip": 0.0,
+      "wbgt": 20.8
+    },
+    "31436": {
+      "name": "深浦",
+      "kana": "フカウラ",
+      "temp": 25.8,
+      "humidity": 86,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 24.6
+    },
+    "31461": {
+      "name": "弘前",
+      "kana": "ヒロサキ",
+      "temp": 26.8,
+      "humidity": 81,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 25.0
+    },
+    "31466": {
+      "name": "黒石",
+      "kana": "クロイシ",
+      "temp": 27.2,
+      "humidity": 78,
+      "wind": 6.6,
+      "precip": 0.0,
+      "wbgt": 25.0
+    },
+    "31482": {
+      "name": "酸ケ湯",
+      "kana": "スカユ",
+      "temp": 19.3,
+      "humidity": 96,
+      "wind": 1.1,
+      "precip": 0.0,
+      "wbgt": 19.1
+    },
+    "31506": {
+      "name": "三沢",
+      "kana": "ミサワ",
+      "temp": 21.6,
+      "humidity": 100,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 21.9
+    },
+    "31586": {
+      "name": "十和田",
+      "kana": "トワダ",
+      "temp": 21.5,
+      "humidity": 93,
+      "wind": 4.3,
+      "precip": 0.0,
+      "wbgt": 21.1
+    },
+    "31602": {
+      "name": "八戸",
+      "kana": "ハチノヘ",
+      "temp": 22.7,
+      "humidity": 88,
+      "wind": 6.9,
+      "precip": 0.0,
+      "wbgt": 21.7
+    },
+    "31646": {
+      "name": "碇ケ関",
+      "kana": "イカリガセキ",
+      "temp": 26.1,
+      "humidity": 92,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 25.6
+    },
+    "31662": {
+      "name": "休屋",
+      "kana": "ヤスミヤ",
+      "temp": 21.9,
+      "humidity": 90,
+      "wind": 1.5,
+      "precip": 0.0,
+      "wbgt": 21.2
+    },
+    "31721": {
+      "name": "三戸",
+      "kana": "サンノヘ",
+      "temp": 24.3,
+      "humidity": 100,
+      "wind": 1.6,
+      "precip": 0.0,
+      "wbgt": 24.6
+    },
+    "32056": {
+      "name": "八森",
+      "kana": "ハチモリ",
+      "temp": 26.1,
+      "humidity": 87,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 25.0
+    },
+    "32111": {
+      "name": "能代",
+      "kana": "ノシロ",
+      "temp": 27.3,
+      "humidity": 80,
+      "wind": 3.4,
+      "precip": 0.5,
+      "wbgt": 25.4
+    },
+    "32126": {
+      "name": "鷹巣",
+      "kana": "タカノス",
+      "temp": 28.4,
+      "humidity": 74,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 25.7
+    },
+    "32136": {
+      "name": "大館",
+      "kana": "オオダテ",
+      "temp": 28.3,
+      "humidity": 73,
+      "wind": 0.9,
+      "precip": 0.0,
+      "wbgt": 25.5
+    },
+    "32146": {
+      "name": "鹿角",
+      "kana": "カヅノ",
+      "temp": 26.8,
+      "humidity": 81,
+      "wind": 0.9,
+      "precip": 0.0,
+      "wbgt": 25.0
+    },
+    "32181": {
+      "name": "脇神",
+      "kana": "ワキガミ：大館能代空港",
+      "temp": 27.1,
+      "humidity": null,
+      "wind": 4.7,
+      "precip": 0.0,
+      "wbgt": 21.7
+    },
+    "32206": {
+      "name": "湯瀬",
+      "kana": "ユゼ",
+      "temp": 25.0,
+      "humidity": 94,
+      "wind": 1.5,
+      "precip": 0.0,
+      "wbgt": 24.7
+    },
+    "32266": {
+      "name": "八幡平",
+      "kana": "ハチマンタイ",
+      "temp": 21.9,
+      "humidity": 100,
+      "wind": 0.6,
+      "precip": 5.0,
+      "wbgt": 22.2
+    },
+    "32286": {
+      "name": "男鹿",
+      "kana": "オガ",
+      "temp": 26.4,
+      "humidity": 79,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 24.4
+    },
+    "32287": {
+      "name": "大潟",
+      "kana": "オオガタ",
+      "temp": 27.6,
+      "humidity": 77,
+      "wind": 1.6,
+      "precip": 0.0,
+      "wbgt": 25.3
+    },
+    "32296": {
+      "name": "五城目",
+      "kana": "ゴジョウメ",
+      "temp": 26.9,
+      "humidity": 92,
+      "wind": 0.7,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "32311": {
+      "name": "阿仁合",
+      "kana": "アニアイ",
+      "temp": 25.5,
+      "humidity": 86,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 24.3
+    },
+    "32402": {
+      "name": "秋田",
+      "kana": "アキタ",
+      "temp": 27.9,
+      "humidity": 75,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 25.4
+    },
+    "32407": {
+      "name": "岩見三内",
+      "kana": "イワミサンナイ",
+      "temp": 26.6,
+      "humidity": 88,
+      "wind": 0.6,
+      "precip": 0.0,
+      "wbgt": 25.6
+    },
+    "32451": {
+      "name": "雄和",
+      "kana": "ユウワ：秋田空港",
+      "temp": 26.7,
+      "humidity": null,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 21.3
+    },
+    "32466": {
+      "name": "角館",
+      "kana": "カクノダテ",
+      "temp": 27.7,
+      "humidity": 71,
+      "wind": 1.7,
+      "precip": 0.0,
+      "wbgt": 24.7
+    },
+    "32476": {
+      "name": "田沢湖",
+      "kana": "タザワコ",
+      "temp": 26.6,
+      "humidity": 72,
+      "wind": 1.2,
+      "precip": 0.0,
+      "wbgt": 23.8
+    },
+    "32496": {
+      "name": "大正寺",
+      "kana": "ダイショウジ",
+      "temp": 26.6,
+      "humidity": 84,
+      "wind": 0.5,
+      "precip": 0.0,
+      "wbgt": 25.2
+    },
+    "32551": {
+      "name": "大曲",
+      "kana": "オオマガリ",
+      "temp": 27.1,
+      "humidity": 76,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 24.7
+    },
+    "32571": {
+      "name": "本荘",
+      "kana": "ホンジョウ",
+      "temp": 25.0,
+      "humidity": 89,
+      "wind": 1.5,
+      "precip": 0.0,
+      "wbgt": 24.1
+    },
+    "32581": {
+      "name": "東由利",
+      "kana": "ヒガシユリ",
+      "temp": 24.5,
+      "humidity": 86,
+      "wind": 1.0,
+      "precip": 0.0,
+      "wbgt": 23.3
+    },
+    "32596": {
+      "name": "横手",
+      "kana": "ヨコテ",
+      "temp": 26.5,
+      "humidity": 81,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 24.7
+    },
+    "32616": {
+      "name": "にかほ",
+      "kana": "ニカホ",
+      "temp": 26.7,
+      "humidity": 82,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 25.0
+    },
+    "32626": {
+      "name": "矢島",
+      "kana": "ヤシマ",
+      "temp": 25.2,
+      "humidity": 88,
+      "wind": 0.5,
+      "precip": 0.0,
+      "wbgt": 24.2
+    },
+    "32691": {
+      "name": "湯沢",
+      "kana": "ユザワ",
+      "temp": 23.3,
+      "humidity": 100,
+      "wind": 1.6,
+      "precip": 1.0,
+      "wbgt": 23.6
+    },
+    "32771": {
+      "name": "湯の岱",
+      "kana": "ユノタイ",
+      "temp": 23.2,
+      "humidity": 90,
+      "wind": 0.6,
+      "precip": 0.0,
+      "wbgt": 22.5
+    },
+    "33006": {
+      "name": "種市",
+      "kana": "タネイチ",
+      "temp": 20.9,
+      "humidity": 100,
+      "wind": 1.0,
+      "precip": 0.0,
+      "wbgt": 21.1
+    },
+    "33026": {
+      "name": "軽米",
+      "kana": "カルマイ",
+      "temp": 23.0,
+      "humidity": 100,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 23.3
+    },
+    "33071": {
+      "name": "二戸",
+      "kana": "ニノヘ",
+      "temp": 24.9,
+      "humidity": 86,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 23.7
+    },
+    "33136": {
+      "name": "山形",
+      "kana": "ヤマガタ",
+      "temp": 21.2,
+      "humidity": 95,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 21.0
+    },
+    "33146": {
+      "name": "久慈",
+      "kana": "クジ",
+      "temp": 22.1,
+      "humidity": 90,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 21.4
+    },
+    "33166": {
+      "name": "荒屋",
+      "kana": "アラヤ",
+      "temp": 23.8,
+      "humidity": 100,
+      "wind": 1.4,
+      "precip": 4.5,
+      "wbgt": 24.1
+    },
+    "33176": {
+      "name": "奥中山",
+      "kana": "オクナカヤマ",
+      "temp": 22.7,
+      "humidity": 96,
+      "wind": 0.5,
+      "precip": 0.0,
+      "wbgt": 22.6
+    },
+    "33186": {
+      "name": "葛巻",
+      "kana": "クズマキ",
+      "temp": 23.1,
+      "humidity": 88,
+      "wind": 0.9,
+      "precip": 0.5,
+      "wbgt": 22.1
+    },
+    "33206": {
+      "name": "普代",
+      "kana": "フダイ",
+      "temp": 22.0,
+      "humidity": 95,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 21.8
+    },
+    "33226": {
+      "name": "岩手松尾",
+      "kana": "イワテマツオ",
+      "temp": 25.0,
+      "humidity": 76,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 22.7
+    },
+    "33296": {
+      "name": "好摩",
+      "kana": "コウマ",
+      "temp": 26.5,
+      "humidity": 78,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 24.4
+    },
+    "33326": {
+      "name": "岩泉",
+      "kana": "イワイズミ",
+      "temp": 22.3,
+      "humidity": 100,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 22.6
+    },
+    "33336": {
+      "name": "小本",
+      "kana": "オモト",
+      "temp": 21.7,
+      "humidity": 91,
+      "wind": 1.5,
+      "precip": 0.0,
+      "wbgt": 21.1
+    },
+    "33371": {
+      "name": "薮川",
+      "kana": "ヤブカワ",
+      "temp": 22.6,
+      "humidity": 95,
+      "wind": 1.1,
+      "precip": 0.0,
+      "wbgt": 22.4
+    },
+    "33421": {
+      "name": "雫石",
+      "kana": "シズクイシ",
+      "temp": 25.3,
+      "humidity": 85,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 24.0
+    },
+    "33431": {
+      "name": "盛岡",
+      "kana": "モリオカ",
+      "temp": 27.4,
+      "humidity": 73,
+      "wind": 4.6,
+      "precip": 0.0,
+      "wbgt": 24.6
+    },
+    "33441": {
+      "name": "区界",
+      "kana": "クザカイ",
+      "temp": 22.9,
+      "humidity": 85,
+      "wind": 1.0,
+      "precip": 0.0,
+      "wbgt": 21.6
+    },
+    "33472": {
+      "name": "宮古",
+      "kana": "ミヤコ",
+      "temp": 21.7,
+      "humidity": 97,
+      "wind": 1.1,
+      "precip": 0.0,
+      "wbgt": 21.7
+    },
+    "33486": {
+      "name": "沢内",
+      "kana": "サワウチ",
+      "temp": 24.3,
+      "humidity": 84,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 22.9
+    },
+    "33501": {
+      "name": "紫波",
+      "kana": "シワ",
+      "temp": 26.4,
+      "humidity": 79,
+      "wind": 3.7,
+      "precip": 0.0,
+      "wbgt": 24.4
+    },
+    "33526": {
+      "name": "川井",
+      "kana": "カワイ",
+      "temp": 22.5,
+      "humidity": 98,
+      "wind": 0.7,
+      "precip": 4.0,
+      "wbgt": 22.6
+    },
+    "33576": {
+      "name": "花巻",
+      "kana": "ハナマキ：花巻空港",
+      "temp": 26.0,
+      "humidity": null,
+      "wind": 6.4,
+      "precip": 0.0,
+      "wbgt": 20.7
+    },
+    "33581": {
+      "name": "大迫",
+      "kana": "オオハサマ",
+      "temp": 27.0,
+      "humidity": 74,
+      "wind": 0.9,
+      "precip": 0.0,
+      "wbgt": 24.4
+    },
+    "33616": {
+      "name": "山田",
+      "kana": "ヤマダ",
+      "temp": 22.0,
+      "humidity": 99,
+      "wind": 0.3,
+      "precip": 0.0,
+      "wbgt": 22.2
+    },
+    "33631": {
+      "name": "湯田",
+      "kana": "ユダ",
+      "temp": 24.4,
+      "humidity": 93,
+      "wind": 0.3,
+      "precip": 0.0,
+      "wbgt": 24.0
+    },
+    "33671": {
+      "name": "遠野",
+      "kana": "トオノ",
+      "temp": 23.1,
+      "humidity": 100,
+      "wind": 1.8,
+      "precip": 1.0,
+      "wbgt": 23.4
+    },
+    "33716": {
+      "name": "北上",
+      "kana": "キタカミ",
+      "temp": 25.6,
+      "humidity": 88,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 24.6
+    },
+    "33751": {
+      "name": "釜石",
+      "kana": "カマイシ",
+      "temp": 23.1,
+      "humidity": 90,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 22.4
+    },
+    "33776": {
+      "name": "若柳",
+      "kana": "ワカヤナギ",
+      "temp": 24.2,
+      "humidity": 94,
+      "wind": 4.1,
+      "precip": 0.5,
+      "wbgt": 23.9
+    },
+    "33781": {
+      "name": "江刺",
+      "kana": "エサシ",
+      "temp": 25.3,
+      "humidity": 84,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 23.9
+    },
+    "33801": {
+      "name": "住田",
+      "kana": "スミタ",
+      "temp": 24.1,
+      "humidity": 86,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 22.9
+    },
+    "33877": {
+      "name": "大船渡",
+      "kana": "オオフナト",
+      "temp": 23.4,
+      "humidity": 93,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 23.0
+    },
+    "33911": {
+      "name": "一関",
+      "kana": "イチノセキ",
+      "temp": 24.4,
+      "humidity": 91,
+      "wind": 1.6,
+      "precip": 0.0,
+      "wbgt": 23.8
+    },
+    "33921": {
+      "name": "千厩",
+      "kana": "センマヤ",
+      "temp": 23.6,
+      "humidity": 94,
+      "wind": 1.0,
+      "precip": 0.0,
+      "wbgt": 23.3
+    },
+    "34012": {
+      "name": "駒ノ湯",
+      "kana": "コマノユ",
+      "temp": 21.3,
+      "humidity": 100,
+      "wind": 0.7,
+      "precip": 0.0,
+      "wbgt": 21.6
+    },
+    "34026": {
+      "name": "気仙沼",
+      "kana": "ケセンヌマ",
+      "temp": 23.0,
+      "humidity": 97,
+      "wind": 1.7,
+      "precip": 0.0,
+      "wbgt": 23.0
+    },
+    "34096": {
+      "name": "川渡",
+      "kana": "カワタビ",
+      "temp": 21.7,
+      "humidity": 97,
+      "wind": 1.2,
+      "precip": 1.0,
+      "wbgt": 21.7
+    },
+    "34111": {
+      "name": "築館",
+      "kana": "ツキダテ",
+      "temp": 22.6,
+      "humidity": 97,
+      "wind": 1.7,
+      "precip": 0.5,
+      "wbgt": 22.6
+    },
+    "34171": {
+      "name": "米山",
+      "kana": "ヨネヤマ",
+      "temp": 23.9,
+      "humidity": 100,
+      "wind": 2.2,
+      "precip": 0.5,
+      "wbgt": 24.2
+    },
+    "34186": {
+      "name": "志津川",
+      "kana": "シヅガワ",
+      "temp": 23.0,
+      "humidity": 100,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 23.3
+    },
+    "34216": {
+      "name": "古川",
+      "kana": "フルカワ",
+      "temp": 22.5,
+      "humidity": 97,
+      "wind": 0.5,
+      "precip": 2.5,
+      "wbgt": 22.5
+    },
+    "34266": {
+      "name": "大衡",
+      "kana": "オオヒラ",
+      "temp": 22.4,
+      "humidity": 97,
+      "wind": 0.6,
+      "precip": 3.5,
+      "wbgt": 22.4
+    },
+    "34276": {
+      "name": "鹿島台",
+      "kana": "カシマダイ",
+      "temp": 23.5,
+      "humidity": 94,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 23.2
+    },
+    "34292": {
+      "name": "石巻",
+      "kana": "イシノマキ",
+      "temp": 23.6,
+      "humidity": 94,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 23.3
+    },
+    "34296": {
+      "name": "女川",
+      "kana": "オナガワ",
+      "temp": 22.5,
+      "humidity": 97,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 22.5
+    },
+    "34311": {
+      "name": "新川",
+      "kana": "ニッカワ",
+      "temp": 22.0,
+      "humidity": 100,
+      "wind": 0.5,
+      "precip": 2.0,
+      "wbgt": 22.3
+    },
+    "34331": {
+      "name": "塩釜",
+      "kana": "シオガマ",
+      "temp": 22.7,
+      "humidity": 98,
+      "wind": 1.3,
+      "precip": 2.5,
+      "wbgt": 22.8
+    },
+    "34392": {
+      "name": "仙台",
+      "kana": "センダイ",
+      "temp": 23.9,
+      "humidity": 96,
+      "wind": 2.5,
+      "precip": 0.5,
+      "wbgt": 23.8
+    },
+    "34436": {
+      "name": "名取",
+      "kana": "ナトリ：仙台空港",
+      "temp": 24.0,
+      "humidity": null,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 19.0
+    },
+    "34461": {
+      "name": "白石",
+      "kana": "シロイシ",
+      "temp": 24.6,
+      "humidity": 100,
+      "wind": 0.9,
+      "precip": 0.5,
+      "wbgt": 24.9
+    },
+    "34462": {
+      "name": "蔵王",
+      "kana": "ザオウ",
+      "temp": 23.4,
+      "humidity": 100,
+      "wind": 0.7,
+      "precip": 0.5,
+      "wbgt": 23.7
+    },
+    "34471": {
+      "name": "亘理",
+      "kana": "ワタリ",
+      "temp": 24.1,
+      "humidity": 94,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 23.8
+    },
+    "34506": {
+      "name": "丸森",
+      "kana": "マルモリ",
+      "temp": 25.0,
+      "humidity": 91,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 24.4
+    },
+    "35002": {
+      "name": "飛島",
+      "kana": "トビシマ",
+      "temp": 25.1,
+      "humidity": 94,
+      "wind": 0.8,
+      "precip": 0.0,
+      "wbgt": 24.8
+    },
+    "35052": {
+      "name": "酒田",
+      "kana": "サカタ",
+      "temp": 27.6,
+      "humidity": 76,
+      "wind": 4.1,
+      "precip": 0.0,
+      "wbgt": 25.2
+    },
+    "35071": {
+      "name": "差首鍋",
+      "kana": "サスナベ",
+      "temp": 24.2,
+      "humidity": 98,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 24.3
+    },
+    "35086": {
+      "name": "浜中",
+      "kana": "ハマナカ：庄内空港",
+      "temp": 26.3,
+      "humidity": null,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 21.0
+    },
+    "35116": {
+      "name": "金山",
+      "kana": "カネヤマ",
+      "temp": 23.4,
+      "humidity": 94,
+      "wind": 0.6,
+      "precip": 1.0,
+      "wbgt": 23.1
+    },
+    "35141": {
+      "name": "鶴岡",
+      "kana": "ツルオカ",
+      "temp": 27.4,
+      "humidity": 85,
+      "wind": 0.3,
+      "precip": 0.0,
+      "wbgt": 26.1
+    },
+    "35146": {
+      "name": "狩川",
+      "kana": "カリカワ",
+      "temp": 25.6,
+      "humidity": 89,
+      "wind": 3.5,
+      "precip": 0.0,
+      "wbgt": 24.7
+    },
+    "35162": {
+      "name": "新庄",
+      "kana": "シンジョウ",
+      "temp": 24.2,
+      "humidity": 90,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 23.4
+    },
+    "35176": {
+      "name": "向町",
+      "kana": "ムカイマチ",
+      "temp": 22.4,
+      "humidity": 100,
+      "wind": 0.6,
+      "precip": 0.5,
+      "wbgt": 22.7
+    },
+    "35216": {
+      "name": "肘折",
+      "kana": "ヒジオリ",
+      "temp": 22.2,
+      "humidity": 95,
+      "wind": 0.4,
+      "precip": 0.0,
+      "wbgt": 22.0
+    },
+    "35231": {
+      "name": "尾花沢",
+      "kana": "オバナザワ",
+      "temp": 23.4,
+      "humidity": 100,
+      "wind": 2.5,
+      "precip": 0.5,
+      "wbgt": 23.7
+    },
+    "35246": {
+      "name": "鼠ケ関",
+      "kana": "ネズガセキ",
+      "temp": 26.0,
+      "humidity": 98,
+      "wind": 1.0,
+      "precip": 0.0,
+      "wbgt": 26.2
+    },
+    "35332": {
+      "name": "村山",
+      "kana": "ムラヤマ",
+      "temp": 24.7,
+      "humidity": 95,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 24.5
+    },
+    "35334": {
+      "name": "東根",
+      "kana": "ヒガシネ：山形空港",
+      "temp": 25.0,
+      "humidity": null,
+      "wind": 4.3,
+      "precip": 0.0,
+      "wbgt": 19.8
+    },
+    "35361": {
+      "name": "大井沢",
+      "kana": "オオイサワ",
+      "temp": 21.9,
+      "humidity": 95,
+      "wind": 0.4,
+      "precip": 0.0,
+      "wbgt": 21.7
+    },
+    "35376": {
+      "name": "左沢",
+      "kana": "アテラザワ",
+      "temp": 24.4,
+      "humidity": 90,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 23.6
+    },
+    "35426": {
+      "name": "山形",
+      "kana": "ヤマガタ",
+      "temp": 25.8,
+      "humidity": 85,
+      "wind": 0.6,
+      "precip": 0.5,
+      "wbgt": 24.5
+    },
+    "35456": {
+      "name": "長井",
+      "kana": "ナガイ",
+      "temp": 23.5,
+      "humidity": 100,
+      "wind": 0.7,
+      "precip": 0.5,
+      "wbgt": 23.8
+    },
+    "35486": {
+      "name": "小国",
+      "kana": "オグニ",
+      "temp": 23.4,
+      "humidity": 100,
+      "wind": 0.9,
+      "precip": 6.5,
+      "wbgt": 23.7
+    },
+    "35511": {
+      "name": "高畠",
+      "kana": "タカハタ",
+      "temp": 23.1,
+      "humidity": 95,
+      "wind": 0.3,
+      "precip": 0.5,
+      "wbgt": 22.9
+    },
+    "35541": {
+      "name": "高峰",
+      "kana": "タカミネ",
+      "temp": 22.7,
+      "humidity": 96,
+      "wind": 0.8,
+      "precip": 0.5,
+      "wbgt": 22.6
+    },
+    "35552": {
+      "name": "米沢",
+      "kana": "ヨネザワ",
+      "temp": 23.7,
+      "humidity": 100,
+      "wind": 0.6,
+      "precip": 0.5,
+      "wbgt": 24.0
+    },
+    "36056": {
+      "name": "茂庭",
+      "kana": "モニワ",
+      "temp": 23.9,
+      "humidity": 98,
+      "wind": 0.3,
+      "precip": 1.0,
+      "wbgt": 24.0
+    },
+    "36066": {
+      "name": "梁川",
+      "kana": "ヤナガワ",
+      "temp": 25.0,
+      "humidity": 93,
+      "wind": 1.5,
+      "precip": 0.5,
+      "wbgt": 24.6
+    },
+    "36106": {
+      "name": "桧原",
+      "kana": "ヒバラ",
+      "temp": 21.3,
+      "humidity": 96,
+      "wind": 1.4,
+      "precip": 1.0,
+      "wbgt": 21.2
+    },
+    "36127": {
+      "name": "福島",
+      "kana": "フクシマ",
+      "temp": 25.0,
+      "humidity": 93,
+      "wind": 1.0,
+      "precip": 2.0,
+      "wbgt": 24.6
+    },
+    "36151": {
+      "name": "相馬",
+      "kana": "ソウマ",
+      "temp": 24.8,
+      "humidity": 95,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 24.6
+    },
+    "36176": {
+      "name": "喜多方",
+      "kana": "キタカタ",
+      "temp": 24.9,
+      "humidity": 100,
+      "wind": 1.2,
+      "precip": 1.5,
+      "wbgt": 25.2
+    },
+    "36196": {
+      "name": "鷲倉",
+      "kana": "ワシクラ",
+      "temp": 18.9,
+      "humidity": 100,
+      "wind": 1.7,
+      "precip": 11.0,
+      "wbgt": 19.1
+    },
+    "36221": {
+      "name": "飯舘",
+      "kana": "イイタテ",
+      "temp": 22.4,
+      "humidity": 95,
+      "wind": 1.7,
+      "precip": 1.5,
+      "wbgt": 22.2
+    },
+    "36251": {
+      "name": "西会津",
+      "kana": "ニシアイヅ",
+      "temp": 24.9,
+      "humidity": 100,
+      "wind": 0.2,
+      "precip": 1.5,
+      "wbgt": 25.2
+    },
+    "36276": {
+      "name": "猪苗代",
+      "kana": "イナワシロ",
+      "temp": 23.5,
+      "humidity": 96,
+      "wind": 0.9,
+      "precip": 1.0,
+      "wbgt": 23.4
+    },
+    "36291": {
+      "name": "二本松",
+      "kana": "ニホンマツ",
+      "temp": 23.4,
+      "humidity": 95,
+      "wind": 1.2,
+      "precip": 3.5,
+      "wbgt": 23.2
+    },
+    "36342": {
+      "name": "金山",
+      "kana": "カネヤマ",
+      "temp": 23.9,
+      "humidity": 96,
+      "wind": 0.8,
+      "precip": 4.0,
+      "wbgt": 23.8
+    },
+    "36361": {
+      "name": "若松",
+      "kana": "ワカマツ",
+      "temp": 25.7,
+      "humidity": 92,
+      "wind": 1.3,
+      "precip": 0.5,
+      "wbgt": 25.2
+    },
+    "36391": {
+      "name": "船引",
+      "kana": "フネヒキ",
+      "temp": 23.7,
+      "humidity": 100,
+      "wind": 1.5,
+      "precip": 0.5,
+      "wbgt": 24.0
+    },
+    "36411": {
+      "name": "浪江",
+      "kana": "ナミエ",
+      "temp": 23.7,
+      "humidity": 100,
+      "wind": 1.3,
+      "precip": 0.5,
+      "wbgt": 24.0
+    },
+    "36426": {
+      "name": "只見",
+      "kana": "タダミ",
+      "temp": 24.2,
+      "humidity": 100,
+      "wind": 1.7,
+      "precip": 2.0,
+      "wbgt": 24.5
+    },
+    "36476": {
+      "name": "郡山",
+      "kana": "コオリヤマ",
+      "temp": 24.0,
+      "humidity": 99,
+      "wind": 0.8,
+      "precip": 0.5,
+      "wbgt": 24.2
+    },
+    "36501": {
+      "name": "川内",
+      "kana": "カワウチ",
+      "temp": 23.0,
+      "humidity": 100,
+      "wind": 0.8,
+      "precip": 0.5,
+      "wbgt": 23.3
+    },
+    "36536": {
+      "name": "南郷",
+      "kana": "ナンゴウ",
+      "temp": 23.4,
+      "humidity": 97,
+      "wind": 1.1,
+      "precip": 2.5,
+      "wbgt": 23.4
+    },
+    "36562": {
+      "name": "湯本",
+      "kana": "ユモト",
+      "temp": 23.5,
+      "humidity": 100,
+      "wind": 0.6,
+      "precip": 1.0,
+      "wbgt": 23.8
+    },
+    "36581": {
+      "name": "玉川",
+      "kana": "タマカワ：福島空港",
+      "temp": 24.1,
+      "humidity": null,
+      "wind": 1.7,
+      "precip": 0.5,
+      "wbgt": 19.0
+    },
+    "36591": {
+      "name": "小野新町",
+      "kana": "オノニイマチ",
+      "temp": 23.0,
+      "humidity": 100,
+      "wind": 1.3,
+      "precip": 0.5,
+      "wbgt": 23.3
+    },
+    "36611": {
+      "name": "広野",
+      "kana": "ヒロノ",
+      "temp": 23.1,
+      "humidity": 96,
+      "wind": 1.0,
+      "precip": 0.5,
+      "wbgt": 23.0
+    },
+    "36641": {
+      "name": "田島",
+      "kana": "タジマ",
+      "temp": 25.5,
+      "humidity": 76,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 23.2
+    },
+    "36667": {
+      "name": "白河",
+      "kana": "シラカワ",
+      "temp": 23.9,
+      "humidity": 97,
+      "wind": 2.8,
+      "precip": 1.0,
+      "wbgt": 23.9
+    },
+    "36676": {
+      "name": "石川",
+      "kana": "イシカワ",
+      "temp": 24.6,
+      "humidity": 90,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 23.8
+    },
+    "36716": {
+      "name": "桧枝岐",
+      "kana": "ヒノエマタ",
+      "temp": 25.0,
+      "humidity": 75,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 22.6
+    },
+    "36821": {
+      "name": "東白川",
+      "kana": "ヒガシシラカワ",
+      "temp": 24.8,
+      "humidity": 96,
+      "wind": 0.4,
+      "precip": 0.0,
+      "wbgt": 24.7
+    },
+    "36836": {
+      "name": "山田",
+      "kana": "ヤマダ",
+      "temp": 23.9,
+      "humidity": 97,
+      "wind": 1.3,
+      "precip": 3.0,
+      "wbgt": 23.9
+    },
+    "36846": {
+      "name": "小名浜",
+      "kana": "オナハマ",
+      "temp": 23.7,
+      "humidity": 95,
+      "wind": 1.5,
+      "precip": 0.0,
+      "wbgt": 23.5
+    },
+    "40046": {
+      "name": "北茨城",
+      "kana": "キタイバラキ",
+      "temp": 23.6,
+      "humidity": 100,
+      "wind": 1.1,
+      "precip": 8.0,
+      "wbgt": 23.9
+    },
+    "40061": {
+      "name": "大子",
+      "kana": "ダイゴ",
+      "temp": 26.5,
+      "humidity": 90,
+      "wind": 1.6,
+      "precip": 0.0,
+      "wbgt": 25.7
+    },
+    "40091": {
+      "name": "常陸大宮",
+      "kana": "ヒタチオオミヤ",
+      "temp": 25.9,
+      "humidity": 87,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 24.8
+    },
+    "40136": {
+      "name": "日立",
+      "kana": "ヒタチ",
+      "temp": 24.2,
+      "humidity": 93,
+      "wind": 1.2,
+      "precip": 0.0,
+      "wbgt": 23.8
+    },
+    "40191": {
+      "name": "笠間",
+      "kana": "カサマ",
+      "temp": 27.0,
+      "humidity": 78,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 24.8
+    },
+    "40201": {
+      "name": "水戸",
+      "kana": "ミト",
+      "temp": 25.9,
+      "humidity": 86,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 24.7
+    },
+    "40221": {
+      "name": "古河",
+      "kana": "コガ",
+      "temp": 31.2,
+      "humidity": 70,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 27.9
+    },
+    "40231": {
+      "name": "下館",
+      "kana": "シモダテ",
+      "temp": 28.3,
+      "humidity": 86,
+      "wind": 3.4,
+      "precip": 0.0,
+      "wbgt": 27.1
+    },
+    "40281": {
+      "name": "下妻",
+      "kana": "シモツマ",
+      "temp": 29.4,
+      "humidity": 78,
+      "wind": 3.7,
+      "precip": 0.0,
+      "wbgt": 27.2
+    },
+    "40311": {
+      "name": "鉾田",
+      "kana": "ホコタ",
+      "temp": 25.4,
+      "humidity": 93,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 25.0
+    },
+    "40336": {
+      "name": "つくば",
+      "kana": "ツクバ",
+      "temp": 28.4,
+      "humidity": 80,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "40341": {
+      "name": "土浦",
+      "kana": "ツチウラ",
+      "temp": 27.6,
+      "humidity": 81,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 25.8
+    },
+    "40406": {
+      "name": "鹿嶋",
+      "kana": "カシマ",
+      "temp": 25.4,
+      "humidity": 96,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 25.3
+    },
+    "40426": {
+      "name": "龍ケ崎",
+      "kana": "リュウガサキ",
+      "temp": 29.0,
+      "humidity": 82,
+      "wind": 4.1,
+      "precip": 0.0,
+      "wbgt": 27.3
+    },
+    "41011": {
+      "name": "那須高原",
+      "kana": "ナスコウゲン",
+      "temp": 23.2,
+      "humidity": 100,
+      "wind": 0.4,
+      "precip": 0.0,
+      "wbgt": 23.5
+    },
+    "41076": {
+      "name": "五十里",
+      "kana": "イカリ",
+      "temp": 26.2,
+      "humidity": 91,
+      "wind": 0.8,
+      "precip": 0.0,
+      "wbgt": 25.6
+    },
+    "41091": {
+      "name": "黒磯",
+      "kana": "クロイソ",
+      "temp": 26.4,
+      "humidity": 95,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 26.2
+    },
+    "41116": {
+      "name": "土呂部",
+      "kana": "ドロブ",
+      "temp": 24.4,
+      "humidity": 83,
+      "wind": 1.7,
+      "precip": 0.0,
+      "wbgt": 22.9
+    },
+    "41141": {
+      "name": "大田原",
+      "kana": "オオタワラ",
+      "temp": 28.9,
+      "humidity": 82,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 27.2
+    },
+    "41166": {
+      "name": "奥日光",
+      "kana": "オクニッコウ",
+      "temp": 20.9,
+      "humidity": 97,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 20.8
+    },
+    "41172": {
+      "name": "日光東町",
+      "kana": "ニッコウヒガシマチ",
+      "temp": 26.1,
+      "humidity": 83,
+      "wind": 1.1,
+      "precip": 0.0,
+      "wbgt": 24.5
+    },
+    "41181": {
+      "name": "塩谷",
+      "kana": "シオヤ",
+      "temp": 28.5,
+      "humidity": 79,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "41247": {
+      "name": "那須烏山",
+      "kana": "ナスカラスヤマ",
+      "temp": 27.1,
+      "humidity": 83,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 25.5
+    },
+    "41271": {
+      "name": "鹿沼",
+      "kana": "カヌマ",
+      "temp": 28.2,
+      "humidity": 80,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 26.2
+    },
+    "41277": {
+      "name": "宇都宮",
+      "kana": "ウツノミヤ",
+      "temp": 28.8,
+      "humidity": 81,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 26.9
+    },
+    "41331": {
+      "name": "真岡",
+      "kana": "モオカ",
+      "temp": 28.7,
+      "humidity": 77,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "41361": {
+      "name": "佐野",
+      "kana": "サノ",
+      "temp": 31.4,
+      "humidity": 67,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "41376": {
+      "name": "小山",
+      "kana": "オヤマ",
+      "temp": 30.1,
+      "humidity": 74,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 27.3
+    },
+    "42046": {
+      "name": "藤原",
+      "kana": "フジワラ",
+      "temp": 26.2,
+      "humidity": 79,
+      "wind": 0.7,
+      "precip": 0.0,
+      "wbgt": 24.2
+    },
+    "42091": {
+      "name": "みなかみ",
+      "kana": "ミナカミ",
+      "temp": 29.0,
+      "humidity": 73,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 26.2
+    },
+    "42121": {
+      "name": "草津",
+      "kana": "クサツ",
+      "temp": 24.5,
+      "humidity": 85,
+      "wind": 0.5,
+      "precip": 0.0,
+      "wbgt": 23.2
+    },
+    "42146": {
+      "name": "沼田",
+      "kana": "ヌマタ",
+      "temp": 30.8,
+      "humidity": 67,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 27.1
+    },
+    "42186": {
+      "name": "中之条",
+      "kana": "ナカノジョウ",
+      "temp": 29.1,
+      "humidity": 74,
+      "wind": 3.7,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "42221": {
+      "name": "田代",
+      "kana": "タシロ",
+      "temp": 25.1,
+      "humidity": 92,
+      "wind": 0.6,
+      "precip": 0.0,
+      "wbgt": 24.6
+    },
+    "42251": {
+      "name": "前橋",
+      "kana": "マエバシ",
+      "temp": 33.0,
+      "humidity": 59,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 28.1
+    },
+    "42266": {
+      "name": "桐生",
+      "kana": "キリュウ",
+      "temp": 32.0,
+      "humidity": 68,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "42286": {
+      "name": "上里見",
+      "kana": "カミサトミ",
+      "temp": 30.9,
+      "humidity": 71,
+      "wind": 1.6,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "42302": {
+      "name": "伊勢崎",
+      "kana": "イセサキ",
+      "temp": 33.2,
+      "humidity": 61,
+      "wind": 3.5,
+      "precip": 0.0,
+      "wbgt": 28.5
+    },
+    "42326": {
+      "name": "西野牧",
+      "kana": "ニシノマキ",
+      "temp": 30.9,
+      "humidity": 69,
+      "wind": 1.0,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "42366": {
+      "name": "館林",
+      "kana": "タテバヤシ",
+      "temp": 32.1,
+      "humidity": 67,
+      "wind": 4.3,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "42396": {
+      "name": "神流",
+      "kana": "カンナ",
+      "temp": 29.8,
+      "humidity": 74,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 27.0
+    },
+    "43051": {
+      "name": "寄居",
+      "kana": "ヨリイ",
+      "temp": 31.6,
+      "humidity": 70,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "43056": {
+      "name": "熊谷",
+      "kana": "クマガヤ",
+      "temp": 32.8,
+      "humidity": 62,
+      "wind": 5.6,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "43126": {
+      "name": "久喜",
+      "kana": "クキ",
+      "temp": 31.7,
+      "humidity": 68,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 28.1
+    },
+    "43156": {
+      "name": "秩父",
+      "kana": "チチブ",
+      "temp": 31.8,
+      "humidity": 70,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "43171": {
+      "name": "鳩山",
+      "kana": "ハトヤマ",
+      "temp": 31.7,
+      "humidity": 70,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "43241": {
+      "name": "さいたま",
+      "kana": "サイタマ",
+      "temp": 29.1,
+      "humidity": 77,
+      "wind": 4.3,
+      "precip": 0.0,
+      "wbgt": 26.7
+    },
+    "43256": {
+      "name": "越谷",
+      "kana": "コシガヤ",
+      "temp": 29.1,
+      "humidity": 77,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 26.7
+    },
+    "43266": {
+      "name": "所沢",
+      "kana": "トコロザワ",
+      "temp": 32.5,
+      "humidity": 65,
+      "wind": 4.9,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "44046": {
+      "name": "小河内",
+      "kana": "オゴウチ",
+      "temp": 26.4,
+      "humidity": 100,
+      "wind": 0.4,
+      "precip": 5.5,
+      "wbgt": 26.8
+    },
+    "44056": {
+      "name": "青梅",
+      "kana": "オウメ",
+      "temp": 31.6,
+      "humidity": 68,
+      "wind": 4.1,
+      "precip": 0.0,
+      "wbgt": 28.0
+    },
+    "44071": {
+      "name": "練馬",
+      "kana": "ネリマ",
+      "temp": 32.4,
+      "humidity": 64,
+      "wind": 1.6,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "44112": {
+      "name": "八王子",
+      "kana": "ハチオウジ",
+      "temp": 30.9,
+      "humidity": 70,
+      "wind": 7.6,
+      "precip": 0.0,
+      "wbgt": 27.6
+    },
+    "44116": {
+      "name": "府中",
+      "kana": "フチュウ",
+      "temp": 32.8,
+      "humidity": 63,
+      "wind": 4.8,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "44132": {
+      "name": "東京",
+      "kana": "トウキョウ",
+      "temp": 32.4,
+      "humidity": 66,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 28.5
+    },
+    "44136": {
+      "name": "江戸川臨海",
+      "kana": "エドガワリンカイ",
+      "temp": 32.2,
+      "humidity": 72,
+      "wind": 5.0,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "44166": {
+      "name": "羽田",
+      "kana": "ハネダ：東京国際空港",
+      "temp": 33.5,
+      "humidity": null,
+      "wind": 6.8,
+      "precip": 0.0,
+      "wbgt": 27.3
+    },
+    "44172": {
+      "name": "大島",
+      "kana": "オオシマ",
+      "temp": 31.1,
+      "humidity": 73,
+      "wind": 5.3,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "44173": {
+      "name": "大島北ノ山",
+      "kana": "オオシマキタノヤマ：大島空港",
+      "temp": 32.5,
+      "humidity": null,
+      "wind": 5.4,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "44207": {
+      "name": "新島",
+      "kana": "ニイジマ：新島空港",
+      "temp": 29.9,
+      "humidity": null,
+      "wind": 3.5,
+      "precip": 0.0,
+      "wbgt": 24.1
+    },
+    "44216": {
+      "name": "神津島",
+      "kana": "コウヅシマ：神津島空港",
+      "temp": 29.5,
+      "humidity": null,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 23.8
+    },
+    "44226": {
+      "name": "三宅島",
+      "kana": "ミヤケジマ",
+      "temp": 30.0,
+      "humidity": 81,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 28.1
+    },
+    "44228": {
+      "name": "三宅坪田",
+      "kana": "ミヤケツボタ：三宅島空港",
+      "temp": 29.0,
+      "humidity": null,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 23.4
+    },
+    "44262": {
+      "name": "八重見ヶ原",
+      "kana": "ヤエミガハラ：八丈島空港",
+      "temp": 29.7,
+      "humidity": null,
+      "wind": 1.5,
+      "precip": 0.0,
+      "wbgt": 24.0
+    },
+    "44263": {
+      "name": "八丈島",
+      "kana": "ハチジョウジマ",
+      "temp": 29.1,
+      "humidity": 84,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 27.6
+    },
+    "44301": {
+      "name": "父島",
+      "kana": "チチジマ",
+      "temp": 29.9,
+      "humidity": 71,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 26.8
+    },
+    "44356": {
+      "name": "南鳥島",
+      "kana": "ミナミトリシマ",
+      "temp": 29.6,
+      "humidity": 72,
+      "wind": 0.8,
+      "precip": 0.0,
+      "wbgt": 26.6
+    },
+    "45061": {
+      "name": "我孫子",
+      "kana": "アビコ",
+      "temp": 29.9,
+      "humidity": 77,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "45081": {
+      "name": "香取",
+      "kana": "カトリ",
+      "temp": 27.3,
+      "humidity": 86,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 26.1
+    },
+    "45106": {
+      "name": "船橋",
+      "kana": "フナバシ",
+      "temp": 30.0,
+      "humidity": 77,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 27.6
+    },
+    "45116": {
+      "name": "佐倉",
+      "kana": "サクラ",
+      "temp": 30.9,
+      "humidity": 79,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 28.7
+    },
+    "45121": {
+      "name": "成田",
+      "kana": "ナリタ：成田国際空港",
+      "temp": 29.0,
+      "humidity": null,
+      "wind": 5.7,
+      "precip": 0.0,
+      "wbgt": 23.4
+    },
+    "45148": {
+      "name": "銚子",
+      "kana": "チョウシ",
+      "temp": 26.3,
+      "humidity": 89,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 25.4
+    },
+    "45181": {
+      "name": "横芝光",
+      "kana": "ヨコシバヒカリ",
+      "temp": 29.4,
+      "humidity": 79,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 27.3
+    },
+    "45212": {
+      "name": "千葉",
+      "kana": "チバ",
+      "temp": 31.0,
+      "humidity": 74,
+      "wind": 6.1,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "45261": {
+      "name": "茂原",
+      "kana": "モバラ",
+      "temp": 31.4,
+      "humidity": 65,
+      "wind": 3.5,
+      "precip": 0.0,
+      "wbgt": 27.4
+    },
+    "45282": {
+      "name": "木更津",
+      "kana": "キサラヅ",
+      "temp": 28.8,
+      "humidity": 86,
+      "wind": 2.5,
+      "precip": 1.0,
+      "wbgt": 27.6
+    },
+    "45291": {
+      "name": "牛久",
+      "kana": "ウシク",
+      "temp": 30.7,
+      "humidity": 70,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 27.4
+    },
+    "45326": {
+      "name": "坂畑",
+      "kana": "サカハタ",
+      "temp": 29.6,
+      "humidity": 75,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 27.0
+    },
+    "45361": {
+      "name": "鴨川",
+      "kana": "カモガワ",
+      "temp": 29.0,
+      "humidity": 95,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 28.8
+    },
+    "45371": {
+      "name": "勝浦",
+      "kana": "カツウラ",
+      "temp": 29.8,
+      "humidity": 77,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 27.4
+    },
+    "45401": {
+      "name": "館山",
+      "kana": "タテヤマ",
+      "temp": 30.8,
+      "humidity": 75,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 28.1
+    },
+    "46091": {
+      "name": "海老名",
+      "kana": "エビナ",
+      "temp": 30.1,
+      "humidity": 77,
+      "wind": 4.6,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "46106": {
+      "name": "横浜",
+      "kana": "ヨコハマ",
+      "temp": 31.9,
+      "humidity": 67,
+      "wind": 4.7,
+      "precip": 0.0,
+      "wbgt": 28.1
+    },
+    "46141": {
+      "name": "辻堂",
+      "kana": "ツジドウ",
+      "temp": 29.9,
+      "humidity": 90,
+      "wind": 5.6,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "46166": {
+      "name": "小田原",
+      "kana": "オダワラ",
+      "temp": 30.5,
+      "humidity": 89,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 29.6
+    },
+    "46211": {
+      "name": "三浦",
+      "kana": "ミウラ",
+      "temp": 30.5,
+      "humidity": 79,
+      "wind": 5.8,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "48031": {
+      "name": "野沢温泉",
+      "kana": "ノザワオンセン",
+      "temp": 28.3,
+      "humidity": 69,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 25.0
+    },
+    "48061": {
+      "name": "信濃町",
+      "kana": "シナノマチ",
+      "temp": 27.2,
+      "humidity": 74,
+      "wind": 4.0,
+      "precip": 0.0,
+      "wbgt": 24.6
+    },
+    "48066": {
+      "name": "飯山",
+      "kana": "イイヤマ",
+      "temp": 30.2,
+      "humidity": 66,
+      "wind": 5.0,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "48141": {
+      "name": "白馬",
+      "kana": "ハクバ",
+      "temp": 28.8,
+      "humidity": 67,
+      "wind": 1.7,
+      "precip": 0.0,
+      "wbgt": 25.2
+    },
+    "48156": {
+      "name": "長野",
+      "kana": "ナガノ",
+      "temp": 32.5,
+      "humidity": 57,
+      "wind": 4.1,
+      "precip": 0.0,
+      "wbgt": 27.4
+    },
+    "48191": {
+      "name": "大町",
+      "kana": "オオマチ",
+      "temp": 29.6,
+      "humidity": 62,
+      "wind": 5.5,
+      "precip": 0.0,
+      "wbgt": 25.4
+    },
+    "48196": {
+      "name": "信州新町",
+      "kana": "シンシュウシンマチ",
+      "temp": 31.7,
+      "humidity": 55,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "48216": {
+      "name": "菅平",
+      "kana": "スガダイラ",
+      "temp": 25.5,
+      "humidity": 76,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 23.2
+    },
+    "48256": {
+      "name": "上田",
+      "kana": "ウエダ",
+      "temp": 34.0,
+      "humidity": 44,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 26.9
+    },
+    "48296": {
+      "name": "穂高",
+      "kana": "ホタカ",
+      "temp": 33.7,
+      "humidity": 50,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "48321": {
+      "name": "東御",
+      "kana": "トウミ",
+      "temp": 29.2,
+      "humidity": 66,
+      "wind": 1.0,
+      "precip": 0.0,
+      "wbgt": 25.5
+    },
+    "48331": {
+      "name": "軽井沢",
+      "kana": "カルイザワ",
+      "temp": 26.1,
+      "humidity": 81,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 24.3
+    },
+    "48361": {
+      "name": "松本",
+      "kana": "マツモト",
+      "temp": 34.7,
+      "humidity": 42,
+      "wind": 4.6,
+      "precip": 0.0,
+      "wbgt": 27.3
+    },
+    "48363": {
+      "name": "松本今井",
+      "kana": "マツモトイマイ：松本空港",
+      "temp": 33.6,
+      "humidity": null,
+      "wind": 5.0,
+      "precip": 0.0,
+      "wbgt": 27.4
+    },
+    "48381": {
+      "name": "立科",
+      "kana": "タテシナ",
+      "temp": 31.0,
+      "humidity": 63,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 26.8
+    },
+    "48386": {
+      "name": "佐久",
+      "kana": "サク",
+      "temp": 31.2,
+      "humidity": 59,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "48466": {
+      "name": "奈川",
+      "kana": "ナガワ",
+      "temp": 29.7,
+      "humidity": 59,
+      "wind": 0.5,
+      "precip": 0.0,
+      "wbgt": 25.1
+    },
+    "48491": {
+      "name": "諏訪",
+      "kana": "スワ",
+      "temp": 33.6,
+      "humidity": 48,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 27.1
+    },
+    "48531": {
+      "name": "開田高原",
+      "kana": "カイダコウゲン",
+      "temp": 29.9,
+      "humidity": 52,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 24.4
+    },
+    "48536": {
+      "name": "木祖薮原",
+      "kana": "キソヤブハラ",
+      "temp": 33.8,
+      "humidity": 41,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "48546": {
+      "name": "辰野",
+      "kana": "タツノ",
+      "temp": 29.9,
+      "humidity": 63,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 25.8
+    },
+    "48561": {
+      "name": "原村",
+      "kana": "ハラムラ",
+      "temp": 30.5,
+      "humidity": 61,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 26.1
+    },
+    "48571": {
+      "name": "野辺山",
+      "kana": "ノベヤマ",
+      "temp": 25.8,
+      "humidity": 72,
+      "wind": 1.7,
+      "precip": 0.0,
+      "wbgt": 23.0
+    },
+    "48606": {
+      "name": "木曽福島",
+      "kana": "キソフクシマ",
+      "temp": 33.9,
+      "humidity": 45,
+      "wind": 1.7,
+      "precip": 0.0,
+      "wbgt": 27.0
+    },
+    "48621": {
+      "name": "伊那",
+      "kana": "イナ",
+      "temp": 35.3,
+      "humidity": 41,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 27.6
+    },
+    "48717": {
+      "name": "南木曽",
+      "kana": "ナギソ",
+      "temp": 34.4,
+      "humidity": 48,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 27.8
+    },
+    "48731": {
+      "name": "飯島",
+      "kana": "イイジマ",
+      "temp": 32.8,
+      "humidity": 53,
+      "wind": 1.1,
+      "precip": 0.0,
+      "wbgt": 27.1
+    },
+    "48767": {
+      "name": "飯田",
+      "kana": "イイダ",
+      "temp": 36.2,
+      "humidity": 38,
+      "wind": 6.6,
+      "precip": 0.0,
+      "wbgt": 28.0
+    },
+    "48826": {
+      "name": "浪合",
+      "kana": "ナミアイ",
+      "temp": 31.0,
+      "humidity": 47,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 24.7
+    },
+    "48841": {
+      "name": "南信濃",
+      "kana": "ミナミシナノ",
+      "temp": 35.1,
+      "humidity": 49,
+      "wind": 4.1,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "49036": {
+      "name": "大泉",
+      "kana": "オオイズミ",
+      "temp": 31.6,
+      "humidity": 50,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 25.6
+    },
+    "49086": {
+      "name": "韮崎",
+      "kana": "ニラサキ",
+      "temp": 33.7,
+      "humidity": 58,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "49142": {
+      "name": "甲府",
+      "kana": "コウフ",
+      "temp": 35.3,
+      "humidity": 51,
+      "wind": 8.3,
+      "precip": 0.0,
+      "wbgt": 29.0
+    },
+    "49151": {
+      "name": "勝沼",
+      "kana": "カツヌマ",
+      "temp": 32.7,
+      "humidity": 59,
+      "wind": 5.8,
+      "precip": 0.0,
+      "wbgt": 27.8
+    },
+    "49161": {
+      "name": "大月",
+      "kana": "オオツキ",
+      "temp": 27.4,
+      "humidity": 100,
+      "wind": 1.8,
+      "precip": 0.5,
+      "wbgt": 27.8
+    },
+    "49196": {
+      "name": "古関",
+      "kana": "フルセキ",
+      "temp": 30.8,
+      "humidity": 62,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 26.5
+    },
+    "49236": {
+      "name": "切石",
+      "kana": "キリイシ",
+      "temp": 32.5,
+      "humidity": 61,
+      "wind": 5.2,
+      "precip": 0.0,
+      "wbgt": 27.9
+    },
+    "49251": {
+      "name": "河口湖",
+      "kana": "カワグチコ",
+      "temp": 27.9,
+      "humidity": 75,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 25.4
+    },
+    "49256": {
+      "name": "山中",
+      "kana": "ヤマナカ",
+      "temp": 26.2,
+      "humidity": 80,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 24.3
+    },
+    "49316": {
+      "name": "南部",
+      "kana": "ナンブ",
+      "temp": 32.6,
+      "humidity": 66,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "50066": {
+      "name": "富士山",
+      "kana": "フジサン",
+      "temp": 8.6,
+      "humidity": null,
+      "wind": null,
+      "precip": 0,
+      "wbgt": 5.4
+    },
+    "50106": {
+      "name": "井川",
+      "kana": "イカワ",
+      "temp": 26.6,
+      "humidity": 83,
+      "wind": 1.2,
+      "precip": 0.0,
+      "wbgt": 25.0
+    },
+    "50136": {
+      "name": "御殿場",
+      "kana": "ゴテンバ",
+      "temp": 27.4,
+      "humidity": 83,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 25.8
+    },
+    "50196": {
+      "name": "富士",
+      "kana": "フジ",
+      "temp": 32.2,
+      "humidity": 66,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "50206": {
+      "name": "三島",
+      "kana": "ミシマ",
+      "temp": 32.6,
+      "humidity": 66,
+      "wind": 4.3,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "50226": {
+      "name": "佐久間",
+      "kana": "サクマ",
+      "temp": 34.4,
+      "humidity": 57,
+      "wind": 1.6,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "50241": {
+      "name": "川根本町",
+      "kana": "カワネホンチョウ",
+      "temp": 29.7,
+      "humidity": 75,
+      "wind": 1.1,
+      "precip": 0.0,
+      "wbgt": 27.1
+    },
+    "50261": {
+      "name": "清水",
+      "kana": "シミズ",
+      "temp": 32.1,
+      "humidity": 69,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "50281": {
+      "name": "網代",
+      "kana": "アジロ",
+      "temp": 29.0,
+      "humidity": 89,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 28.1
+    },
+    "50331": {
+      "name": "静岡",
+      "kana": "シズオカ",
+      "temp": 30.6,
+      "humidity": 78,
+      "wind": 4.0,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "50386": {
+      "name": "天竜",
+      "kana": "テンリュウ",
+      "temp": 32.4,
+      "humidity": 65,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "50456": {
+      "name": "浜松",
+      "kana": "ハママツ",
+      "temp": 32.3,
+      "humidity": 70,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "50476": {
+      "name": "菊川牧之原",
+      "kana": "キクガワマキノハラ",
+      "temp": 29.6,
+      "humidity": 96,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 29.6
+    },
+    "50477": {
+      "name": "静岡空港",
+      "kana": "シズオカクウコウ：静岡空港",
+      "temp": 29.9,
+      "humidity": null,
+      "wind": 4.0,
+      "precip": 0.0,
+      "wbgt": 24.1
+    },
+    "50491": {
+      "name": "松崎",
+      "kana": "マツザキ",
+      "temp": 33.0,
+      "humidity": 67,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 29.2
+    },
+    "50506": {
+      "name": "稲取",
+      "kana": "イナトリ",
+      "temp": 28.6,
+      "humidity": 89,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "50536": {
+      "name": "磐田",
+      "kana": "イワタ",
+      "temp": 30.5,
+      "humidity": 79,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "50551": {
+      "name": "御前崎",
+      "kana": "オマエザキ",
+      "temp": 29.9,
+      "humidity": 87,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 28.8
+    },
+    "50561": {
+      "name": "石廊崎",
+      "kana": "イロウザキ",
+      "temp": 29.3,
+      "humidity": 89,
+      "wind": 3.5,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "51031": {
+      "name": "愛西",
+      "kana": "アイサイ",
+      "temp": 37.5,
+      "humidity": 39,
+      "wind": 4.8,
+      "precip": 0.0,
+      "wbgt": 29.2
+    },
+    "51071": {
+      "name": "稲武",
+      "kana": "イナブ",
+      "temp": 33.9,
+      "humidity": 41,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "51106": {
+      "name": "名古屋",
+      "kana": "ナゴヤ",
+      "temp": 38.2,
+      "humidity": 37,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 29.5
+    },
+    "51116": {
+      "name": "豊田",
+      "kana": "トヨタ",
+      "temp": 38.7,
+      "humidity": 32,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 29.2
+    },
+    "51216": {
+      "name": "大府",
+      "kana": "オオブ",
+      "temp": 37.9,
+      "humidity": 36,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "51226": {
+      "name": "岡崎",
+      "kana": "オカザキ",
+      "temp": 38.6,
+      "humidity": 37,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 29.9
+    },
+    "51247": {
+      "name": "新城",
+      "kana": "シンシロ",
+      "temp": 32.5,
+      "humidity": 69,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 29.0
+    },
+    "51261": {
+      "name": "セントレア",
+      "kana": "セントレア：中部国際空港",
+      "temp": 33.0,
+      "humidity": null,
+      "wind": 4.6,
+      "precip": 0.0,
+      "wbgt": 26.9
+    },
+    "51281": {
+      "name": "蒲郡",
+      "kana": "ガマゴオリ",
+      "temp": 33.7,
+      "humidity": 65,
+      "wind": 5.2,
+      "precip": 0.0,
+      "wbgt": 29.5
+    },
+    "51311": {
+      "name": "南知多",
+      "kana": "ミナミチタ",
+      "temp": 34.6,
+      "humidity": 56,
+      "wind": 3.7,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "51331": {
+      "name": "豊橋",
+      "kana": "トヨハシ",
+      "temp": 31.3,
+      "humidity": 62,
+      "wind": 5.0,
+      "precip": 0.0,
+      "wbgt": 26.9
+    },
+    "51346": {
+      "name": "伊良湖",
+      "kana": "イラコ",
+      "temp": 32.8,
+      "humidity": 64,
+      "wind": 5.1,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "52041": {
+      "name": "河合",
+      "kana": "カワイ",
+      "temp": 31.2,
+      "humidity": 58,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 26.3
+    },
+    "52051": {
+      "name": "神岡",
+      "kana": "カミオカ",
+      "temp": 33.1,
+      "humidity": 53,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 27.4
+    },
+    "52081": {
+      "name": "白川",
+      "kana": "シラカワ",
+      "temp": 31.5,
+      "humidity": 58,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 26.6
+    },
+    "52111": {
+      "name": "栃尾",
+      "kana": "トチオ",
+      "temp": 31.8,
+      "humidity": 46,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 25.3
+    },
+    "52146": {
+      "name": "高山",
+      "kana": "タカヤマ",
+      "temp": 34.3,
+      "humidity": 43,
+      "wind": 4.4,
+      "precip": 0.0,
+      "wbgt": 27.1
+    },
+    "52181": {
+      "name": "六厩",
+      "kana": "ムマヤ",
+      "temp": 29.3,
+      "humidity": 59,
+      "wind": 1.5,
+      "precip": 0.0,
+      "wbgt": 24.7
+    },
+    "52196": {
+      "name": "宮之前",
+      "kana": "ミヤノマエ",
+      "temp": 31.4,
+      "humidity": 45,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 24.8
+    },
+    "52221": {
+      "name": "長滝",
+      "kana": "ナガタキ",
+      "temp": 32.6,
+      "humidity": 53,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 26.9
+    },
+    "52286": {
+      "name": "萩原",
+      "kana": "ハギワラ",
+      "temp": 35.6,
+      "humidity": 43,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "52331": {
+      "name": "八幡",
+      "kana": "ハチマン",
+      "temp": 36.2,
+      "humidity": 40,
+      "wind": 1.7,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "52346": {
+      "name": "宮地",
+      "kana": "ミヤジ",
+      "temp": 35.7,
+      "humidity": 39,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "52381": {
+      "name": "樽見",
+      "kana": "タルミ",
+      "temp": 34.7,
+      "humidity": 52,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 28.7
+    },
+    "52406": {
+      "name": "金山",
+      "kana": "カナヤマ",
+      "temp": 38.0,
+      "humidity": 36,
+      "wind": 4.1,
+      "precip": 0.0,
+      "wbgt": 29.2
+    },
+    "52461": {
+      "name": "美濃",
+      "kana": "ミノ",
+      "temp": 39.3,
+      "humidity": 33,
+      "wind": 3.9,
+      "precip": 0.0,
+      "wbgt": 29.8
+    },
+    "52482": {
+      "name": "黒川",
+      "kana": "クロカワ",
+      "temp": 33.3,
+      "humidity": 46,
+      "wind": 0.8,
+      "precip": 0.0,
+      "wbgt": 26.6
+    },
+    "52511": {
+      "name": "揖斐川",
+      "kana": "イビガワ",
+      "temp": 37.6,
+      "humidity": 40,
+      "wind": 4.9,
+      "precip": 0.0,
+      "wbgt": 29.5
+    },
+    "52536": {
+      "name": "美濃加茂",
+      "kana": "ミノカモ",
+      "temp": 38.4,
+      "humidity": 39,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 30.0
+    },
+    "52556": {
+      "name": "恵那",
+      "kana": "エナ",
+      "temp": 36.5,
+      "humidity": 40,
+      "wind": 4.6,
+      "precip": 0.0,
+      "wbgt": 28.5
+    },
+    "52557": {
+      "name": "中津川",
+      "kana": "ナカツガワ",
+      "temp": 36.4,
+      "humidity": 39,
+      "wind": 0.9,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "52571": {
+      "name": "関ケ原",
+      "kana": "セキガハラ",
+      "temp": 34.8,
+      "humidity": 48,
+      "wind": 5.4,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "52581": {
+      "name": "大垣",
+      "kana": "オオガキ",
+      "temp": 36.3,
+      "humidity": 41,
+      "wind": 7.0,
+      "precip": 0.0,
+      "wbgt": 28.5
+    },
+    "52586": {
+      "name": "岐阜",
+      "kana": "ギフ",
+      "temp": 37.6,
+      "humidity": 37,
+      "wind": 6.4,
+      "precip": 0.0,
+      "wbgt": 29.0
+    },
+    "52606": {
+      "name": "多治見",
+      "kana": "タジミ",
+      "temp": 38.2,
+      "humidity": 37,
+      "wind": 4.0,
+      "precip": 0.0,
+      "wbgt": 29.5
+    },
+    "53041": {
+      "name": "桑名",
+      "kana": "クワナ",
+      "temp": 38.7,
+      "humidity": 31,
+      "wind": 4.7,
+      "precip": 0.0,
+      "wbgt": 29.0
+    },
+    "53061": {
+      "name": "四日市",
+      "kana": "ヨッカイチ",
+      "temp": 37.1,
+      "humidity": 39,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "53091": {
+      "name": "亀山",
+      "kana": "カメヤマ",
+      "temp": 36.7,
+      "humidity": 46,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 29.6
+    },
+    "53112": {
+      "name": "上野",
+      "kana": "ウエノ",
+      "temp": 35.2,
+      "humidity": 48,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 28.5
+    },
+    "53133": {
+      "name": "津",
+      "kana": "ツ",
+      "temp": 34.2,
+      "humidity": 60,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 29.3
+    },
+    "53196": {
+      "name": "小俣",
+      "kana": "オバタ",
+      "temp": 37.3,
+      "humidity": 44,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 29.8
+    },
+    "53231": {
+      "name": "粥見",
+      "kana": "カユミ",
+      "temp": 34.9,
+      "humidity": 54,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "53257": {
+      "name": "鳥羽",
+      "kana": "トバ",
+      "temp": 35.8,
+      "humidity": 57,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 30.3
+    },
+    "53296": {
+      "name": "南伊勢",
+      "kana": "ミナミイセ",
+      "temp": 31.1,
+      "humidity": 77,
+      "wind": 1.2,
+      "precip": 0.0,
+      "wbgt": 28.7
+    },
+    "53326": {
+      "name": "紀伊長島",
+      "kana": "キイナガシマ",
+      "temp": 32.0,
+      "humidity": 79,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 29.8
+    },
+    "53378": {
+      "name": "尾鷲",
+      "kana": "オワセ",
+      "temp": 32.2,
+      "humidity": 70,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 28.8
+    },
+    "53401": {
+      "name": "熊野新鹿",
+      "kana": "クマノアタシカ",
+      "temp": 31.4,
+      "humidity": 66,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "54012": {
+      "name": "粟島",
+      "kana": "アワシマ",
+      "temp": 26.3,
+      "humidity": 95,
+      "wind": 1.5,
+      "precip": 1.0,
+      "wbgt": 26.1
+    },
+    "54041": {
+      "name": "弾崎",
+      "kana": "ハジキザキ",
+      "temp": 26.8,
+      "humidity": 93,
+      "wind": 2.2,
+      "precip": 1.0,
+      "wbgt": 26.4
+    },
+    "54086": {
+      "name": "村上",
+      "kana": "ムラカミ",
+      "temp": 25.8,
+      "humidity": 100,
+      "wind": 1.1,
+      "precip": 3.0,
+      "wbgt": 26.2
+    },
+    "54157": {
+      "name": "相川",
+      "kana": "アイカワ",
+      "temp": 27.6,
+      "humidity": 93,
+      "wind": 3.9,
+      "precip": 0.0,
+      "wbgt": 27.2
+    },
+    "54166": {
+      "name": "両津",
+      "kana": "リョウツ",
+      "temp": 26.7,
+      "humidity": 94,
+      "wind": 6.8,
+      "precip": 4.5,
+      "wbgt": 26.4
+    },
+    "54181": {
+      "name": "中条",
+      "kana": "ナカジョウ",
+      "temp": 26.1,
+      "humidity": 94,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 25.8
+    },
+    "54191": {
+      "name": "下関",
+      "kana": "シモセキ",
+      "temp": 24.2,
+      "humidity": 96,
+      "wind": 1.2,
+      "precip": 3.0,
+      "wbgt": 24.1
+    },
+    "54232": {
+      "name": "新潟",
+      "kana": "ニイガタ",
+      "temp": 26.2,
+      "humidity": 96,
+      "wind": 1.8,
+      "precip": 1.5,
+      "wbgt": 26.1
+    },
+    "54236": {
+      "name": "松浜",
+      "kana": "マツハマ：新潟空港",
+      "temp": 26.1,
+      "humidity": null,
+      "wind": 4.0,
+      "precip": 0.5,
+      "wbgt": 20.8
+    },
+    "54271": {
+      "name": "羽茂",
+      "kana": "ハモチ",
+      "temp": 28.6,
+      "humidity": 87,
+      "wind": 1.1,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "54296": {
+      "name": "新津",
+      "kana": "ニイツ",
+      "temp": 25.4,
+      "humidity": 100,
+      "wind": 1.9,
+      "precip": 1.5,
+      "wbgt": 25.8
+    },
+    "54341": {
+      "name": "巻",
+      "kana": "マキ",
+      "temp": 26.3,
+      "humidity": 97,
+      "wind": 1.4,
+      "precip": 1.5,
+      "wbgt": 26.3
+    },
+    "54387": {
+      "name": "寺泊",
+      "kana": "テラドマリ",
+      "temp": 27.6,
+      "humidity": 93,
+      "wind": 0.6,
+      "precip": 0.5,
+      "wbgt": 27.2
+    },
+    "54396": {
+      "name": "三条",
+      "kana": "サンジョウ",
+      "temp": 27.7,
+      "humidity": 91,
+      "wind": 1.1,
+      "precip": 0.5,
+      "wbgt": 27.1
+    },
+    "54421": {
+      "name": "津川",
+      "kana": "ツガワ",
+      "temp": 25.6,
+      "humidity": 100,
+      "wind": 0.2,
+      "precip": 0.5,
+      "wbgt": 26.0
+    },
+    "54501": {
+      "name": "長岡",
+      "kana": "ナガオカ",
+      "temp": 29.9,
+      "humidity": 76,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 27.4
+    },
+    "54541": {
+      "name": "柏崎",
+      "kana": "カシワザキ",
+      "temp": 30.4,
+      "humidity": 72,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 27.4
+    },
+    "54566": {
+      "name": "守門",
+      "kana": "スモン",
+      "temp": 27.3,
+      "humidity": 81,
+      "wind": 1.0,
+      "precip": 0.0,
+      "wbgt": 25.5
+    },
+    "54586": {
+      "name": "大潟",
+      "kana": "オオガタ",
+      "temp": 30.8,
+      "humidity": 82,
+      "wind": 1.7,
+      "precip": 0.0,
+      "wbgt": 29.0
+    },
+    "54616": {
+      "name": "小出",
+      "kana": "コイデ",
+      "temp": 29.8,
+      "humidity": 67,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 26.2
+    },
+    "54651": {
+      "name": "高田",
+      "kana": "タカダ",
+      "temp": 30.8,
+      "humidity": 70,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "54661": {
+      "name": "安塚",
+      "kana": "ヤスヅカ",
+      "temp": 30.0,
+      "humidity": 69,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 26.6
+    },
+    "54676": {
+      "name": "十日町",
+      "kana": "トオカマチ",
+      "temp": 31.0,
+      "humidity": 60,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "54711": {
+      "name": "糸魚川",
+      "kana": "イトイガワ",
+      "temp": 30.7,
+      "humidity": 71,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "54721": {
+      "name": "能生",
+      "kana": "ノウ",
+      "temp": 30.0,
+      "humidity": 71,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 26.9
+    },
+    "54816": {
+      "name": "関山",
+      "kana": "セキヤマ",
+      "temp": 28.0,
+      "humidity": 74,
+      "wind": 3.5,
+      "precip": 0.0,
+      "wbgt": 25.3
+    },
+    "54836": {
+      "name": "津南",
+      "kana": "ツナン",
+      "temp": 28.5,
+      "humidity": 84,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 27.0
+    },
+    "54841": {
+      "name": "湯沢",
+      "kana": "ユザワ",
+      "temp": 29.4,
+      "humidity": 63,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 25.3
+    },
+    "55022": {
+      "name": "朝日",
+      "kana": "アサヒ",
+      "temp": 31.4,
+      "humidity": 67,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "55041": {
+      "name": "氷見",
+      "kana": "ヒミ",
+      "temp": 31.8,
+      "humidity": 62,
+      "wind": 5.3,
+      "precip": 0.0,
+      "wbgt": 27.4
+    },
+    "55056": {
+      "name": "魚津",
+      "kana": "ウオヅ",
+      "temp": 31.8,
+      "humidity": 67,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 28.0
+    },
+    "55091": {
+      "name": "伏木",
+      "kana": "フシキ",
+      "temp": 33.2,
+      "humidity": 62,
+      "wind": 4.3,
+      "precip": 0.0,
+      "wbgt": 28.7
+    },
+    "55102": {
+      "name": "富山",
+      "kana": "トヤマ",
+      "temp": 35.0,
+      "humidity": 52,
+      "wind": 4.3,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "55141": {
+      "name": "砺波",
+      "kana": "トナミ",
+      "temp": 31.0,
+      "humidity": 67,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 27.3
+    },
+    "55151": {
+      "name": "秋ヶ島",
+      "kana": "アキガシマ：富山空港",
+      "temp": 33.9,
+      "humidity": null,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "55166": {
+      "name": "上市",
+      "kana": "カミイチ",
+      "temp": 29.6,
+      "humidity": 71,
+      "wind": 1.1,
+      "precip": 0.0,
+      "wbgt": 26.5
+    },
+    "55191": {
+      "name": "南砺高宮",
+      "kana": "ナントタカミヤ",
+      "temp": 31.3,
+      "humidity": 64,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 27.2
+    },
+    "55206": {
+      "name": "八尾",
+      "kana": "ヤツオ",
+      "temp": 32.8,
+      "humidity": 68,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "56036": {
+      "name": "珠洲",
+      "kana": "スズ",
+      "temp": 32.2,
+      "humidity": 74,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 29.3
+    },
+    "56052": {
+      "name": "輪島",
+      "kana": "ワジマ",
+      "temp": 31.4,
+      "humidity": 67,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "56093": {
+      "name": "三井",
+      "kana": "ミイ：能登空港",
+      "temp": 29.7,
+      "humidity": null,
+      "wind": 4.4,
+      "precip": 0.0,
+      "wbgt": 24.0
+    },
+    "56116": {
+      "name": "志賀",
+      "kana": "シカ",
+      "temp": 30.4,
+      "humidity": 69,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 27.0
+    },
+    "56146": {
+      "name": "七尾",
+      "kana": "ナナオ",
+      "temp": 31.9,
+      "humidity": 72,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 28.8
+    },
+    "56176": {
+      "name": "羽咋",
+      "kana": "ハクイ",
+      "temp": 30.9,
+      "humidity": 81,
+      "wind": 6.1,
+      "precip": 0.0,
+      "wbgt": 29.0
+    },
+    "56186": {
+      "name": "かほく",
+      "kana": "カホク",
+      "temp": 29.6,
+      "humidity": 80,
+      "wind": 5.0,
+      "precip": 0.0,
+      "wbgt": 27.6
+    },
+    "56227": {
+      "name": "金沢",
+      "kana": "カナザワ",
+      "temp": 30.9,
+      "humidity": 72,
+      "wind": 4.9,
+      "precip": 0.0,
+      "wbgt": 27.8
+    },
+    "56276": {
+      "name": "小松",
+      "kana": "コマツ",
+      "temp": 30.9,
+      "humidity": 70,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 27.6
+    },
+    "56286": {
+      "name": "白山河内",
+      "kana": "ハクサンカワチ",
+      "temp": 30.9,
+      "humidity": 67,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 27.2
+    },
+    "56301": {
+      "name": "加賀中津原",
+      "kana": "カガナカツハラ",
+      "temp": 31.1,
+      "humidity": 63,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 26.9
+    },
+    "57001": {
+      "name": "三国",
+      "kana": "ミクニ",
+      "temp": 30.0,
+      "humidity": 76,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "57026": {
+      "name": "春江",
+      "kana": "ハルエ：福井空港",
+      "temp": 30.9,
+      "humidity": null,
+      "wind": 5.2,
+      "precip": 0.0,
+      "wbgt": 25.0
+    },
+    "57051": {
+      "name": "越廼",
+      "kana": "コシノ",
+      "temp": 31.9,
+      "humidity": 72,
+      "wind": 1.5,
+      "precip": 0.0,
+      "wbgt": 28.8
+    },
+    "57066": {
+      "name": "福井",
+      "kana": "フクイ",
+      "temp": 33.8,
+      "humidity": 54,
+      "wind": 4.7,
+      "precip": 0.0,
+      "wbgt": 28.1
+    },
+    "57082": {
+      "name": "勝山",
+      "kana": "カツヤマ",
+      "temp": 32.3,
+      "humidity": 57,
+      "wind": 6.1,
+      "precip": 0.0,
+      "wbgt": 27.2
+    },
+    "57121": {
+      "name": "大野",
+      "kana": "オオノ",
+      "temp": 32.9,
+      "humidity": 56,
+      "wind": 4.8,
+      "precip": 0.0,
+      "wbgt": 27.6
+    },
+    "57206": {
+      "name": "今庄",
+      "kana": "イマジョウ",
+      "temp": 32.2,
+      "humidity": 52,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "57248": {
+      "name": "敦賀",
+      "kana": "ツルガ",
+      "temp": 32.5,
+      "humidity": 56,
+      "wind": 4.3,
+      "precip": 0.0,
+      "wbgt": 27.2
+    },
+    "57286": {
+      "name": "美浜",
+      "kana": "ミハマ",
+      "temp": 32.0,
+      "humidity": 59,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 27.2
+    },
+    "57317": {
+      "name": "小浜",
+      "kana": "オバマ",
+      "temp": 33.0,
+      "humidity": 58,
+      "wind": 3.5,
+      "precip": 0.0,
+      "wbgt": 27.9
+    },
+    "60051": {
+      "name": "今津",
+      "kana": "イマヅ",
+      "temp": 33.7,
+      "humidity": 50,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "60061": {
+      "name": "長浜",
+      "kana": "ナガハマ",
+      "temp": 33.2,
+      "humidity": 49,
+      "wind": 3.4,
+      "precip": 0.0,
+      "wbgt": 26.9
+    },
+    "60102": {
+      "name": "米原",
+      "kana": "マイバラ",
+      "temp": 33.3,
+      "humidity": 47,
+      "wind": 5.5,
+      "precip": 0.0,
+      "wbgt": 26.7
+    },
+    "60116": {
+      "name": "南小松",
+      "kana": "ミナミコマツ",
+      "temp": 36.2,
+      "humidity": 42,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "60131": {
+      "name": "彦根",
+      "kana": "ヒコネ",
+      "temp": 35.1,
+      "humidity": 54,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 29.3
+    },
+    "60196": {
+      "name": "東近江",
+      "kana": "ヒガシオウミ",
+      "temp": 35.5,
+      "humidity": 40,
+      "wind": 5.5,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "60216": {
+      "name": "大津",
+      "kana": "オオツ",
+      "temp": 36.3,
+      "humidity": 47,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 29.4
+    },
+    "60226": {
+      "name": "信楽",
+      "kana": "シガラキ",
+      "temp": 32.5,
+      "humidity": 52,
+      "wind": 4.7,
+      "precip": 0.0,
+      "wbgt": 26.7
+    },
+    "60236": {
+      "name": "土山",
+      "kana": "ツチヤマ",
+      "temp": 35.3,
+      "humidity": 44,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 28.1
+    },
+    "61001": {
+      "name": "間人",
+      "kana": "タイザ",
+      "temp": 30.7,
+      "humidity": 72,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 27.6
+    },
+    "61076": {
+      "name": "宮津",
+      "kana": "ミヤヅ",
+      "temp": 31.6,
+      "humidity": 70,
+      "wind": 3.7,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "61111": {
+      "name": "舞鶴",
+      "kana": "マイヅル",
+      "temp": 33.1,
+      "humidity": 60,
+      "wind": 3.9,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "61187": {
+      "name": "福知山",
+      "kana": "フクチヤマ",
+      "temp": 36.1,
+      "humidity": 45,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "61206": {
+      "name": "美山",
+      "kana": "ミヤマ",
+      "temp": 33.0,
+      "humidity": 55,
+      "wind": 4.6,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "61242": {
+      "name": "園部",
+      "kana": "ソノベ",
+      "temp": 35.4,
+      "humidity": 49,
+      "wind": 3.4,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "61286": {
+      "name": "京都",
+      "kana": "キョウト",
+      "temp": 36.8,
+      "humidity": 47,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 29.8
+    },
+    "61326": {
+      "name": "京田辺",
+      "kana": "キョウタナベ",
+      "temp": 36.2,
+      "humidity": 47,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 29.3
+    },
+    "62016": {
+      "name": "能勢",
+      "kana": "ノセ",
+      "temp": 36.4,
+      "humidity": 45,
+      "wind": 0.6,
+      "precip": 0.0,
+      "wbgt": 29.2
+    },
+    "62046": {
+      "name": "枚方",
+      "kana": "ヒラカタ",
+      "temp": 36.5,
+      "humidity": 47,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 29.5
+    },
+    "62051": {
+      "name": "豊中",
+      "kana": "トヨナカ：大阪国際空港",
+      "temp": 37.4,
+      "humidity": null,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 30.8
+    },
+    "62078": {
+      "name": "大阪",
+      "kana": "オオサカ",
+      "temp": 36.5,
+      "humidity": 46,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 29.4
+    },
+    "62081": {
+      "name": "生駒山",
+      "kana": "イコマヤマ",
+      "temp": 31.4,
+      "humidity": 61,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 26.9
+    },
+    "62091": {
+      "name": "堺",
+      "kana": "サカイ",
+      "temp": 36.1,
+      "humidity": 43,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "62096": {
+      "name": "八尾",
+      "kana": "ヤオ：八尾空港",
+      "temp": 36.5,
+      "humidity": null,
+      "wind": 4.9,
+      "precip": 0.0,
+      "wbgt": 30.0
+    },
+    "62101": {
+      "name": "関空島",
+      "kana": "カンクウジマ：関西国際空港",
+      "temp": 34.3,
+      "humidity": null,
+      "wind": 3.7,
+      "precip": 0.0,
+      "wbgt": 28.0
+    },
+    "62131": {
+      "name": "熊取",
+      "kana": "クマトリ",
+      "temp": 35.6,
+      "humidity": 50,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 29.2
+    },
+    "63016": {
+      "name": "香住",
+      "kana": "カスミ",
+      "temp": 31.0,
+      "humidity": 75,
+      "wind": 4.4,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "63051": {
+      "name": "豊岡",
+      "kana": "トヨオカ",
+      "temp": 32.9,
+      "humidity": 63,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 28.5
+    },
+    "63071": {
+      "name": "兎和野高原",
+      "kana": "ウワノコウゲン",
+      "temp": 29.5,
+      "humidity": 68,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 26.0
+    },
+    "63121": {
+      "name": "和田山",
+      "kana": "ワダヤマ",
+      "temp": 35.1,
+      "humidity": 48,
+      "wind": 4.4,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "63201": {
+      "name": "生野",
+      "kana": "イクノ",
+      "temp": 34.2,
+      "humidity": 52,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "63216": {
+      "name": "柏原",
+      "kana": "カイバラ",
+      "temp": 34.8,
+      "humidity": 52,
+      "wind": 3.7,
+      "precip": 0.0,
+      "wbgt": 28.7
+    },
+    "63251": {
+      "name": "一宮",
+      "kana": "イチノミヤ",
+      "temp": 35.3,
+      "humidity": 53,
+      "wind": 1.1,
+      "precip": 0.0,
+      "wbgt": 29.3
+    },
+    "63321": {
+      "name": "福崎",
+      "kana": "フクサキ",
+      "temp": 37.4,
+      "humidity": 48,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 30.5
+    },
+    "63331": {
+      "name": "西脇",
+      "kana": "ニシワキ",
+      "temp": 34.6,
+      "humidity": 57,
+      "wind": 0.7,
+      "precip": 0.0,
+      "wbgt": 29.3
+    },
+    "63366": {
+      "name": "上郡",
+      "kana": "カミゴオリ",
+      "temp": 36.4,
+      "humidity": 55,
+      "wind": 4.0,
+      "precip": 0.0,
+      "wbgt": 30.6
+    },
+    "63383": {
+      "name": "姫路",
+      "kana": "ヒメジ",
+      "temp": 34.9,
+      "humidity": 56,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 29.4
+    },
+    "63411": {
+      "name": "三田",
+      "kana": "サンダ",
+      "temp": 35.2,
+      "humidity": 55,
+      "wind": 3.5,
+      "precip": 0.0,
+      "wbgt": 29.5
+    },
+    "63461": {
+      "name": "三木",
+      "kana": "ミキ",
+      "temp": 33.9,
+      "humidity": 58,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 28.8
+    },
+    "63491": {
+      "name": "家島",
+      "kana": "イエシマ",
+      "temp": 32.5,
+      "humidity": 70,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "63496": {
+      "name": "明石",
+      "kana": "アカシ",
+      "temp": 32.5,
+      "humidity": 66,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "63517": {
+      "name": "神戸空港",
+      "kana": "コウベクウコウ：神戸空港",
+      "temp": 33.9,
+      "humidity": null,
+      "wind": 5.1,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "63518": {
+      "name": "神戸",
+      "kana": "コウベ",
+      "temp": 35.5,
+      "humidity": 50,
+      "wind": 5.9,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "63551": {
+      "name": "郡家",
+      "kana": "グンゲ",
+      "temp": 36.2,
+      "humidity": 53,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 30.1
+    },
+    "63571": {
+      "name": "洲本",
+      "kana": "スモト",
+      "temp": 36.5,
+      "humidity": 50,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 30.0
+    },
+    "63588": {
+      "name": "南淡",
+      "kana": "ナンダン",
+      "temp": 35.2,
+      "humidity": 53,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 29.2
+    },
+    "64036": {
+      "name": "奈良",
+      "kana": "ナラ",
+      "temp": 36.2,
+      "humidity": 46,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "64041": {
+      "name": "針",
+      "kana": "ハリ",
+      "temp": 33.4,
+      "humidity": 59,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "64101": {
+      "name": "大宇陀",
+      "kana": "オオウダ",
+      "temp": 34.0,
+      "humidity": 50,
+      "wind": 1.2,
+      "precip": 0.0,
+      "wbgt": 27.8
+    },
+    "64127": {
+      "name": "五條",
+      "kana": "ゴジョウ",
+      "temp": 36.1,
+      "humidity": 52,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 29.9
+    },
+    "64206": {
+      "name": "上北山",
+      "kana": "カミキタヤマ",
+      "temp": 34.0,
+      "humidity": 55,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "64227": {
+      "name": "風屋",
+      "kana": "カゼヤ",
+      "temp": 34.8,
+      "humidity": 56,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 29.3
+    },
+    "65026": {
+      "name": "かつらぎ",
+      "kana": "カツラギ",
+      "temp": 36.5,
+      "humidity": 43,
+      "wind": 1.2,
+      "precip": 0.0,
+      "wbgt": 29.0
+    },
+    "65036": {
+      "name": "友ケ島",
+      "kana": "トモガシマ",
+      "temp": 34.7,
+      "humidity": 58,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 29.5
+    },
+    "65042": {
+      "name": "和歌山",
+      "kana": "ワカヤマ",
+      "temp": 36.5,
+      "humidity": 43,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 29.0
+    },
+    "65061": {
+      "name": "高野山",
+      "kana": "コウヤサン",
+      "temp": 30.4,
+      "humidity": 54,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 25.1
+    },
+    "65121": {
+      "name": "清水",
+      "kana": "シミズ",
+      "temp": 34.3,
+      "humidity": 50,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 28.0
+    },
+    "65162": {
+      "name": "龍神",
+      "kana": "リュウジン",
+      "temp": 33.1,
+      "humidity": 63,
+      "wind": 1.6,
+      "precip": 0.0,
+      "wbgt": 28.7
+    },
+    "65201": {
+      "name": "川辺",
+      "kana": "カワベ",
+      "temp": 36.3,
+      "humidity": 48,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 29.5
+    },
+    "65256": {
+      "name": "栗栖川",
+      "kana": "クリスガワ",
+      "temp": 33.9,
+      "humidity": 64,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 29.6
+    },
+    "65276": {
+      "name": "新宮",
+      "kana": "シングウ",
+      "temp": 33.3,
+      "humidity": 57,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 28.1
+    },
+    "65288": {
+      "name": "南紀白浜",
+      "kana": "ナンキシラハマ：南紀白浜空港",
+      "temp": 31.7,
+      "humidity": null,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 25.7
+    },
+    "65306": {
+      "name": "西川",
+      "kana": "ニシカワ",
+      "temp": 33.3,
+      "humidity": 62,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 28.8
+    },
+    "65356": {
+      "name": "潮岬",
+      "kana": "シオノミサキ",
+      "temp": 31.7,
+      "humidity": 70,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "66046": {
+      "name": "上長田",
+      "kana": "カミナガタ",
+      "temp": 29.3,
+      "humidity": 85,
+      "wind": 1.5,
+      "precip": 0.0,
+      "wbgt": 27.9
+    },
+    "66091": {
+      "name": "千屋",
+      "kana": "チヤ",
+      "temp": 30.4,
+      "humidity": 76,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 27.9
+    },
+    "66127": {
+      "name": "奈義",
+      "kana": "ナギ",
+      "temp": 34.9,
+      "humidity": 53,
+      "wind": 3.5,
+      "precip": 0.0,
+      "wbgt": 29.0
+    },
+    "66136": {
+      "name": "今岡",
+      "kana": "イマオカ",
+      "temp": 34.6,
+      "humidity": 50,
+      "wind": 4.4,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "66171": {
+      "name": "久世",
+      "kana": "クセ",
+      "temp": 36.4,
+      "humidity": 49,
+      "wind": 4.4,
+      "precip": 0.0,
+      "wbgt": 29.7
+    },
+    "66186": {
+      "name": "津山",
+      "kana": "ツヤマ",
+      "temp": 35.4,
+      "humidity": 54,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 29.6
+    },
+    "66221": {
+      "name": "新見",
+      "kana": "ニイミ",
+      "temp": 34.2,
+      "humidity": 52,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "66296": {
+      "name": "福渡",
+      "kana": "フクワタリ",
+      "temp": 37.8,
+      "humidity": 47,
+      "wind": 1.7,
+      "precip": 0.0,
+      "wbgt": 30.7
+    },
+    "66306": {
+      "name": "和気",
+      "kana": "ワケ",
+      "temp": 36.7,
+      "humidity": 48,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 29.8
+    },
+    "66336": {
+      "name": "高梁",
+      "kana": "タカハシ",
+      "temp": 37.3,
+      "humidity": 49,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 30.5
+    },
+    "66346": {
+      "name": "日応寺",
+      "kana": "ニチオウジ：岡山空港",
+      "temp": 35.2,
+      "humidity": null,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 28.8
+    },
+    "66408": {
+      "name": "岡山",
+      "kana": "オカヤマ",
+      "temp": 37.0,
+      "humidity": 47,
+      "wind": 4.7,
+      "precip": 0.0,
+      "wbgt": 30.0
+    },
+    "66421": {
+      "name": "虫明",
+      "kana": "ムシアゲ",
+      "temp": 35.6,
+      "humidity": 52,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 29.5
+    },
+    "66446": {
+      "name": "倉敷",
+      "kana": "クラシキ",
+      "temp": 35.1,
+      "humidity": 51,
+      "wind": 4.3,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "66481": {
+      "name": "笠岡",
+      "kana": "カサオカ",
+      "temp": 34.2,
+      "humidity": 55,
+      "wind": 5.1,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "66501": {
+      "name": "玉野",
+      "kana": "タマノ",
+      "temp": 36.3,
+      "humidity": 39,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "67016": {
+      "name": "高野",
+      "kana": "タカノ",
+      "temp": 29.9,
+      "humidity": 59,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 25.3
+    },
+    "67106": {
+      "name": "三次",
+      "kana": "ミヨシ",
+      "temp": 33.9,
+      "humidity": 50,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "67116": {
+      "name": "庄原",
+      "kana": "ショウバラ",
+      "temp": 34.0,
+      "humidity": 48,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "67151": {
+      "name": "大朝",
+      "kana": "オオアサ",
+      "temp": 30.5,
+      "humidity": 62,
+      "wind": 5.3,
+      "precip": 0.0,
+      "wbgt": 26.2
+    },
+    "67191": {
+      "name": "油木",
+      "kana": "ユキ",
+      "temp": 33.4,
+      "humidity": 46,
+      "wind": 1.6,
+      "precip": 0.0,
+      "wbgt": 26.7
+    },
+    "67212": {
+      "name": "加計",
+      "kana": "カケ",
+      "temp": 35.5,
+      "humidity": 45,
+      "wind": 1.2,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "67292": {
+      "name": "三入",
+      "kana": "ミイリ",
+      "temp": 35.8,
+      "humidity": 45,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "67316": {
+      "name": "世羅",
+      "kana": "セラ",
+      "temp": 35.4,
+      "humidity": 46,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "67326": {
+      "name": "府中",
+      "kana": "フチュウ",
+      "temp": 36.6,
+      "humidity": 48,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 29.8
+    },
+    "67376": {
+      "name": "東広島",
+      "kana": "ヒガシヒロシマ",
+      "temp": 34.8,
+      "humidity": 50,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 28.5
+    },
+    "67386": {
+      "name": "本郷",
+      "kana": "ホンゴウ：広島空港",
+      "temp": 32.6,
+      "humidity": null,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 26.5
+    },
+    "67401": {
+      "name": "福山",
+      "kana": "フクヤマ",
+      "temp": 36.2,
+      "humidity": 43,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 28.7
+    },
+    "67421": {
+      "name": "廿日市津田",
+      "kana": "ハツカイチツタ",
+      "temp": 31.8,
+      "humidity": 63,
+      "wind": 1.1,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "67437": {
+      "name": "広島",
+      "kana": "ヒロシマ",
+      "temp": 34.7,
+      "humidity": 45,
+      "wind": 4.1,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "67461": {
+      "name": "竹原",
+      "kana": "タケハラ",
+      "temp": 29.6,
+      "humidity": 70,
+      "wind": 5.4,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "67471": {
+      "name": "生口島",
+      "kana": "イクチジマ",
+      "temp": 31.1,
+      "humidity": 61,
+      "wind": 6.1,
+      "precip": 0.0,
+      "wbgt": 26.6
+    },
+    "67496": {
+      "name": "大竹",
+      "kana": "オオタケ",
+      "temp": 33.7,
+      "humidity": 60,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "67511": {
+      "name": "呉",
+      "kana": "クレ",
+      "temp": 33.7,
+      "humidity": 59,
+      "wind": 5.0,
+      "precip": 0.0,
+      "wbgt": 28.7
+    },
+    "68022": {
+      "name": "西郷",
+      "kana": "サイゴウ",
+      "temp": 31.9,
+      "humidity": 68,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "68046": {
+      "name": "西郷岬",
+      "kana": "サイゴウミサキ：隠岐空港",
+      "temp": 31.7,
+      "humidity": null,
+      "wind": 5.5,
+      "precip": 0.0,
+      "wbgt": 25.7
+    },
+    "68056": {
+      "name": "海士",
+      "kana": "アマ",
+      "temp": 30.6,
+      "humidity": 77,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "68091": {
+      "name": "鹿島",
+      "kana": "カシマ",
+      "temp": 31.2,
+      "humidity": 75,
+      "wind": 4.6,
+      "precip": 0.0,
+      "wbgt": 28.5
+    },
+    "68121": {
+      "name": "斐川",
+      "kana": "ヒカワ：出雲空港",
+      "temp": 31.3,
+      "humidity": null,
+      "wind": 7.9,
+      "precip": 0.0,
+      "wbgt": 25.4
+    },
+    "68132": {
+      "name": "松江",
+      "kana": "マツエ",
+      "temp": 32.0,
+      "humidity": 65,
+      "wind": 7.5,
+      "precip": 0.0,
+      "wbgt": 28.0
+    },
+    "68156": {
+      "name": "出雲",
+      "kana": "イズモ",
+      "temp": 30.3,
+      "humidity": 73,
+      "wind": 4.9,
+      "precip": 0.0,
+      "wbgt": 27.4
+    },
+    "68246": {
+      "name": "大田",
+      "kana": "オオダ",
+      "temp": 32.0,
+      "humidity": 63,
+      "wind": 1.6,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "68261": {
+      "name": "掛合",
+      "kana": "カケヤ",
+      "temp": 31.4,
+      "humidity": 55,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 26.1
+    },
+    "68276": {
+      "name": "横田",
+      "kana": "ヨコタ",
+      "temp": 31.6,
+      "humidity": 59,
+      "wind": 4.0,
+      "precip": 0.0,
+      "wbgt": 26.8
+    },
+    "68306": {
+      "name": "赤名",
+      "kana": "アカナ",
+      "temp": 29.6,
+      "humidity": 62,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 25.4
+    },
+    "68351": {
+      "name": "川本",
+      "kana": "カワモト",
+      "temp": 32.9,
+      "humidity": 57,
+      "wind": 1.6,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "68376": {
+      "name": "浜田",
+      "kana": "ハマダ",
+      "temp": 31.4,
+      "humidity": 70,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 28.1
+    },
+    "68401": {
+      "name": "瑞穂",
+      "kana": "ミズホ",
+      "temp": 31.9,
+      "humidity": 58,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 27.0
+    },
+    "68431": {
+      "name": "弥栄",
+      "kana": "ヤサカ",
+      "temp": 29.5,
+      "humidity": 58,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 24.8
+    },
+    "68456": {
+      "name": "高津",
+      "kana": "タカツ：石見空港",
+      "temp": 30.9,
+      "humidity": null,
+      "wind": 4.3,
+      "precip": 0.0,
+      "wbgt": 25.0
+    },
+    "68462": {
+      "name": "益田",
+      "kana": "マスダ",
+      "temp": 31.8,
+      "humidity": 68,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "68516": {
+      "name": "津和野",
+      "kana": "ツワノ",
+      "temp": 33.7,
+      "humidity": 54,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 28.0
+    },
+    "68541": {
+      "name": "吉賀",
+      "kana": "ヨシカ",
+      "temp": 31.8,
+      "humidity": 57,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 26.7
+    },
+    "69006": {
+      "name": "境",
+      "kana": "サカイ",
+      "temp": 33.3,
+      "humidity": 63,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "69021": {
+      "name": "塩津",
+      "kana": "シオツ",
+      "temp": 30.6,
+      "humidity": 77,
+      "wind": 6.7,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "69041": {
+      "name": "青谷",
+      "kana": "アオヤ",
+      "temp": 29.7,
+      "humidity": 83,
+      "wind": 1.7,
+      "precip": 0.0,
+      "wbgt": 28.1
+    },
+    "69052": {
+      "name": "湖山",
+      "kana": "コヤマ：鳥取空港",
+      "temp": 31.2,
+      "humidity": null,
+      "wind": 6.4,
+      "precip": 0.0,
+      "wbgt": 25.3
+    },
+    "69061": {
+      "name": "岩井",
+      "kana": "イワイ",
+      "temp": 30.3,
+      "humidity": 77,
+      "wind": 4.3,
+      "precip": 0.0,
+      "wbgt": 27.9
+    },
+    "69076": {
+      "name": "米子",
+      "kana": "ヨナゴ",
+      "temp": 33.9,
+      "humidity": 52,
+      "wind": 6.0,
+      "precip": 0.0,
+      "wbgt": 27.9
+    },
+    "69101": {
+      "name": "倉吉",
+      "kana": "クラヨシ",
+      "temp": 30.1,
+      "humidity": 78,
+      "wind": 6.3,
+      "precip": 0.0,
+      "wbgt": 27.8
+    },
+    "69122": {
+      "name": "鳥取",
+      "kana": "トットリ",
+      "temp": 33.1,
+      "humidity": 66,
+      "wind": 5.0,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "69246": {
+      "name": "智頭",
+      "kana": "チズ",
+      "temp": 30.8,
+      "humidity": 76,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "69271": {
+      "name": "茶屋",
+      "kana": "チャヤ",
+      "temp": 30.4,
+      "humidity": 68,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 26.9
+    },
+    "71066": {
+      "name": "池田",
+      "kana": "イケダ",
+      "temp": 34.5,
+      "humidity": 48,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 27.9
+    },
+    "71087": {
+      "name": "穴吹",
+      "kana": "アナブキ",
+      "temp": 36.9,
+      "humidity": 42,
+      "wind": 1.5,
+      "precip": 0.0,
+      "wbgt": 29.2
+    },
+    "71106": {
+      "name": "徳島",
+      "kana": "トクシマ",
+      "temp": 36.0,
+      "humidity": 51,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 29.7
+    },
+    "71192": {
+      "name": "東祖谷",
+      "kana": "ヒガシイヤ",
+      "temp": 31.2,
+      "humidity": 53,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 25.7
+    },
+    "71231": {
+      "name": "蒲生田",
+      "kana": "カモダ",
+      "temp": 34.2,
+      "humidity": 60,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 29.3
+    },
+    "71251": {
+      "name": "木頭",
+      "kana": "キトウ",
+      "temp": 27.3,
+      "humidity": 91,
+      "wind": 0.5,
+      "precip": 0.5,
+      "wbgt": 26.7
+    },
+    "71266": {
+      "name": "日和佐",
+      "kana": "ヒワサ",
+      "temp": 34.0,
+      "humidity": 62,
+      "wind": 1.5,
+      "precip": 0.0,
+      "wbgt": 29.4
+    },
+    "71291": {
+      "name": "海陽",
+      "kana": "カイヨウ",
+      "temp": 33.0,
+      "humidity": 64,
+      "wind": 1.7,
+      "precip": 0.0,
+      "wbgt": 28.8
+    },
+    "72061": {
+      "name": "内海",
+      "kana": "ウチノミ",
+      "temp": 35.4,
+      "humidity": 43,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 28.0
+    },
+    "72086": {
+      "name": "高松",
+      "kana": "タカマツ",
+      "temp": 37.3,
+      "humidity": 39,
+      "wind": 3.7,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "72111": {
+      "name": "多度津",
+      "kana": "タドツ",
+      "temp": 36.2,
+      "humidity": 45,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 29.0
+    },
+    "72121": {
+      "name": "滝宮",
+      "kana": "タキノミヤ",
+      "temp": 35.8,
+      "humidity": 43,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "72126": {
+      "name": "香南",
+      "kana": "コウナン：高松空港",
+      "temp": 35.5,
+      "humidity": null,
+      "wind": 4.4,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "72146": {
+      "name": "引田",
+      "kana": "ヒケタ",
+      "temp": 33.3,
+      "humidity": 59,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "72161": {
+      "name": "財田",
+      "kana": "サイタ",
+      "temp": 36.3,
+      "humidity": 45,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "73001": {
+      "name": "大三島",
+      "kana": "オオミシマ",
+      "temp": 33.1,
+      "humidity": 52,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 27.2
+    },
+    "73076": {
+      "name": "今治",
+      "kana": "イマバリ",
+      "temp": 35.1,
+      "humidity": 46,
+      "wind": 4.0,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "73126": {
+      "name": "西条",
+      "kana": "サイジョウ",
+      "temp": 35.8,
+      "humidity": 50,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 29.3
+    },
+    "73141": {
+      "name": "新居浜",
+      "kana": "ニイハマ",
+      "temp": 35.3,
+      "humidity": 47,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 28.5
+    },
+    "73151": {
+      "name": "四国中央",
+      "kana": "シコクチュウオウ",
+      "temp": 34.7,
+      "humidity": 49,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "73166": {
+      "name": "松山",
+      "kana": "マツヤマ",
+      "temp": 34.2,
+      "humidity": 48,
+      "wind": 2.3,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "73168": {
+      "name": "松山南吉田",
+      "kana": "マツヤマミナミヨシダ：松山空港",
+      "temp": 31.8,
+      "humidity": null,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 25.8
+    },
+    "73256": {
+      "name": "長浜",
+      "kana": "ナガハマ",
+      "temp": 32.0,
+      "humidity": 53,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "73276": {
+      "name": "久万",
+      "kana": "クマ",
+      "temp": 32.8,
+      "humidity": 44,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 25.9
+    },
+    "73306": {
+      "name": "大洲",
+      "kana": "オオズ",
+      "temp": 35.1,
+      "humidity": 43,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "73341": {
+      "name": "瀬戸",
+      "kana": "セト",
+      "temp": 30.0,
+      "humidity": 68,
+      "wind": 4.9,
+      "precip": 0.0,
+      "wbgt": 26.5
+    },
+    "73406": {
+      "name": "宇和",
+      "kana": "ウワ",
+      "temp": 33.8,
+      "humidity": 48,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 27.3
+    },
+    "73442": {
+      "name": "宇和島",
+      "kana": "ウワジマ",
+      "temp": 33.4,
+      "humidity": 55,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 27.9
+    },
+    "73446": {
+      "name": "近永",
+      "kana": "チカナガ",
+      "temp": 34.4,
+      "humidity": 50,
+      "wind": 3.4,
+      "precip": 0.0,
+      "wbgt": 28.1
+    },
+    "73516": {
+      "name": "御荘",
+      "kana": "ミショウ",
+      "temp": 35.5,
+      "humidity": 48,
+      "wind": 5.2,
+      "precip": 0.0,
+      "wbgt": 28.8
+    },
+    "74056": {
+      "name": "本川",
+      "kana": "ホンガワ",
+      "temp": 29.2,
+      "humidity": 67,
+      "wind": 1.0,
+      "precip": 0.0,
+      "wbgt": 25.6
+    },
+    "74071": {
+      "name": "本山",
+      "kana": "モトヤマ",
+      "temp": 29.0,
+      "humidity": 87,
+      "wind": 2.1,
+      "precip": 0.5,
+      "wbgt": 27.9
+    },
+    "74136": {
+      "name": "大栃",
+      "kana": "オオドチ",
+      "temp": 34.5,
+      "humidity": 53,
+      "wind": 3.4,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "74182": {
+      "name": "高知",
+      "kana": "コウチ",
+      "temp": 33.9,
+      "humidity": 60,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 29.0
+    },
+    "74187": {
+      "name": "後免",
+      "kana": "ゴメン",
+      "temp": 32.1,
+      "humidity": 65,
+      "wind": 2.9,
+      "precip": 0.0,
+      "wbgt": 28.1
+    },
+    "74188": {
+      "name": "南国日章",
+      "kana": "ナンコクニッショウ：高知空港",
+      "temp": 32.1,
+      "humidity": null,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 26.1
+    },
+    "74271": {
+      "name": "安芸",
+      "kana": "アキ",
+      "temp": 32.2,
+      "humidity": 78,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 29.9
+    },
+    "74296": {
+      "name": "梼原",
+      "kana": "ユスハラ",
+      "temp": 32.3,
+      "humidity": 56,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 27.1
+    },
+    "74311": {
+      "name": "須崎",
+      "kana": "スサキ",
+      "temp": 32.6,
+      "humidity": 67,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 28.8
+    },
+    "74361": {
+      "name": "窪川",
+      "kana": "クボカワ",
+      "temp": 34.0,
+      "humidity": 60,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "74372": {
+      "name": "室戸岬",
+      "kana": "ムロトミサキ",
+      "temp": 30.5,
+      "humidity": 82,
+      "wind": 0.0,
+      "precip": 0.0,
+      "wbgt": 28.7
+    },
+    "74381": {
+      "name": "江川崎",
+      "kana": "エカワサキ",
+      "temp": 37.6,
+      "humidity": 44,
+      "wind": 1.1,
+      "precip": 0.0,
+      "wbgt": 30.0
+    },
+    "74436": {
+      "name": "佐賀",
+      "kana": "サガ",
+      "temp": 32.9,
+      "humidity": 71,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 29.6
+    },
+    "74447": {
+      "name": "宿毛",
+      "kana": "スクモ",
+      "temp": 32.7,
+      "humidity": 62,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "74456": {
+      "name": "中村",
+      "kana": "ナカムラ",
+      "temp": 35.0,
+      "humidity": 58,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 29.8
+    },
+    "74516": {
+      "name": "清水",
+      "kana": "シミズ",
+      "temp": 32.3,
+      "humidity": 67,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 28.5
+    },
+    "81011": {
+      "name": "須佐",
+      "kana": "スサ",
+      "temp": 31.2,
+      "humidity": 70,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 27.9
+    },
+    "81071": {
+      "name": "萩",
+      "kana": "ハギ",
+      "temp": 31.5,
+      "humidity": 60,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 26.9
+    },
+    "81116": {
+      "name": "油谷",
+      "kana": "ユヤ",
+      "temp": 31.7,
+      "humidity": 63,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 27.4
+    },
+    "81151": {
+      "name": "徳佐",
+      "kana": "トクサ",
+      "temp": 30.4,
+      "humidity": 64,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "81196": {
+      "name": "秋吉台",
+      "kana": "アキヨシダイ",
+      "temp": 31.9,
+      "humidity": 62,
+      "wind": 4.0,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "81231": {
+      "name": "広瀬",
+      "kana": "ヒロセ",
+      "temp": 34.9,
+      "humidity": 52,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 28.8
+    },
+    "81266": {
+      "name": "豊田",
+      "kana": "トヨタ",
+      "temp": 33.7,
+      "humidity": 48,
+      "wind": 4.1,
+      "precip": 0.0,
+      "wbgt": 27.2
+    },
+    "81286": {
+      "name": "山口",
+      "kana": "ヤマグチ",
+      "temp": 35.8,
+      "humidity": 52,
+      "wind": 3.4,
+      "precip": 0.0,
+      "wbgt": 29.6
+    },
+    "81321": {
+      "name": "岩国",
+      "kana": "イワクニ",
+      "temp": 34.7,
+      "humidity": 62,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 30.0
+    },
+    "81371": {
+      "name": "防府",
+      "kana": "ホウフ",
+      "temp": 35.5,
+      "humidity": 49,
+      "wind": 3.7,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "81386": {
+      "name": "下松",
+      "kana": "クダマツ",
+      "temp": 33.1,
+      "humidity": 58,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 28.0
+    },
+    "81397": {
+      "name": "玖珂",
+      "kana": "クガ",
+      "temp": 35.8,
+      "humidity": 49,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 29.2
+    },
+    "81428": {
+      "name": "下関",
+      "kana": "シモノセキ",
+      "temp": 32.5,
+      "humidity": 62,
+      "wind": 4.7,
+      "precip": 0.0,
+      "wbgt": 28.0
+    },
+    "81436": {
+      "name": "宇部",
+      "kana": "ウベ：山口宇部空港",
+      "temp": 35.7,
+      "humidity": null,
+      "wind": 5.6,
+      "precip": 0.0,
+      "wbgt": 29.3
+    },
+    "81481": {
+      "name": "柳井",
+      "kana": "ヤナイ",
+      "temp": 34.7,
+      "humidity": 56,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 29.2
+    },
+    "81486": {
+      "name": "安下庄",
+      "kana": "アゲノショウ",
+      "temp": 33.2,
+      "humidity": 61,
+      "wind": 1.0,
+      "precip": 0.0,
+      "wbgt": 28.5
+    },
+    "82046": {
+      "name": "宗像",
+      "kana": "ムナカタ",
+      "temp": 31.4,
+      "humidity": 63,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 27.1
+    },
+    "82056": {
+      "name": "八幡",
+      "kana": "ヤハタ",
+      "temp": 32.3,
+      "humidity": 52,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 26.5
+    },
+    "82068": {
+      "name": "空港北町",
+      "kana": "クウコウキタマチ：北九州空港",
+      "temp": 33.4,
+      "humidity": null,
+      "wind": 5.8,
+      "precip": 0.0,
+      "wbgt": 27.2
+    },
+    "82101": {
+      "name": "行橋",
+      "kana": "ユクハシ",
+      "temp": 35.0,
+      "humidity": 52,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "82136": {
+      "name": "飯塚",
+      "kana": "イイヅカ",
+      "temp": 34.2,
+      "humidity": 47,
+      "wind": 4.1,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "82171": {
+      "name": "前原",
+      "kana": "マエバル",
+      "temp": 31.9,
+      "humidity": 63,
+      "wind": 5.0,
+      "precip": 0.0,
+      "wbgt": 27.6
+    },
+    "82182": {
+      "name": "福岡",
+      "kana": "フクオカ",
+      "temp": 32.8,
+      "humidity": 64,
+      "wind": 5.8,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "82186": {
+      "name": "博多",
+      "kana": "ハカタ：福岡空港",
+      "temp": 32.8,
+      "humidity": null,
+      "wind": 5.8,
+      "precip": 0.0,
+      "wbgt": 26.7
+    },
+    "82191": {
+      "name": "太宰府",
+      "kana": "ダザイフ",
+      "temp": 34.0,
+      "humidity": 52,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 28.0
+    },
+    "82206": {
+      "name": "添田",
+      "kana": "ソエダ",
+      "temp": 34.3,
+      "humidity": 54,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "82261": {
+      "name": "朝倉",
+      "kana": "アサクラ",
+      "temp": 34.6,
+      "humidity": 53,
+      "wind": 4.4,
+      "precip": 0.0,
+      "wbgt": 28.7
+    },
+    "82306": {
+      "name": "久留米",
+      "kana": "クルメ",
+      "temp": 36.0,
+      "humidity": 51,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 29.7
+    },
+    "82317": {
+      "name": "黒木",
+      "kana": "クロギ",
+      "temp": 33.9,
+      "humidity": 50,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 27.7
+    },
+    "82361": {
+      "name": "大牟田",
+      "kana": "オオムタ",
+      "temp": 34.0,
+      "humidity": 57,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 28.7
+    },
+    "83021": {
+      "name": "国見",
+      "kana": "クニミ",
+      "temp": 31.9,
+      "humidity": 63,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 27.6
+    },
+    "83051": {
+      "name": "中津",
+      "kana": "ナカツ",
+      "temp": 32.3,
+      "humidity": 60,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 27.6
+    },
+    "83061": {
+      "name": "豊後高田",
+      "kana": "ブンゴタカダ",
+      "temp": 33.0,
+      "humidity": 59,
+      "wind": 6.5,
+      "precip": 0.0,
+      "wbgt": 28.1
+    },
+    "83106": {
+      "name": "院内",
+      "kana": "インナイ",
+      "temp": 32.5,
+      "humidity": 62,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 28.0
+    },
+    "83121": {
+      "name": "杵築",
+      "kana": "キツキ",
+      "temp": 33.8,
+      "humidity": 54,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 28.1
+    },
+    "83126": {
+      "name": "武蔵",
+      "kana": "ムサシ：大分空港",
+      "temp": 32.5,
+      "humidity": null,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 26.4
+    },
+    "83137": {
+      "name": "日田",
+      "kana": "ヒタ",
+      "temp": 36.1,
+      "humidity": 45,
+      "wind": 3.5,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "83191": {
+      "name": "玖珠",
+      "kana": "クス",
+      "temp": 31.3,
+      "humidity": 66,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 27.4
+    },
+    "83201": {
+      "name": "湯布院",
+      "kana": "ユフイン",
+      "temp": 29.4,
+      "humidity": 69,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 26.0
+    },
+    "83216": {
+      "name": "大分",
+      "kana": "オオイタ",
+      "temp": 32.9,
+      "humidity": 61,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "83341": {
+      "name": "犬飼",
+      "kana": "イヌカイ",
+      "temp": 30.9,
+      "humidity": 67,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 27.2
+    },
+    "83371": {
+      "name": "竹田",
+      "kana": "タケタ",
+      "temp": 30.6,
+      "humidity": 69,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 27.2
+    },
+    "83401": {
+      "name": "佐伯",
+      "kana": "サイキ",
+      "temp": 31.9,
+      "humidity": 56,
+      "wind": 1.5,
+      "precip": 0.0,
+      "wbgt": 26.7
+    },
+    "83431": {
+      "name": "宇目",
+      "kana": "ウメ",
+      "temp": 26.8,
+      "humidity": 95,
+      "wind": 0.7,
+      "precip": 0.0,
+      "wbgt": 26.6
+    },
+    "83476": {
+      "name": "蒲江",
+      "kana": "カマエ",
+      "temp": 33.4,
+      "humidity": 61,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 28.7
+    },
+    "84012": {
+      "name": "鰐浦",
+      "kana": "ワニウラ",
+      "temp": 31.2,
+      "humidity": 67,
+      "wind": 4.6,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "84072": {
+      "name": "厳原",
+      "kana": "イヅハラ",
+      "temp": 32.7,
+      "humidity": 59,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 27.8
+    },
+    "84076": {
+      "name": "美津島",
+      "kana": "ミツシマ：対馬空港",
+      "temp": 32.3,
+      "humidity": null,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 26.3
+    },
+    "84121": {
+      "name": "芦辺",
+      "kana": "アシベ",
+      "temp": 32.4,
+      "humidity": 62,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 27.9
+    },
+    "84122": {
+      "name": "石田",
+      "kana": "イシダ：壱岐空港",
+      "temp": 31.9,
+      "humidity": null,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 25.9
+    },
+    "84171": {
+      "name": "平戸",
+      "kana": "ヒラド",
+      "temp": 32.1,
+      "humidity": 65,
+      "wind": 1.7,
+      "precip": 0.0,
+      "wbgt": 28.1
+    },
+    "84183": {
+      "name": "松浦",
+      "kana": "マツウラ",
+      "temp": 32.8,
+      "humidity": 64,
+      "wind": 1.7,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "84266": {
+      "name": "佐世保",
+      "kana": "サセボ",
+      "temp": 32.9,
+      "humidity": 64,
+      "wind": 4.7,
+      "precip": 0.0,
+      "wbgt": 28.7
+    },
+    "84306": {
+      "name": "西海",
+      "kana": "サイカイ",
+      "temp": 31.7,
+      "humidity": 79,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 29.5
+    },
+    "84341": {
+      "name": "有川",
+      "kana": "アリカワ",
+      "temp": 30.9,
+      "humidity": 76,
+      "wind": 1.1,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "84371": {
+      "name": "大村",
+      "kana": "オオムラ：長崎空港",
+      "temp": 33.7,
+      "humidity": null,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "84496": {
+      "name": "長崎",
+      "kana": "ナガサキ",
+      "temp": 32.5,
+      "humidity": 66,
+      "wind": 3.4,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "84519": {
+      "name": "雲仙岳",
+      "kana": "ウンゼンダケ",
+      "temp": 29.1,
+      "humidity": 72,
+      "wind": 3.3,
+      "precip": 0.0,
+      "wbgt": 26.1
+    },
+    "84523": {
+      "name": "島原",
+      "kana": "シマバラ",
+      "temp": 32.7,
+      "humidity": 62,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "84536": {
+      "name": "福江",
+      "kana": "フクエ",
+      "temp": 29.6,
+      "humidity": 87,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 28.5
+    },
+    "84537": {
+      "name": "上大津",
+      "kana": "カミオオヅ：福江空港",
+      "temp": 29.3,
+      "humidity": null,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 23.6
+    },
+    "84561": {
+      "name": "口之津",
+      "kana": "クチノツ",
+      "temp": 31.1,
+      "humidity": 63,
+      "wind": 3.9,
+      "precip": 0.0,
+      "wbgt": 26.9
+    },
+    "84597": {
+      "name": "脇岬",
+      "kana": "ワキミサキ",
+      "temp": 31.7,
+      "humidity": 67,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 27.9
+    },
+    "85033": {
+      "name": "唐津",
+      "kana": "カラツ",
+      "temp": 33.2,
+      "humidity": 50,
+      "wind": 3.4,
+      "precip": 0.0,
+      "wbgt": 27.1
+    },
+    "85116": {
+      "name": "伊万里",
+      "kana": "イマリ",
+      "temp": 32.7,
+      "humidity": 59,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 27.8
+    },
+    "85142": {
+      "name": "佐賀",
+      "kana": "サガ",
+      "temp": 35.9,
+      "humidity": 52,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 29.7
+    },
+    "85161": {
+      "name": "嬉野",
+      "kana": "ウレシノ",
+      "temp": 34.8,
+      "humidity": 48,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "85166": {
+      "name": "白石",
+      "kana": "シロイシ",
+      "temp": 34.2,
+      "humidity": 59,
+      "wind": 5.0,
+      "precip": 0.0,
+      "wbgt": 29.2
+    },
+    "85176": {
+      "name": "川副",
+      "kana": "カワソエ：佐賀空港",
+      "temp": 33.7,
+      "humidity": null,
+      "wind": 5.2,
+      "precip": 0.0,
+      "wbgt": 27.5
+    },
+    "86006": {
+      "name": "鹿北",
+      "kana": "カホク",
+      "temp": 34.1,
+      "humidity": 48,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 27.6
+    },
+    "86066": {
+      "name": "南小国",
+      "kana": "ミナミオグニ",
+      "temp": 30.8,
+      "humidity": 65,
+      "wind": 1.5,
+      "precip": 0.0,
+      "wbgt": 26.9
+    },
+    "86086": {
+      "name": "岱明",
+      "kana": "タイメイ",
+      "temp": 34.3,
+      "humidity": 58,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "86101": {
+      "name": "菊池",
+      "kana": "キクチ",
+      "temp": 34.3,
+      "humidity": 54,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "86111": {
+      "name": "阿蘇乙姫",
+      "kana": "アソオトヒメ",
+      "temp": 30.4,
+      "humidity": 68,
+      "wind": 3.0,
+      "precip": 0.0,
+      "wbgt": 26.9
+    },
+    "86141": {
+      "name": "熊本",
+      "kana": "クマモト",
+      "temp": 35.6,
+      "humidity": 48,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "86146": {
+      "name": "益城",
+      "kana": "マシキ：熊本空港",
+      "temp": 33.4,
+      "humidity": null,
+      "wind": 2.6,
+      "precip": 0.0,
+      "wbgt": 27.2
+    },
+    "86157": {
+      "name": "南阿蘇",
+      "kana": "ミナミアソ",
+      "temp": 31.9,
+      "humidity": 59,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 27.1
+    },
+    "86161": {
+      "name": "高森",
+      "kana": "タカモリ",
+      "temp": 30.8,
+      "humidity": 62,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 26.5
+    },
+    "86216": {
+      "name": "三角",
+      "kana": "ミスミ",
+      "temp": 33.4,
+      "humidity": 59,
+      "wind": 1.6,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "86236": {
+      "name": "甲佐",
+      "kana": "コウサ",
+      "temp": 34.5,
+      "humidity": 58,
+      "wind": 1.5,
+      "precip": 0.0,
+      "wbgt": 29.3
+    },
+    "86271": {
+      "name": "松島",
+      "kana": "マツシマ",
+      "temp": 32.6,
+      "humidity": 61,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 28.0
+    },
+    "86316": {
+      "name": "本渡",
+      "kana": "ホンド",
+      "temp": 33.8,
+      "humidity": 55,
+      "wind": 1.1,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "86336": {
+      "name": "八代",
+      "kana": "ヤツシロ",
+      "temp": 34.3,
+      "humidity": 53,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "86451": {
+      "name": "水俣",
+      "kana": "ミナマタ",
+      "temp": 34.4,
+      "humidity": 56,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "86467": {
+      "name": "人吉",
+      "kana": "ヒトヨシ",
+      "temp": 34.2,
+      "humidity": 54,
+      "wind": 1.8,
+      "precip": 0.0,
+      "wbgt": 28.5
+    },
+    "86477": {
+      "name": "上",
+      "kana": "ウエ",
+      "temp": 33.8,
+      "humidity": 52,
+      "wind": 4.6,
+      "precip": 0.0,
+      "wbgt": 27.9
+    },
+    "86491": {
+      "name": "牛深",
+      "kana": "ウシブカ",
+      "temp": 33.0,
+      "humidity": 66,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 29.0
+    },
+    "87041": {
+      "name": "高千穂",
+      "kana": "タカチホ",
+      "temp": 32.6,
+      "humidity": 61,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 28.0
+    },
+    "87066": {
+      "name": "古江",
+      "kana": "フルエ",
+      "temp": 30.7,
+      "humidity": 77,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "87071": {
+      "name": "鞍岡",
+      "kana": "クラオカ",
+      "temp": 29.8,
+      "humidity": 66,
+      "wind": 2.0,
+      "precip": 0.0,
+      "wbgt": 26.1
+    },
+    "87141": {
+      "name": "延岡",
+      "kana": "ノベオカ",
+      "temp": 32.0,
+      "humidity": 64,
+      "wind": 1.5,
+      "precip": 0.0,
+      "wbgt": 27.8
+    },
+    "87181": {
+      "name": "日向",
+      "kana": "ヒュウガ",
+      "temp": 32.0,
+      "humidity": 70,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "87206": {
+      "name": "神門",
+      "kana": "ミカド",
+      "temp": 28.4,
+      "humidity": 90,
+      "wind": 1.4,
+      "precip": 0.0,
+      "wbgt": 27.6
+    },
+    "87231": {
+      "name": "西米良",
+      "kana": "ニシメラ",
+      "temp": 33.1,
+      "humidity": 61,
+      "wind": 1.7,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "87293": {
+      "name": "高鍋",
+      "kana": "タカナベ",
+      "temp": 31.7,
+      "humidity": 77,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 29.2
+    },
+    "87301": {
+      "name": "加久藤",
+      "kana": "カクトウ",
+      "temp": 34.1,
+      "humidity": 54,
+      "wind": 4.4,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "87331": {
+      "name": "西都",
+      "kana": "サイト",
+      "temp": 33.3,
+      "humidity": 63,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "87352": {
+      "name": "小林",
+      "kana": "コバヤシ",
+      "temp": 34.8,
+      "humidity": 50,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 28.5
+    },
+    "87376": {
+      "name": "宮崎",
+      "kana": "ミヤザキ",
+      "temp": 34.0,
+      "humidity": 62,
+      "wind": 4.5,
+      "precip": 0.0,
+      "wbgt": 29.4
+    },
+    "87406": {
+      "name": "田野",
+      "kana": "タノ",
+      "temp": 34.3,
+      "humidity": 62,
+      "wind": 3.4,
+      "precip": 0.0,
+      "wbgt": 29.7
+    },
+    "87412": {
+      "name": "赤江",
+      "kana": "アカエ：宮崎空港",
+      "temp": 32.0,
+      "humidity": null,
+      "wind": 6.5,
+      "precip": 0.0,
+      "wbgt": 26.0
+    },
+    "87426": {
+      "name": "都城",
+      "kana": "ミヤコノジョウ",
+      "temp": 35.3,
+      "humidity": 50,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "87492": {
+      "name": "油津",
+      "kana": "アブラツ",
+      "temp": 32.5,
+      "humidity": 67,
+      "wind": 2.8,
+      "precip": 0.0,
+      "wbgt": 28.7
+    },
+    "87501": {
+      "name": "串間",
+      "kana": "クシマ",
+      "temp": 33.4,
+      "humidity": 54,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 27.8
+    },
+    "88061": {
+      "name": "阿久根",
+      "kana": "アクネ",
+      "temp": 31.6,
+      "humidity": 72,
+      "wind": 3.4,
+      "precip": 0.0,
+      "wbgt": 28.5
+    },
+    "88081": {
+      "name": "大口",
+      "kana": "オオクチ",
+      "temp": 33.5,
+      "humidity": 54,
+      "wind": 3.4,
+      "precip": 0.0,
+      "wbgt": 27.9
+    },
+    "88107": {
+      "name": "さつま柏原",
+      "kana": "サツマカシワバル",
+      "temp": 32.8,
+      "humidity": 55,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 27.4
+    },
+    "88131": {
+      "name": "中甑",
+      "kana": "ナカコシキ",
+      "temp": 32.3,
+      "humidity": 67,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 28.5
+    },
+    "88151": {
+      "name": "川内",
+      "kana": "センダイ",
+      "temp": 32.6,
+      "humidity": 61,
+      "wind": 5.4,
+      "precip": 0.0,
+      "wbgt": 28.0
+    },
+    "88166": {
+      "name": "溝辺",
+      "kana": "ミゾベ：鹿児島空港",
+      "temp": 33.6,
+      "humidity": null,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 27.4
+    },
+    "88261": {
+      "name": "東市来",
+      "kana": "ヒガシイチキ",
+      "temp": 32.5,
+      "humidity": 66,
+      "wind": 4.8,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "88286": {
+      "name": "牧之原",
+      "kana": "マキノハラ",
+      "temp": 31.4,
+      "humidity": 64,
+      "wind": 3.4,
+      "precip": 0.0,
+      "wbgt": 27.3
+    },
+    "88317": {
+      "name": "鹿児島",
+      "kana": "カゴシマ",
+      "temp": 35.2,
+      "humidity": 58,
+      "wind": 5.4,
+      "precip": 0.0,
+      "wbgt": 29.9
+    },
+    "88331": {
+      "name": "輝北",
+      "kana": "キホク",
+      "temp": 32.0,
+      "humidity": 61,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 27.4
+    },
+    "88371": {
+      "name": "加世田",
+      "kana": "カセダ",
+      "temp": 33.1,
+      "humidity": 62,
+      "wind": 3.5,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "88406": {
+      "name": "志布志",
+      "kana": "シブシ",
+      "temp": 33.0,
+      "humidity": 63,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "88432": {
+      "name": "喜入",
+      "kana": "キイレ",
+      "temp": 35.0,
+      "humidity": 59,
+      "wind": 1.7,
+      "precip": 0.0,
+      "wbgt": 29.9
+    },
+    "88442": {
+      "name": "鹿屋",
+      "kana": "カノヤ",
+      "temp": 34.1,
+      "humidity": 57,
+      "wind": 4.2,
+      "precip": 0.0,
+      "wbgt": 28.8
+    },
+    "88447": {
+      "name": "肝付前田",
+      "kana": "キモツキマエダ",
+      "temp": 35.7,
+      "humidity": 49,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "88466": {
+      "name": "枕崎",
+      "kana": "マクラザキ",
+      "temp": 33.6,
+      "humidity": 54,
+      "wind": 5.7,
+      "precip": 0.0,
+      "wbgt": 27.9
+    },
+    "88486": {
+      "name": "指宿",
+      "kana": "イブスキ",
+      "temp": 34.8,
+      "humidity": 54,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 29.0
+    },
+    "88506": {
+      "name": "内之浦",
+      "kana": "ウチノウラ",
+      "temp": 35.4,
+      "humidity": 55,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 29.7
+    },
+    "88536": {
+      "name": "田代",
+      "kana": "タシロ",
+      "temp": 31.8,
+      "humidity": 65,
+      "wind": 2.7,
+      "precip": 0.0,
+      "wbgt": 27.8
+    },
+    "88612": {
+      "name": "種子島",
+      "kana": "タネガシマ",
+      "temp": 32.2,
+      "humidity": 74,
+      "wind": 5.5,
+      "precip": 0.0,
+      "wbgt": 29.3
+    },
+    "88621": {
+      "name": "中種子",
+      "kana": "ナカタネ：種子島空港",
+      "temp": 29.7,
+      "humidity": null,
+      "wind": 5.3,
+      "precip": 0.0,
+      "wbgt": 24.0
+    },
+    "88666": {
+      "name": "上中",
+      "kana": "カミナカ",
+      "temp": 31.3,
+      "humidity": 62,
+      "wind": 4.7,
+      "precip": 0.0,
+      "wbgt": 26.9
+    },
+    "88686": {
+      "name": "屋久島",
+      "kana": "ヤクシマ：屋久島空港",
+      "temp": 32.1,
+      "humidity": 73,
+      "wind": 5.7,
+      "precip": 0.0,
+      "wbgt": 29.1
+    },
+    "88706": {
+      "name": "尾之間",
+      "kana": "オノアイダ",
+      "temp": 32.0,
+      "humidity": 68,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "88736": {
+      "name": "中之島",
+      "kana": "ナカノシマ",
+      "temp": 29.2,
+      "humidity": 80,
+      "wind": 1.3,
+      "precip": 0.0,
+      "wbgt": 27.2
+    },
+    "88821": {
+      "name": "笠利",
+      "kana": "カサリ：奄美空港",
+      "temp": 31.1,
+      "humidity": null,
+      "wind": 1.9,
+      "precip": 0.0,
+      "wbgt": 25.2
+    },
+    "88837": {
+      "name": "名瀬",
+      "kana": "ナゼ",
+      "temp": 31.6,
+      "humidity": 70,
+      "wind": 3.7,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "88851": {
+      "name": "喜界島",
+      "kana": "キカイジマ：喜界空港",
+      "temp": 30.7,
+      "humidity": null,
+      "wind": 2.4,
+      "precip": 0.0,
+      "wbgt": 24.9
+    },
+    "88901": {
+      "name": "古仁屋",
+      "kana": "コニヤ",
+      "temp": 31.5,
+      "humidity": 74,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 28.7
+    },
+    "88931": {
+      "name": "天城",
+      "kana": "アマギ：徳之島空港",
+      "temp": 31.1,
+      "humidity": null,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 25.2
+    },
+    "88956": {
+      "name": "伊仙",
+      "kana": "イセン",
+      "temp": 31.9,
+      "humidity": 73,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "88971": {
+      "name": "沖永良部",
+      "kana": "オキノエラブ：沖永良部空港",
+      "temp": 32.2,
+      "humidity": 82,
+      "wind": 2.1,
+      "precip": 0.0,
+      "wbgt": 30.4
+    },
+    "88986": {
+      "name": "与論島",
+      "kana": "ヨロンジマ：与論空港",
+      "temp": 32.1,
+      "humidity": null,
+      "wind": 4.6,
+      "precip": 0.0,
+      "wbgt": 26.1
+    },
+    "91011": {
+      "name": "伊是名",
+      "kana": "イゼナ",
+      "temp": 32.1,
+      "humidity": 78,
+      "wind": 3.6,
+      "precip": 0.0,
+      "wbgt": 29.8
+    },
+    "91021": {
+      "name": "奥",
+      "kana": "オク",
+      "temp": 28.6,
+      "humidity": 93,
+      "wind": 2.5,
+      "precip": 0.0,
+      "wbgt": 28.2
+    },
+    "91107": {
+      "name": "名護",
+      "kana": "ナゴ",
+      "temp": 32.4,
+      "humidity": 70,
+      "wind": 3.1,
+      "precip": 0.0,
+      "wbgt": 29.0
+    },
+    "91141": {
+      "name": "北原",
+      "kana": "キタハラ：久米島空港",
+      "temp": 31.8,
+      "humidity": null,
+      "wind": 7.6,
+      "precip": 0.0,
+      "wbgt": 25.8
+    },
+    "91146": {
+      "name": "久米島",
+      "kana": "クメジマ",
+      "temp": 32.2,
+      "humidity": 77,
+      "wind": 4.6,
+      "precip": 0.0,
+      "wbgt": 29.7
+    },
+    "91166": {
+      "name": "宮城島",
+      "kana": "ミヤギジマ",
+      "temp": 31.4,
+      "humidity": 76,
+      "wind": 4.0,
+      "precip": 0.0,
+      "wbgt": 28.8
+    },
+    "91181": {
+      "name": "渡嘉敷",
+      "kana": "トカシキ",
+      "temp": 29.8,
+      "humidity": 84,
+      "wind": 5.4,
+      "precip": 0.0,
+      "wbgt": 28.3
+    },
+    "91197": {
+      "name": "那覇",
+      "kana": "ナハ",
+      "temp": 31.3,
+      "humidity": 77,
+      "wind": 5.7,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "91236": {
+      "name": "安次嶺",
+      "kana": "アシミネ：那覇空港",
+      "temp": 31.4,
+      "humidity": null,
+      "wind": 6.9,
+      "precip": 0.0,
+      "wbgt": 25.5
+    },
+    "91241": {
+      "name": "糸数",
+      "kana": "イトカズ",
+      "temp": 30.8,
+      "humidity": 82,
+      "wind": 6.0,
+      "precip": 0.0,
+      "wbgt": 29.0
+    },
+    "92006": {
+      "name": "北大東",
+      "kana": "キタダイトウ：北大東空港",
+      "temp": 33.0,
+      "humidity": null,
+      "wind": 3.8,
+      "precip": 0.0,
+      "wbgt": 26.9
+    },
+    "92011": {
+      "name": "南大東",
+      "kana": "ミナミダイトウ",
+      "temp": 32.0,
+      "humidity": 71,
+      "wind": 3.2,
+      "precip": 0.0,
+      "wbgt": 28.7
+    },
+    "92012": {
+      "name": "旧東",
+      "kana": "キュウトウ：南大東空港",
+      "temp": 31.6,
+      "humidity": null,
+      "wind": 2.2,
+      "precip": 0.0,
+      "wbgt": 25.6
+    },
+    "93012": {
+      "name": "下地島",
+      "kana": "シモジシマ：下地島空港",
+      "temp": 33.1,
+      "humidity": null,
+      "wind": 7.0,
+      "precip": 0.0,
+      "wbgt": 27.0
+    },
+    "93041": {
+      "name": "宮古島",
+      "kana": "ミヤコジマ",
+      "temp": 32.4,
+      "humidity": 69,
+      "wind": 5.1,
+      "precip": 0.0,
+      "wbgt": 28.9
+    },
+    "93042": {
+      "name": "鏡原",
+      "kana": "カガミハラ：宮古空港",
+      "temp": 31.4,
+      "humidity": null,
+      "wind": 5.8,
+      "precip": 0.0,
+      "wbgt": 25.5
+    },
+    "93062": {
+      "name": "仲筋",
+      "kana": "ナカスジ：多良間空港",
+      "temp": 30.2,
+      "humidity": null,
+      "wind": 3.9,
+      "precip": 0.0,
+      "wbgt": 24.4
+    },
+    "94001": {
+      "name": "伊原間",
+      "kana": "イバルマ",
+      "temp": 30.9,
+      "humidity": 78,
+      "wind": 6.1,
+      "precip": 0.0,
+      "wbgt": 28.6
+    },
+    "94011": {
+      "name": "所野",
+      "kana": "トコロノ：与那国空港",
+      "temp": 31.4,
+      "humidity": null,
+      "wind": 5.9,
+      "precip": 0.0,
+      "wbgt": 25.5
+    },
+    "94017": {
+      "name": "与那国島",
+      "kana": "ヨナグニジマ",
+      "temp": 31.4,
+      "humidity": 77,
+      "wind": 7.1,
+      "precip": 0.0,
+      "wbgt": 29.0
+    },
+    "94062": {
+      "name": "西表島",
+      "kana": "イリオモテジマ",
+      "temp": 31.2,
+      "humidity": 74,
+      "wind": 5.4,
+      "precip": 0.0,
+      "wbgt": 28.4
+    },
+    "94081": {
+      "name": "石垣島",
+      "kana": "イシガキジマ",
+      "temp": 32.1,
+      "humidity": 71,
+      "wind": 7.0,
+      "precip": 0.0,
+      "wbgt": 28.8
+    },
+    "94086": {
+      "name": "盛山",
+      "kana": "モリヤマ：石垣空港",
+      "temp": 31.8,
+      "humidity": null,
+      "wind": 5.7,
+      "precip": 0.0,
+      "wbgt": 25.8
+    },
+    "94101": {
+      "name": "大原",
+      "kana": "オオハラ",
+      "temp": 27.7,
+      "humidity": 91,
+      "wind": 6.5,
+      "precip": 2.0,
+      "wbgt": 27.1
+    },
+    "94116": {
+      "name": "波照間",
+      "kana": "ハテルマ",
+      "temp": 31.8,
+      "humidity": 73,
+      "wind": 5.1,
+      "precip": 0.0,
+      "wbgt": 28.8
+    }
+  }
 }
