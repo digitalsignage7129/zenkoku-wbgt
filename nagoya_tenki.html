@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3日間作業気象予測サイネージ</title>
+  <title>3日間天気予報（視認性特化）</title>
   <style>
     * {
       box-sizing: border-box;
@@ -15,51 +15,29 @@
       height: 100vh;
       background-color: #000000;
       color: #ffffff;
-      font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", "Arial Black", sans-serif;
       overflow: hidden;
       user-select: none;
     }
     body {
-      padding: 2.5vh 2vw;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      padding: 1vh 1vw;
     }
 
-    /* ヘッダーエリア */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid #333333;
-      padding-bottom: 0.8vh;
-      height: 7vh;
-    }
-    .header-title {
-      font-size: 3.8vh;
-      font-weight: bold;
-      letter-spacing: 1px;
-      color: #00e5ff;
-    }
-    .header-sub {
-      font-size: 2.4vh;
-      color: #aaaaaa;
-    }
-
-    /* 3日分カードコンテナ */
+    /* 3日間コンテナ（画面全体を3等分） */
     .forecast-container {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1.5vw;
-      height: 85vh;
+      gap: 1vw;
+      width: 100%;
+      height: 98vh;
     }
 
     /* 各日付カード */
     .card {
-      background-color: #111111;
-      border: 2px solid #333333;
-      border-radius: 8px;
-      padding: 1.5vh 1vw;
+      background-color: #050505;
+      border: 3px solid #444444;
+      border-radius: 12px;
+      padding: 1.5vh 0.8vw;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -69,191 +47,178 @@
 
     /* 本日カードの強調 */
     .card.today {
-      border-color: #00e5ff;
-      background-color: #06151f;
+      border: 4px solid #00e5ff;
+      background-color: #00121d;
     }
 
-    /* 日付表示 */
+    /* 1. 日付・区分エリア */
     .date-box {
       width: 100%;
-      border-bottom: 1px solid #333333;
-      padding-bottom: 0.8vh;
-    }
-    .date-day {
-      font-size: 3.2vh;
-      font-weight: bold;
-      color: #ffffff;
+      border-bottom: 2px solid #333333;
+      padding-bottom: 1vh;
     }
     .date-label {
-      font-size: 2vh;
-      font-weight: bold;
-      padding: 0.2vh 1.2vw;
-      border-radius: 4px;
-      display: inline-block;
-      margin-top: 0.4vh;
+      font-size: 3.2vh;
+      font-weight: 900;
+      color: #00e5ff;
+      letter-spacing: 2px;
     }
-    .today .date-label { background-color: #00e5ff; color: #000000; }
-    .tomorrow .date-label { background-color: #555555; color: #ffffff; }
-    .day-after .date-label { background-color: #333333; color: #cccccc; }
+    .tomorrow .date-label { color: #aaaaaa; }
+    .day-after .date-label { color: #777777; }
 
-    /* 天気・降水確率 */
+    .date-val {
+      font-size: 4.8vh;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-top: 0.2vh;
+    }
+
+    /* 2. 天気アイコン ＆ テキスト */
     .weather-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       margin: 0.5vh 0;
     }
     .weather-icon {
-      font-size: 6vh;
-      line-height: 1.1;
+      font-size: 13vh; /* アイコンを超巨大化 */
+      line-height: 1;
     }
     .weather-text {
-      font-size: 2.8vh;
-      font-weight: bold;
-      margin-top: 0.4vh;
-    }
-    .pop {
-      font-size: 2.2vh;
-      color: #88cff1;
-      font-weight: bold;
+      font-size: 4.8vh;
+      font-weight: 900;
+      color: #ffffff;
+      margin-top: 0.5vh;
     }
 
-    /* 気温エリア */
+    /* 3. 降水確率 */
+    .pop-box {
+      width: 100%;
+      background-color: #002233;
+      border: 2px solid #0088cc;
+      border-radius: 8px;
+      padding: 1vh 0;
+    }
+    .pop-val {
+      font-size: 5vh;
+      font-weight: 900;
+      color: #00ffff;
+      line-height: 1;
+    }
+
+    /* 4. 最高・最低気温 */
     .temp-box {
       width: 100%;
-      background-color: #1a1a1a;
-      border-radius: 6px;
-      padding: 0.8vh 0;
-    }
-    .temp-val {
-      font-size: 4vh;
-      font-weight: bold;
-      line-height: 1.1;
-    }
-    .temp-high { color: #ff5555; }
-    .temp-low { color: #55aaff; }
-    .temp-unit { font-size: 2.2vh; font-weight: normal; }
-
-    /* 予想風速 */
-    .wind-box {
-      width: 100%;
-      border-top: 1px dashed #333333;
-      padding-top: 0.8vh;
-    }
-    .wind-title {
-      font-size: 2vh;
-      color: #aaaaaa;
-    }
-    .wind-value {
-      font-size: 4.8vh;
-      font-weight: bold;
-      color: #ffffff;
-      line-height: 1.1;
-    }
-    .wind-unit {
-      font-size: 2.2vh;
-      color: #cccccc;
-      margin-left: 2px;
-    }
-
-    /* 熱中症警戒度バッジ */
-    .wbgt-badge {
-      width: 100%;
+      background-color: #111111;
+      border: 2px solid #222222;
+      border-radius: 8px;
       padding: 1vh 0;
-      border-radius: 6px;
-      font-size: 2.8vh;
-      font-weight: bold;
-      letter-spacing: 1px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
     }
-
-    /* 警戒度カラー定義 */
-    .lvl-danger  { background-color: #ff0000; color: #ffffff; } /* 危険 */
-    .lvl-severe  { background-color: #ff8800; color: #ffffff; } /* 厳重警戒 */
-    .lvl-warning { background-color: #ffff00; color: #000000; } /* 警戒 */
-    .lvl-caution { background-color: #00ccff; color: #000000; } /* 留意 */
-    .lvl-safe    { background-color: #00ff66; color: #000000; } /* ほぼ安全 */
+    .temp-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .temp-title {
+      font-size: 2.2vh;
+      font-weight: bold;
+      color: #888888;
+    }
+    .temp-val-high {
+      font-size: 5.5vh;
+      font-weight: 900;
+      color: #ff3333;
+      line-height: 1;
+    }
+    .temp-val-low {
+      font-size: 5.5vh;
+      font-weight: 900;
+      color: #3399ff;
+      line-height: 1;
+    }
   </style>
 </head>
 <body>
 
-  <!-- ヘッダー -->
-  <div class="header">
-    <div class="header-title">3日間 作業気象予測</div>
-    <div class="header-sub">現場安全管理</div>
-  </div>
-
-  <!-- メイン表示エリア -->
   <div class="forecast-container">
 
     <!-- 本日 -->
     <div class="card today">
       <div class="date-box">
-        <div class="date-day">7/29 (水)</div>
-        <div class="date-label">本日</div>
+        <div class="date-label">【 本日 】</div>
+        <div class="date-val">7/29 (水)</div>
       </div>
       <div class="weather-box">
         <div class="weather-icon">☀️</div>
         <div class="weather-text">晴れ</div>
-        <div class="pop">☔ 10%</div>
+      </div>
+      <div class="pop-box">
+        <div class="pop-val">☔ 10%</div>
       </div>
       <div class="temp-box">
-        <span class="temp-val temp-high">33<span class="temp-unit">℃</span></span>
-        <span style="color:#666">/</span>
-        <span class="temp-val temp-low">25<span class="temp-unit">℃</span></span>
-      </div>
-      <div class="wind-box">
-        <div class="wind-title">予想最大風速</div>
-        <div class="wind-value">4.2<span class="wind-unit">m/s</span></div>
-      </div>
-      <div class="wbgt-badge lvl-severe">
-        厳重警戒
+        <div class="temp-group">
+          <span class="temp-title">最高</span>
+          <span class="temp-val-high">33℃</span>
+        </div>
+        <div class="temp-group">
+          <span class="temp-title">最低</span>
+          <span class="temp-val-low">25℃</span>
+        </div>
       </div>
     </div>
 
     <!-- 明日 -->
     <div class="card tomorrow">
       <div class="date-box">
-        <div class="date-day">7/30 (木)</div>
         <div class="date-label">明日</div>
+        <div class="date-val">7/30 (木)</div>
       </div>
       <div class="weather-box">
         <div class="weather-icon">⛅</div>
-        <div class="weather-text">晴のち曇</div>
-        <div class="pop">☔ 30%</div>
+        <div class="weather-text">晴/曇</div>
+      </div>
+      <div class="pop-box">
+        <div class="pop-val">☔ 30%</div>
       </div>
       <div class="temp-box">
-        <span class="temp-val temp-high">31<span class="temp-unit">℃</span></span>
-        <span style="color:#666">/</span>
-        <span class="temp-val temp-low">24<span class="temp-unit">℃</span></span>
-      </div>
-      <div class="wind-box">
-        <div class="wind-title">予想最大風速</div>
-        <div class="wind-value">6.5<span class="wind-unit">m/s</span></div>
-      </div>
-      <div class="wbgt-badge lvl-warning">
-        警戒
+        <div class="temp-group">
+          <span class="temp-title">最高</span>
+          <span class="temp-val-high">31℃</span>
+        </div>
+        <div class="temp-group">
+          <span class="temp-title">最低</span>
+          <span class="temp-val-low">24℃</span>
+        </div>
       </div>
     </div>
 
     <!-- 明後日 -->
     <div class="card day-after">
       <div class="date-box">
-        <div class="date-day">7/31 (金)</div>
         <div class="date-label">明後日</div>
+        <div class="date-val">7/31 (金)</div>
       </div>
       <div class="weather-box">
         <div class="weather-icon">🌧️</div>
         <div class="weather-text">一時雨</div>
-        <div class="pop">☔ 70%</div>
+      </div>
+      <div class="pop-box">
+        <div class="pop-val">☔ 70%</div>
       </div>
       <div class="temp-box">
-        <span class="temp-val temp-high">28<span class="temp-unit">℃</span></span>
-        <span style="color:#666">/</span>
-        <span class="temp-val temp-low">22<span class="temp-unit">℃</span></span>
-      </div>
-      <div class="wind-box">
-        <div class="wind-title">予想最大風速</div>
-        <div class="wind-value">8.0<span class="wind-unit">m/s</span></div>
-      </div>
-      <div class="wbgt-badge lvl-caution">
-        留意
+        <div class="temp-group">
+          <span class="temp-title">最高</span>
+          <span class="temp-val-high">28℃</span>
+        </div>
+        <div class="temp-group">
+          <span class="temp-title">最低</span>
+          <span class="temp-val-low">22℃</span>
+        </div>
       </div>
     </div>
 
