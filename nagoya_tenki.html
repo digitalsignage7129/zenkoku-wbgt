@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>3日間作業気象予測サイネージ</title>
   <style>
     * {
@@ -9,18 +10,20 @@
       margin: 0;
       padding: 0;
     }
-    body {
-      width: 558px;
-      height: 424px;
+    html, body {
+      width: 100vw;
+      height: 100vh;
       background-color: #000000;
       color: #ffffff;
       font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
       overflow: hidden;
-      padding: 10px;
+      user-select: none;
+    }
+    body {
+      padding: 2.5vh 2vw;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      user-select: none;
     }
 
     /* ヘッダーエリア */
@@ -29,17 +32,17 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 2px solid #333333;
-      padding-bottom: 4px;
-      height: 32px;
+      padding-bottom: 0.8vh;
+      height: 7vh;
     }
     .header-title {
-      font-size: 18px;
+      font-size: 3.8vh;
       font-weight: bold;
       letter-spacing: 1px;
       color: #00e5ff;
     }
     .header-sub {
-      font-size: 13px;
+      font-size: 2.4vh;
       color: #aaaaaa;
     }
 
@@ -47,16 +50,16 @@
     .forecast-container {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      height: 366px;
+      gap: 1.5vw;
+      height: 85vh;
     }
 
     /* 各日付カード */
     .card {
       background-color: #111111;
       border: 2px solid #333333;
-      border-radius: 6px;
-      padding: 8px 6px;
+      border-radius: 8px;
+      padding: 1.5vh 1vw;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -74,20 +77,20 @@
     .date-box {
       width: 100%;
       border-bottom: 1px solid #333333;
-      padding-bottom: 4px;
+      padding-bottom: 0.8vh;
     }
     .date-day {
-      font-size: 17px;
+      font-size: 3.2vh;
       font-weight: bold;
       color: #ffffff;
     }
     .date-label {
-      font-size: 12px;
+      font-size: 2vh;
       font-weight: bold;
-      padding: 1px 6px;
-      border-radius: 3px;
+      padding: 0.2vh 1.2vw;
+      border-radius: 4px;
       display: inline-block;
-      margin-top: 2px;
+      margin-top: 0.4vh;
     }
     .today .date-label { background-color: #00e5ff; color: #000000; }
     .tomorrow .date-label { background-color: #555555; color: #ffffff; }
@@ -95,19 +98,19 @@
 
     /* 天気・降水確率 */
     .weather-box {
-      margin: 2px 0;
+      margin: 0.5vh 0;
     }
     .weather-icon {
-      font-size: 32px;
+      font-size: 6vh;
       line-height: 1.1;
     }
     .weather-text {
-      font-size: 15px;
+      font-size: 2.8vh;
       font-weight: bold;
-      margin-top: 2px;
+      margin-top: 0.4vh;
     }
     .pop {
-      font-size: 13px;
+      font-size: 2.2vh;
       color: #88cff1;
       font-weight: bold;
     }
@@ -116,36 +119,36 @@
     .temp-box {
       width: 100%;
       background-color: #1a1a1a;
-      border-radius: 4px;
-      padding: 3px 0;
+      border-radius: 6px;
+      padding: 0.8vh 0;
     }
     .temp-val {
-      font-size: 22px;
+      font-size: 4vh;
       font-weight: bold;
       line-height: 1.1;
     }
     .temp-high { color: #ff5555; }
     .temp-low { color: #55aaff; }
-    .temp-unit { font-size: 13px; font-weight: normal; }
+    .temp-unit { font-size: 2.2vh; font-weight: normal; }
 
-    /* 予想風速（現場最重要データ） */
+    /* 予想風速 */
     .wind-box {
       width: 100%;
       border-top: 1px dashed #333333;
-      padding-top: 4px;
+      padding-top: 0.8vh;
     }
     .wind-title {
-      font-size: 11px;
+      font-size: 2vh;
       color: #aaaaaa;
     }
     .wind-value {
-      font-size: 26px;
+      font-size: 4.8vh;
       font-weight: bold;
       color: #ffffff;
       line-height: 1.1;
     }
     .wind-unit {
-      font-size: 13px;
+      font-size: 2.2vh;
       color: #cccccc;
       margin-left: 2px;
     }
@@ -153,9 +156,9 @@
     /* 熱中症警戒度バッジ */
     .wbgt-badge {
       width: 100%;
-      padding: 5px 0;
-      border-radius: 4px;
-      font-size: 15px;
+      padding: 1vh 0;
+      border-radius: 6px;
+      font-size: 2.8vh;
       font-weight: bold;
       letter-spacing: 1px;
     }
