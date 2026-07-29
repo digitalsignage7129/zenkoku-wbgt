@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>現場用 WBGT・気象情報表示器</title>
+  <title>現場用 WBGT・気象情報表示器（高視認性・屋外仕様）</title>
   <style>
     * {
       box-sizing: border-box;
@@ -15,42 +15,45 @@
       width: 100%;
       height: 100%;
       overflow: hidden; /* スクロールバー・見切れ防止 */
-      background-color: #f1f5f9;
+      background-color: #000000; /* 背景を完全な黒に固定 */
+      color: #ffffff;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
+      user-select: none;
     }
 
     /* 
       【基準キャンバス (690px × 730px)】
-      JSがこのブロック全体を計測されたエリア枠に合わせて動的に自動スケーリングします。
+      JSがこのブロック全体を自動スケーリングします。
     */
     #stage {
       width: 690px;
       height: 730px;
-      padding: 20px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transform-origin: center center; /* 中央基準で拡大縮小 */
+      transform-origin: center center;
       flex-shrink: 0;
+      background-color: #000000;
     }
 
-    /* 1. ヘッダーエリア (高さ 40px) */
+    /* 1. ヘッダーエリア (高さ 45px) */
     .header {
-      height: 40px;
+      height: 45px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 3px solid #cbd5e1;
-      padding-bottom: 8px;
+      border-bottom: 3px solid #444444;
+      padding-bottom: 6px;
     }
 
     .location-title {
-      font-size: 24px;
-      font-weight: 800;
-      color: #1e293b;
+      font-size: 28px;
+      font-weight: 900;
+      color: #00e5ff; /* 目立つネオンブルー */
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -58,37 +61,36 @@
     }
 
     .update-time {
-      font-size: 16px;
-      font-weight: 700;
-      color: #64748b;
+      font-size: 18px;
+      font-weight: 800;
+      color: #aaaaaa;
       white-space: nowrap;
     }
 
-    /* 2. メイン表示: WBGT & 警戒度 (高さ 410px) */
+    /* 2. メイン表示: WBGT & 警戒度 (高さ 420px) */
     .main-section {
-      height: 410px;
+      height: 420px;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
     }
 
     .wbgt-box {
-      background: #ffffff;
-      border: 3px solid #cbd5e1;
+      background: #0d0d0d;
+      border: 4px solid #555555;
       border-radius: 20px;
-      padding: 20px 10px;
+      padding: 12px 8px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.04);
     }
 
     .wbgt-label {
-      font-size: 22px;
-      font-weight: 800;
-      color: #475569;
-      margin-bottom: 16px;
+      font-size: 26px;
+      font-weight: 900;
+      color: #ffeb3b; /* 遠くからでも目立つイエロー */
+      margin-bottom: 10px;
     }
 
     .wbgt-value-wrap {
@@ -98,96 +100,94 @@
     }
 
     .wbgt-value {
-      font-size: 96px;
+      font-size: 110px; /* 96px -> 110px へ極大化 */
       font-weight: 900;
       line-height: 1;
-      color: #0f172a;
+      color: #ffffff;
       font-variant-numeric: tabular-nums;
     }
 
     .wbgt-unit {
-      font-size: 32px;
-      font-weight: 800;
-      color: #475569;
+      font-size: 38px;
+      font-weight: 900;
+      color: #ffffff;
     }
 
     /* 警戒度バナー */
     .level-banner {
       border-radius: 20px;
-      padding: 20px 10px;
+      padding: 12px 8px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+      border: 4px solid rgba(255, 255, 255, 0.3);
     }
 
     .level-sub {
-      font-size: 20px;
-      font-weight: 800;
-      margin-bottom: 12px;
-      opacity: 0.95;
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 10px;
       letter-spacing: 0.05em;
     }
 
     .level-text {
-      font-size: 48px; /* 「厳重警戒」が1行に綺麗に収まる設計 */
+      font-size: 54px; /* 48px -> 54px へ極大化 */
       font-weight: 900;
       line-height: 1.1;
       white-space: nowrap;
       letter-spacing: 0.05em;
     }
 
-    /* 3. サブ気象情報 4列カード (高さ 190px) */
+    /* 3. サブ気象情報 4列カード (高さ 200px) */
     .metrics-grid {
-      height: 190px;
+      height: 200px;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 12px;
     }
 
     .metric-card {
-      background: #ffffff;
-      border: 3px solid #cbd5e1;
+      background: #0d0d0d;
+      border: 4px solid #555555;
       border-radius: 16px;
-      padding: 12px 4px;
+      padding: 8px 4px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.04);
     }
 
     .metric-label {
-      font-size: 16px;
-      font-weight: 800;
-      color: #475569;
-      margin-bottom: 8px;
+      font-size: 22px; /* 16px -> 22px へ拡大 */
+      font-weight: 900;
+      color: #00e5ff;
+      margin-bottom: 6px;
     }
 
     .metric-value {
-      font-size: 32px;
+      font-size: 38px; /* 32px -> 38px へ拡大 */
       font-weight: 900;
-      color: #0f172a;
+      color: #ffffff;
       font-variant-numeric: tabular-nums;
       line-height: 1;
       white-space: nowrap;
     }
 
     .metric-unit {
-      font-size: 14px;
-      font-weight: 800;
-      color: #64748b;
+      font-size: 18px;
+      font-weight: 900;
+      color: #cccccc;
       margin-left: 2px;
     }
 
-    /* 警戒度別カラー定義 */
-    .bg-danger  { background-color: #dc2626; color: #ffffff; }  /* 危険: 赤 */
-    .bg-severe  { background-color: #ea580c; color: #ffffff; }  /* 厳重警戒: オレンジ */
-    .bg-warning { background-color: #facc15; color: #0f172a; }  /* 警戒: 黄 */
-    .bg-caution { background-color: #2563eb; color: #ffffff; }  /* 留意: 青 */
-    .bg-safe    { background-color: #16a34a; color: #ffffff; }  /* ほぼ安全: 緑 */
+    /* 警戒度別カラー定義（黒背景用に最適化した高彩度高コントラスト） */
+    .bg-danger  { background-color: #cc0000; color: #ffffff; border-color: #ff6666; } /* 危険: 赤 */
+    .bg-severe  { background-color: #ff5500; color: #ffffff; border-color: #ffaa55; } /* 厳重警戒: オレンジ */
+    .bg-warning { background-color: #ffcc00; color: #000000; border-color: #ffff88; } /* 警戒: 黄 (黒文字で視認性最大化) */
+    .bg-caution { background-color: #0066ff; color: #ffffff; border-color: #66aa22; } /* 留意: 青 */
+    .bg-safe    { background-color: #00aa44; color: #ffffff; border-color: #66ff99; } /* ほぼ安全: 緑 */
   </style>
 </head>
 <body>
@@ -236,7 +236,7 @@
 
       <div class="metric-card">
         <div class="metric-label">天気</div>
-        <div class="metric-value" style="font-size: 24px;" id="weather">--</div>
+        <div class="metric-value" style="font-size: 30px;" id="weather">--</div>
       </div>
     </div>
 
