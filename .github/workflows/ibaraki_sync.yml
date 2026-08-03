@@ -28,15 +28,13 @@ jobs:
 
           headers = {"User-Agent": "Mozilla/5.0"}
 
-          # デフォルト値・ダミー値は一切持たせない
           wbgt_val = None
           temp_val = None
-          hum_val = None
+          hum_val = "--"  # 茨木は湿度観測がないため初期値・データなしを「--」に設定
           wind_val = None
           weather_val = "不明"
 
           # 1. 環境省サイトから茨木（62086）の公式WBGT値を取得
-          # region=07 (近畿), prefecture=62 (大阪府), point=62086 (茨木)
           try:
               moe_url = "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=07&prefecture=62&point=62086"
               req = urllib.request.Request(moe_url, headers=headers)
@@ -48,7 +46,7 @@ jobs:
           except Exception as e:
               print(f"MOE fetch error: {e}")
 
-          # 2. 気象庁アメダスから気温・湿度・風速・天気を取得（茨木: 62086）
+          # 2. 気象庁アメダスから茨木（62086）のデータを取得
           try:
               req_time = urllib.request.Request("https://www.jma.go.jp/bosai/amedas/data/latest_time.txt", headers=headers)
               with urllib.request.urlopen(req_time) as resp:
@@ -63,8 +61,11 @@ jobs:
 
                   if "temp" in ibaraki and ibaraki["temp"] and ibaraki["temp"][0] is not None:
                       temp_val = f"{float(ibaraki['temp'][0]):.1f}"
+                  
+                  # 観測データが存在する場合のみ上書き（存在しない場合は "--" のまま）
                   if "humidity" in ibaraki and ibaraki["humidity"] and ibaraki["humidity"][0] is not None:
                       hum_val = str(int(ibaraki["humidity"][0]))
+
                   if "wind" in ibaraki and ibaraki["wind"] and ibaraki["wind"][0] is not None:
                       wind_val = f"{float(ibaraki['wind'][0]):.1f}"
 
@@ -83,15 +84,15 @@ jobs:
               print(f"JMA fetch error: {e}")
               raise RuntimeError(f"Failed to fetch real-time weather data: {e}")
 
-          # 必須データが一つでも欠けていたら処理を中断
-          if not temp_val or not hum_val or not wind_val:
-              raise ValueError("Critical weather data is missing. Aborting to prevent invalid display.")
+          # 気温・風速（湿度はチェック対象から除外）の必須データチェック
+          if not temp_val or not wind_val:
+              raise ValueError("Critical weather data (temp/wind) is missing. Aborting.")
 
-          # 環境省WBGTが万が一取得できなかった場合も即座にストップ
+          # 環境省WBGTのチェック
           if not wbgt_val:
               raise ValueError("Official WBGT data could not be retrieved from MOE.")
 
-          # 警戒度の判定
+          # 警戒度判定
           w = float(wbgt_val)
           if w >= 31.0:
               level = "危険"
@@ -113,7 +114,7 @@ jobs:
               "wbgt": str(wbgt_val),
               "level": level,
               "temperature": str(temp_val),
-              "humidity": str(hum_val),
+              "humidity": str(hum_val),  # "--" または実測値
               "wind_speed": str(wind_val),
               "weather": str(weather_val),
               "updated_at": now_str
@@ -122,7 +123,7 @@ jobs:
           with open("ibaraki_wbgt.json", "w", encoding="utf-8") as f:
               json.dump(result, f, ensure_ascii=False, indent=2)
 
-          print("Generated JSON:", json.dumps(result, ensure_ascii=False))
+          print("Generated JSON successfully:", json.dumps(result, ensure_ascii=False))
           EOF
 
       - name: Commit and Push if changed
