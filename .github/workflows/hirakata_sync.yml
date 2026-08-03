@@ -13,11 +13,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-
       - name: Fetch Official Data and Generate JSON
         run: |
           # 1. WBGT & アメダス実測データの取得
@@ -139,7 +134,7 @@ jobs:
               json.dump(result, f, ensure_ascii=False, indent=2)
           EOF
 
-          # 2. 3日間天気予報データの取得（完全クリーン版）
+          # 2. 3日間天気予報データの取得（気温完全補完 ＋ アイコン修正版）
           python - << 'EOF'
           import urllib.request
           import json
@@ -156,30 +151,25 @@ jobs:
                   return "🌧️"
               elif "雪" in text:
                   return "☃️"
-              elif "晴" in text and "曇" in text:
+              elif "晴" in text and ("くもり" in text or "曇" in text):
                   return "⛅"
               elif "晴" in text:
                   return "☀️"
-              elif "曇" in text:
+              elif "くもり" in text or "曇" in text:
                   return "☁️"
               return "🌤️"
 
           def format_weather_text(raw_text):
-              # 1. 不要な解説テキストを前方一致でカット
               for detail_key in ["所により", "雷を伴", "激しく"]:
                   raw_text = raw_text.split(detail_key)[0]
               
-              # 2. 時間帯表現（「昼過ぎから」「夜のはじめ頃」等）を正規表現で丸ごと消去
               time_pattern = r'(朝のうち|昼過ぎ|夕方|夜のはじめ頃|夜遅く|夜|明け方|午前中|午後)(から|まで|頃)?'
               text = re.sub(time_pattern, '', raw_text)
               
-              # 3. スペース除去 & 接続詞の置換
               text = text.replace(" ", "").replace(" ", "")
               text = text.replace("のち", "/").replace("時々", "/").replace("一時", "/")
               
-              # 4. 「 / 」で綺麗に整えて結合
               parts = [p.strip() for p in text.split("/") if p.strip()]
-              
               if len(parts) >= 2:
                   return f"{parts[0]} / {parts[1]}"
               elif len(parts) == 1:
@@ -191,6 +181,24 @@ jobs:
               with urllib.request.urlopen(req, timeout=10) as resp:
                   data = json.loads(resp.read().decode("utf-8"))
 
+              # 1. 週間予報（data[1]）から日付ごとの気温データを抽出してマップ化
+              weekly_temp_map = {}
+              if len(data) > 1 and "timeSeries" in data[1]:
+                  try:
+                      w_times = data[1]["timeSeries"][1]["timeDefines"]
+                      w_area = data[1]["timeSeries"][1]["areas"][0]
+                      w_mins = w_area.get("tempMin", [])
+                      w_maxs = w_area.get("tempMax", [])
+
+                      for idx, t_str in enumerate(w_times):
+                          d_key = t_str.split("T")[0]
+                          t_min = w_mins[idx] if idx < len(w_mins) and w_mins[idx] != "" else None
+                          t_max = w_maxs[idx] if idx < len(w_maxs) and w_maxs[idx] != "" else None
+                          weekly_temp_map[d_key] = {"min": t_min, "max": t_max}
+                  except Exception as ex:
+                      print(f"[Weekly Temp Parse Warning] {ex}")
+
+              # 2. 短期予報（data[0]）のデータ抽出
               time_series = data[0]["timeSeries"]
               dates_raw = time_series[0]["timeDefines"]
               weathers_raw = time_series[0]["areas"][0]["weathers"]
@@ -200,6 +208,7 @@ jobs:
               forecasts = []
               for i in range(min(3, len(dates_raw))):
                   dt = datetime.fromisoformat(dates_raw[i])
+                  date_iso = dt.strftime("%Y-%m-%d")
                   date_str = f"{dt.month}/{dt.day} ({WEEK_DAYS[dt.weekday()]})"
                   
                   raw_w = weathers_raw[i]
@@ -209,11 +218,20 @@ jobs:
                   
                   temp_low = None
                   temp_high = None
+                  
+                  # 短期予報APIからの気温抽出
                   if i == 0 and len(temps_raw) >= 2:
                       temp_high = temps_raw[1]
                   elif i == 1 and len(temps_raw) >= 4:
                       temp_low = temps_raw[2]
                       temp_high = temps_raw[3]
+
+                  # 不足分を週間予報マップから補完
+                  if date_iso in weekly_temp_map:
+                      if temp_high is None:
+                          temp_high = weekly_temp_map[date_iso]["max"]
+                      if temp_low is None:
+                          temp_low = weekly_temp_map[date_iso]["min"]
 
                   forecasts.append({
                       "date_str": date_str,
