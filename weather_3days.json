@@ -5,7 +5,7 @@
       "weather": "くもり",
       "icon": "🌧️",
       "pop": "40",
-      "temp_high": "37",
+      "temp_high": null,
       "temp_low": null
     },
     {
@@ -13,8 +13,8 @@
       "weather": "くもり　　から　晴れ",
       "icon": "⛅",
       "pop": "10",
-      "temp_high": null,
-      "temp_low": null
+      "temp_high": "37",
+      "temp_low": "28"
     },
     {
       "date_str": "8/5 (水)",
