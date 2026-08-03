@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3日間天気予報（視認性特化）</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      background-color: #000000;
+      color: #ffffff;
+      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", "Arial Black", sans-serif;
+      overflow: hidden;
+      user-select: none;
+    }
+    body {
+      padding: 1vh 1vw;
+    }
+
+    /* 3日間コンテナ（画面全体を3等分） */
+    .forecast-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1vw;
+      width: 100%;
+      height: 98vh;
+    }
+
+    /* 各日付カード */
+    .card {
+      background-color: #050505;
+      border: 3px solid #444444;
+      border-radius: 12px;
+      padding: 1.5vh 0.8vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* 本日カードの強調 */
+    .card.today {
+      border: 4px solid #00e5ff;
+      background-color: #00121d;
+    }
+
+    /* 1. 日付・区分エリア */
+    .date-box {
+      width: 100%;
+      border-bottom: 2px solid #333333;
+      padding-bottom: 1vh;
+    }
+    .date-label {
+      font-size: 3.2vh;
+      font-weight: 900;
+      color: #00e5ff;
+      letter-spacing: 2px;
+    }
+    .tomorrow .date-label { color: #aaaaaa; }
+    .day-after .date-label { color: #777777; }
+
+    .date-val {
+      font-size: 4.8vh;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-top: 0.2vh;
+    }
+
+    /* 2. 天気アイコン ＆ テキスト */
+    .weather-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0.5vh 0;
+    }
+    .weather-icon {
+      font-size: 13vh;
+      line-height: 1;
+    }
+    .weather-text {
+      font-size: 4.5vh;
+      font-weight: 900;
+      color: #ffffff;
+      margin-top: 0.5vh;
+      white-space: nowrap;
+    }
+
+    /* 3. 降水確率 */
+    .pop-box {
+      width: 100%;
+      background-color: #002233;
+      border: 2px solid #0088cc;
+      border-radius: 8px;
+      padding: 1vh 0;
+    }
+    .pop-val {
+      font-size: 5vh;
+      font-weight: 900;
+      color: #00ffff;
+      line-height: 1;
+    }
+
+    /* 4. 最高・最低気温 */
+    .temp-box {
+      width: 100%;
+      background-color: #111111;
+      border: 2px solid #222222;
+      border-radius: 8px;
+      padding: 1vh 0;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .temp-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .temp-title {
+      font-size: 2.2vh;
+      font-weight: bold;
+      color: #888888;
+    }
+    .temp-val-high {
+      font-size: 5.5vh;
+      font-weight: 900;
+      color: #ff3333;
+      line-height: 1;
+    }
+    .temp-val-low {
+      font-size: 5.5vh;
+      font-weight: 900;
+      color: #3399ff;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="forecast-container">
+
+    <!-- 本日 -->
+    <div class="card today">
+      <div class="date-box">
+        <div class="date-label">【 本日 】</div>
+        <div class="date-val" id="date-0">--/-- (-)</div>
+      </div>
+      <div class="weather-box">
+        <div class="weather-icon" id="icon-0">--</div>
+        <div class="weather-text" id="weather-0">---</div>
+      </div>
+      <div class="pop-box">
+        <div class="pop-val">☔ <span id="pop-0">--</span>%</div>
+      </div>
+      <div class="temp-box">
+        <div class="temp-group">
+          <span class="temp-title">最高</span>
+          <span class="temp-val-high" id="high-0">--℃</span>
+        </div>
+        <div class="temp-group">
+          <span class="temp-title">最低</span>
+          <span class="temp-val-low" id="low-0">--℃</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 明日 -->
+    <div class="card tomorrow">
+      <div class="date-box">
+        <div class="date-label">明日</div>
+        <div class="date-val" id="date-1">--/-- (-)</div>
+      </div>
+      <div class="weather-box">
+        <div class="weather-icon" id="icon-1">--</div>
+        <div class="weather-text" id="weather-1">---</div>
+      </div>
+      <div class="pop-box">
+        <div class="pop-val">☔ <span id="pop-1">--</span>%</div>
+      </div>
+      <div class="temp-box">
+        <div class="temp-group">
+          <span class="temp-title">最高</span>
+          <span class="temp-val-high" id="high-1">--℃</span>
+        </div>
+        <div class="temp-group">
+          <span class="temp-title">最低</span>
+          <span class="temp-val-low" id="low-1">--℃</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 明後日 -->
+    <div class="card day-after">
+      <div class="date-box">
+        <div class="date-label">明後日</div>
+        <div class="date-val" id="date-2">--/-- (-)</div>
+      </div>
+      <div class="weather-box">
+        <div class="weather-icon" id="icon-2">--</div>
+        <div class="weather-text" id="weather-2">---</div>
+      </div>
+      <div class="pop-box">
+        <div class="pop-val">☔ <span id="pop-2">--</span>%</div>
+      </div>
+      <div class="temp-box">
+        <div class="temp-group">
+          <span class="temp-title">最高</span>
+          <span class="temp-val-high" id="high-2">--℃</span>
+        </div>
+        <div class="temp-group">
+          <span class="temp-title">最低</span>
+          <span class="temp-val-low" id="low-2">--℃</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    async function updateForecast() {
+      try {
+        const res = await fetch('./weather_3days.json?t=' + new Date().getTime());
+        if (!res.ok) return;
+        const data = await res.json();
+
+        data.forecasts.forEach((item, i) => {
+          if (i > 2) return;
+          document.getElementById(`date-${i}`).textContent = item.date_str;
+          document.getElementById(`icon-${i}`).textContent = item.icon;
+          document.getElementById(`weather-${i}`).textContent = item.weather;
+          document.getElementById(`pop-${i}`).textContent = item.pop;
+          document.getElementById(`high-${i}`).textContent = item.temp_high !== null ? `${item.temp_high}℃` : '--℃';
+          document.getElementById(`low-${i}`).textContent = item.temp_low !== null ? `${item.temp_low}℃` : '--℃';
+        });
+      } catch (err) {
+        console.error("Forecast data load error:", err);
+      }
+    }
+
+    updateForecast();
+    setInterval(updateForecast, 300000); // 5分ごとに再読み込み
+  </script>
+</body>
+</html>
