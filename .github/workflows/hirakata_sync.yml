@@ -36,18 +36,33 @@ jobs:
           # ----------------------------------------------------
           # 1. WBGT値：環境省（枚方: 62046）から取得
           # ----------------------------------------------------
-          try:
-              moe_url = "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=07&prefecture=62&point=62046"
-              req = urllib.request.Request(moe_url, headers=headers)
-              with urllib.request.urlopen(req, timeout=10) as resp:
-                  html = resp.read().decode('utf-8', errors='ignore')
-                  # 時刻セル直後のWBGT数値(例: 28.5)を抽出
-                  matches = re.findall(r'<td>\d{1,2}:\d{2}</td>\s*<td>([\d\.]+)</td>', html)
-                  if matches:
-                      wbgt_val = matches[-1] # 最新時刻の値
-                      print(f"[MOE] WBGT: {wbgt_val}")
-          except Exception as e:
-              print(f"[MOE Error] {e}")
+          moe_urls = [
+              "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=07&prefecture=62&point=62046",
+              "https://www.wbgt.env.go.jp/graph_ref_td.php?region=07&prefecture=62&point=62046"
+          ]
+
+          for url in moe_urls:
+              try:
+                  req = urllib.request.Request(url, headers=headers)
+                  with urllib.request.urlopen(req, timeout=10) as resp:
+                      html = resp.read().decode('utf-8', errors='ignore')
+                      
+                      # HTMLタグを全て除去してテキストのみにする
+                      text_only = re.sub(r'<[^>]+>', ' ', html)
+                      
+                      # 時刻 (例: 14:00) の直後にある数値 (WBGT値) を抽出
+                      # 例: "14:00 28.5" や "14:00 \n 28.5"
+                      matches = re.findall(r'\b\d{1,2}:\d{2}\s+([\d\.]+)', text_only)
+                      
+                      # 数値として妥当な範囲 (10.0〜45.0) のWBGT値をフィルタリング
+                      valid_wbgts = [m for m in matches if 10.0 <= float(m) <= 45.0]
+                      
+                      if valid_wbgts:
+                          wbgt_val = valid_wbgts[-1] # 最新時刻の値
+                          print(f"[MOE Success] WBGT: {wbgt_val}")
+                          break
+              except Exception as e:
+                  print(f"[MOE Warning] Failed to fetch {url}: {e}")
 
           # ----------------------------------------------------
           # 2. 気温・風速・天気：気象庁アメダス（枚方: 62046）から取得
@@ -83,7 +98,7 @@ jobs:
                   else:
                       weather_val = "くもり"
 
-                  print(f"[JMA] Temp: {temp_val}℃, Wind: {wind_val}m/s, Weather: {weather_val}")
+                  print(f"[JMA Success] Temp: {temp_val}℃, Wind: {wind_val}m/s, Weather: {weather_val}")
 
           except Exception as e:
               print(f"[JMA Error] {e}")
