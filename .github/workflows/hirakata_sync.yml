@@ -20,6 +20,7 @@ jobs:
 
       - name: Fetch Official Data and Generate JSON
         run: |
+          # 1. WBGT & アメダス実測データの取得
           python - << 'EOF'
           import urllib.request
           import gzip
@@ -39,9 +40,6 @@ jobs:
           wind_val = None
           weather_val = "晴れ"
 
-          # ----------------------------------------------------
-          # 1. WBGT値：環境省（枚方: 62046）から取得
-          # ----------------------------------------------------
           moe_urls = [
               "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=07&prefecture=62&point=62046",
               "https://www.wbgt.env.go.jp/graph_ref_td.php?region=07&prefecture=62&point=62046"
@@ -52,30 +50,22 @@ jobs:
                   req = urllib.request.Request(url, headers=headers)
                   with urllib.request.urlopen(req, timeout=15) as resp:
                       raw_data = resp.read()
-                      
-                      # Gzip解凍処理
                       if resp.headers.get('Content-Encoding') == 'gzip' or raw_data[:2] == b'\x1f\x8b':
                           raw_data = gzip.decompress(raw_data)
-
                       raw_text = raw_data.decode('utf-8', errors='ignore')
 
-                      # 【パターンA】時刻(HH:MM)に近接する小数値を抽出 (10.0〜45.0の範囲)
                       time_matches = re.findall(r'\b\d{1,2}:\d{2}\b[\s\S]{1,150}?\b(\d{1,2}\.\d)\b', raw_text)
                       valid_a = [m for m in time_matches if 10.0 <= float(m) <= 45.0]
                       if valid_a:
                           wbgt_val = valid_a[-1]
-                          print(f"[MOE Pattern A Success] WBGT: {wbgt_val}")
                           break
 
-                      # 【パターンB】HTMLタグを除去してトークン解析
                       unescaped = html.unescape(raw_text)
                       clean_text = re.sub(r'<[^>]+>', ' ', unescaped)
                       tokens = clean_text.split()
-
                       found_b = []
                       for i in range(len(tokens) - 1):
                           if re.match(r'^\d{1,2}:\d{2}$', tokens[i]):
-                              # 時刻トークンの後ろ3個まで検索
                               for j in range(1, 4):
                                   if i + j < len(tokens):
                                       tok = tokens[i + j]
@@ -84,23 +74,16 @@ jobs:
                                           break
                       if found_b:
                           wbgt_val = found_b[-1]
-                          print(f"[MOE Pattern B Success] WBGT: {wbgt_val}")
                           break
 
-                      # 【パターンC】JS配列やテキスト内の浮動小数点数をフォールバック抽出
                       all_floats = re.findall(r'\b\d{1,2}\.\d\b', raw_text)
                       valid_c = [f for f in all_floats if 10.0 <= float(f) <= 45.0]
                       if valid_c:
                           wbgt_val = valid_c[-1]
-                          print(f"[MOE Pattern C Success] WBGT: {wbgt_val}")
                           break
-
               except Exception as e:
-                  print(f"[MOE Warning] Failed to fetch {url}: {e}")
+                  print(f"[MOE Warning] {e}")
 
-          # ----------------------------------------------------
-          # 2. 気温・風速・天気：気象庁アメダス（枚方: 62046）から取得
-          # ----------------------------------------------------
           try:
               req_time = urllib.request.Request("https://www.jma.go.jp/bosai/amedas/data/latest_time.txt", headers=headers)
               with urllib.request.urlopen(req_time, timeout=10) as resp:
@@ -121,46 +104,25 @@ jobs:
 
                   if "temp" in hirakata and hirakata["temp"] and hirakata["temp"][0] is not None:
                       temp_val = f"{float(hirakata['temp'][0]):.1f}"
-
                   if "wind" in hirakata and hirakata["wind"] and hirakata["wind"][0] is not None:
                       wind_val = f"{float(hirakata['wind'][0]):.1f}"
 
                   precip = hirakata.get("precipitation10m", [0])[0] or 0
                   sun = hirakata.get("sun10m", [0])[0] or 0
-
                   if precip >= 0.5:
                       weather_val = "雨"
                   elif sun >= 0.1:
                       weather_val = "晴れ"
                   else:
                       weather_val = "くもり"
-
-                  print(f"[JMA Success] Temp: {temp_val}℃, Wind: {wind_val}m/s, Weather: {weather_val}")
-
           except Exception as e:
               print(f"[JMA Error] {e}")
 
-          # エラーチェック
-          if not wbgt_val:
-              raise ValueError("WBGT data could not be retrieved from MOE.")
-          if not temp_val or not wind_val:
-              raise ValueError("Weather data could not be retrieved from JMA Amedas.")
+          if not wbgt_val or not temp_val or not wind_val:
+              raise ValueError("Data retrieval failed.")
 
-          # ----------------------------------------------------
-          # 3. 警戒度判定とJSON出力
-          # ----------------------------------------------------
           w = float(wbgt_val)
-          if w >= 31.0:
-              level = "危険"
-          elif w >= 28.0:
-              level = "厳重警戒"
-          elif w >= 25.0:
-              level = "警戒"
-          elif w >= 21.0:
-              level = "留意"
-          else:
-              level = "ほぼ安全"
-
+          level = "危険" if w >= 31.0 else "厳重警戒" if w >= 28.0 else "警戒" if w >= 25.0 else "留意" if w >= 21.0 else "ほぼ安全"
           jst = timezone(timedelta(hours=9))
           now_str = datetime.now(jst).strftime("%Y-%m-%d %H:%M")
 
@@ -173,20 +135,20 @@ jobs:
               "weather": str(weather_val),
               "updated_at": now_str
           }
-
           with open("hirakata_wbgt.json", "w", encoding="utf-8") as f:
               json.dump(result, f, ensure_ascii=False, indent=2)
-
-          print("Generated JSON successfully:")
-          print(json.dumps(result, ensure_ascii=False, indent=2))
           EOF
+
+          # 2. 3日間天気予報スクリプトの実行（★ここに追加）
+          python get_forecast.py
 
       - name: Commit and Push if changed
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add hirakata_wbgt.json
+          # ★ 生成される2つのJSONファイルをコミット対象に追加
+          git add hirakata_wbgt.json weather_3days.json
           if ! git diff --cached --quiet; then
-            git commit -m "Update Hirakata WBGT & Weather Data"
+            git commit -m "Update WBGT and 3-day weather forecast data"
             git push
           fi
