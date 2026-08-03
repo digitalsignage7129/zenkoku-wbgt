@@ -139,10 +139,11 @@ jobs:
               json.dump(result, f, ensure_ascii=False, indent=2)
           EOF
 
-          # 2. 3日間天気予報データの取得（強力テキスト整形版）
+          # 2. 3日間天気予報データの取得（完全クリーン版）
           python - << 'EOF'
           import urllib.request
           import json
+          import re
           from datetime import datetime
 
           URL = "https://www.jma.go.jp/bosai/forecast/data/forecast/270000.json"
@@ -164,23 +165,23 @@ jobs:
               return "🌤️"
 
           def format_weather_text(raw_text):
-              # 1. 「所により」「雷を伴」などの長文補足テキスト以降を完全に切り捨てる
+              # 1. 不要な解説テキストを前方一致でカット
               for detail_key in ["所により", "雷を伴", "激しく"]:
                   raw_text = raw_text.split(detail_key)[0]
               
-              # 2. 接続詞の統一
-              text = raw_text.replace(" ", "").replace(" ", "")
+              # 2. 時間帯表現（「昼過ぎから」「夜のはじめ頃」等）を正規表現で丸ごと消去
+              time_pattern = r'(朝のうち|昼過ぎ|夕方|夜のはじめ頃|夜遅く|夜|明け方|午前中|午後)(から|まで|頃)?'
+              text = re.sub(time_pattern, '', raw_text)
+              
+              # 3. スペース除去 & 接続詞の置換
+              text = text.replace(" ", "").replace(" ", "")
               text = text.replace("のち", "/").replace("時々", "/").replace("一時", "/")
               
-              # 3. 「夕方」「昼過ぎ」などの時間指定用語を削除
-              time_words = ["朝のうち", "昼過", "昼過ぎ", "夕方", "夜のはじめ頃", "夜遅く", "夜"]
-              for tw in time_words:
-                  text = text.replace(tw, "")
+              # 4. 「 / 」で綺麗に整えて結合
+              parts = [p.strip() for p in text.split("/") if p.strip()]
               
-              # 4. 余分なスラッシュの除去と最大2要素の結合
-              parts = [p for p in text.split("/") if p]
               if len(parts) >= 2:
-                  return f"{parts[0]}/{parts[1]}"
+                  return f"{parts[0]} / {parts[1]}"
               elif len(parts) == 1:
                   return parts[0]
               return "くもり"
