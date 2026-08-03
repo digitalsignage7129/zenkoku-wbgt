@@ -1,10 +1,10 @@
 {
   "location": "大阪府枚方市",
-  "wbgt": "27.8",
-  "level": "警戒",
-  "temperature": "33.1",
+  "wbgt": "30.2",
+  "level": "厳重警戒",
+  "temperature": "30.2",
   "humidity": "64",
-  "wind_speed": "1.2",
-  "weather": "晴れ",
-  "updated_at": "2026-08-03 12:33"
+  "wind_speed": "0.0",
+  "weather": "雷雨",
+  "updated_at": "2026-08-03 12:37"
 }
