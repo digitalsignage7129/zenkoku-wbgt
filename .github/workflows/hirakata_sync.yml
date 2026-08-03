@@ -32,50 +32,39 @@ jobs:
           temp_val = None
           hum_val = None
           wind_val = None
-          weather_val = "不明"
+          weather_val = "晴れ"
 
-          # 1. 環境省サイトから枚方（地点コード: 62046）の公式WBGT値を取得
+          # 1. 環境省サイトから枚方（62046）の WBGT・気温・湿度・風速 を一括取得
           try:
               moe_url = "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=07&prefecture=62&point=62046"
               req = urllib.request.Request(moe_url, headers=headers)
               with urllib.request.urlopen(req) as resp:
                   html = resp.read().decode('utf-8', errors='ignore')
-                  matches = re.findall(r'>(1[5-9]\.[0-9]|2[0-9]\.[0-9]|3[0-9]\.[0-9])<', html)
-                  if matches:
-                      wbgt_val = matches[0]
+                  
+                  # テーブルから最新行の [時刻, WBGT, 気温, 湿度, 風速] を抽出
+                  rows = re.findall(r'<tr>\s*<td>\d{1,2}:\d{2}</td>\s*<td>([\d\.]+)</td>\s*<td>([\d\.]+)</td>\s*<td>(\d+)</td>\s*<td>([\d\.]+)</td>', html)
+                  if rows:
+                      latest = rows[-1] # 直近の最新データ
+                      wbgt_val = latest[0]
+                      temp_val = latest[1]
+                      hum_val = latest[2]
+                      wind_val = latest[3]
           except Exception as e:
               print(f"MOE fetch error: {e}")
 
-          # 2. 気象庁アメダスから枚方（観測所コード: 62046）の気温・湿度・風速・天気を取得
+          # 2. 気象庁アメダスから枚方（62046）の降水・日照データのみ取得して天気を判定
           try:
               req_time = urllib.request.Request("https://www.jma.go.jp/bosai/amedas/data/latest_time.txt", headers=headers)
               with urllib.request.urlopen(req_time) as resp:
                   latest_time = resp.read().decode('utf-8').strip()
-                  
-                  # ISO形式の時刻文字列からJST時刻のファイル名を生成
-                  dt_utc = datetime.fromisoformat(latest_time)
-                  jst = timezone(timedelta(hours=9))
-                  dt_jst = dt_utc.astimezone(jst)
-                  formatted_time = dt_jst.strftime("%Y%m%d%H%M00")
+                  formatted_time = re.sub(r'[-:+T]', '', latest_time)[:14]
 
               jma_url = f"https://www.jma.go.jp/bosai/amedas/data/map/{formatted_time}.json"
-              print(f"[JMA] Target URL: {jma_url}")
-
               req_map = urllib.request.Request(jma_url, headers=headers)
               with urllib.request.urlopen(req_map) as resp:
                   map_data = json.loads(resp.read().decode('utf-8'))
-                  
-                  # アメダス枚方コード: 62046
                   hirakata = map_data.get("62046", {})
 
-                  if "temp" in hirakata and hirakata["temp"] and hirakata["temp"][0] is not None:
-                      temp_val = f"{float(hirakata['temp'][0]):.1f}"
-                  if "humidity" in hirakata and hirakata["humidity"] and hirakata["humidity"][0] is not None:
-                      hum_val = str(int(hirakata["humidity"][0]))
-                  if "wind" in hirakata and hirakata["wind"] and hirakata["wind"][0] is not None:
-                      wind_val = f"{float(hirakata['wind'][0]):.1f}"
-
-                  # 天気判定（降水量 / 日照時間）
                   precip = hirakata.get("precipitation10m", [0])[0] or 0
                   sun = hirakata.get("sun10m", [0])[0] or 0
 
@@ -85,17 +74,12 @@ jobs:
                       weather_val = "晴れ"
                   else:
                       weather_val = "くもり"
-
           except Exception as e:
-              print(f"JMA fetch error: {e}")
-              raise RuntimeError(f"Failed to fetch real-time weather data: {e}")
+              print(f"JMA weather error: {e}")
 
           # 必須データチェック
-          if not temp_val or not hum_val or not wind_val:
-              raise ValueError(f"Critical weather data is missing (Temp: {temp_val}, Hum: {hum_val}, Wind: {wind_val}). Aborting.")
-
-          if not wbgt_val:
-              raise ValueError("Official WBGT data could not be retrieved from MOE.")
+          if not wbgt_val or not temp_val or not hum_val or not wind_val:
+              raise ValueError(f"Critical data missing: WBGT={wbgt_val}, Temp={temp_val}, Hum={hum_val}, Wind={wind_val}")
 
           # 警戒度の判定
           w = float(wbgt_val)
@@ -110,8 +94,9 @@ jobs:
           else:
               level = "ほぼ安全"
 
-          # JSON出力
-          now_str = dt_jst.strftime("%Y-%m-%d %H:%M")
+          # 更新日時の生成（JST）
+          jst = timezone(timedelta(hours=9))
+          now_str = datetime.now(jst).strftime("%Y-%m-%d %H:%M")
 
           result = {
               "location": "大阪府枚方市",
