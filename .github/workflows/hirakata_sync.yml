@@ -28,7 +28,6 @@ jobs:
 
           headers = {"User-Agent": "Mozilla/5.0"}
 
-          # デフォルト値・ダミー値は一切持たせない
           wbgt_val = None
           temp_val = None
           hum_val = None
@@ -36,7 +35,6 @@ jobs:
           weather_val = "不明"
 
           # 1. 環境省サイトから枚方（62081）の公式WBGT値を取得
-          # region=07 (近畿), prefecture=62 (大阪府), point=62081 (枚方)
           try:
               moe_url = "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=07&prefecture=62&point=62081"
               req = urllib.request.Request(moe_url, headers=headers)
@@ -53,10 +51,16 @@ jobs:
               req_time = urllib.request.Request("https://www.jma.go.jp/bosai/amedas/data/latest_time.txt", headers=headers)
               with urllib.request.urlopen(req_time) as resp:
                   latest_time = resp.read().decode('utf-8').strip()
-                  # 記号を除去して先頭14桁(YYYYMMDDHHMMSS)を切り出し
-                  formatted_time = re.sub(r'[-:+T]', '', latest_time)[:14]
+                  
+                  # UTC時刻を日本時間(JST: +9h)へ変換してJSTファイル名を生成
+                  dt_utc = datetime.fromisoformat(latest_time)
+                  jst = timezone(timedelta(hours=9))
+                  dt_jst = dt_utc.astimezone(jst)
+                  formatted_time = dt_jst.strftime("%Y%m%d%H%M00")
 
               jma_url = f"https://www.jma.go.jp/bosai/amedas/data/map/{formatted_time}.json"
+              print(f"[JMA Target URL] {jma_url}")
+
               req_map = urllib.request.Request(jma_url, headers=headers)
               with urllib.request.urlopen(req_map) as resp:
                   map_data = json.loads(resp.read().decode('utf-8'))
@@ -105,8 +109,7 @@ jobs:
               level = "ほぼ安全"
 
           # JSON出力
-          jst = timezone(timedelta(hours=9))
-          now_str = datetime.now(jst).strftime("%Y-%m-%d %H:%M")
+          now_str = dt_jst.strftime("%Y-%m-%d %H:%M")
 
           result = {
               "location": "大阪府枚方市",
