@@ -2,17 +2,17 @@
   "forecasts": [
     {
       "date_str": "8/4 (火)",
-      "weather": "くもり",
-      "icon": "☁️",
-      "pop": "14",
+      "weather": "小雨",
+      "icon": "🌧️",
+      "pop": "6",
       "temp_high": "33",
       "temp_low": "25"
     },
     {
       "date_str": "8/5 (水)",
-      "weather": "晴れ",
-      "icon": "☀️",
-      "pop": "14",
+      "weather": "晴れ / くもり",
+      "icon": "⛅",
+      "pop": "12",
       "temp_high": "34",
       "temp_low": "25"
     },
@@ -20,7 +20,7 @@
       "date_str": "8/6 (木)",
       "weather": "晴れ",
       "icon": "☀️",
-      "pop": "22",
+      "pop": "37",
       "temp_high": "34",
       "temp_low": "28"
     }
