@@ -15,7 +15,7 @@ jobs:
 
       - name: Fetch Official Data and Generate JSON
         run: |
-          # 1. WBGT & アメダス実測データの取得
+          # 1. WBGT & アメダス実測データの取得（従来通り）
           python - << 'EOF'
           import urllib.request
           import gzip
@@ -134,136 +134,77 @@ jobs:
               json.dump(result, f, ensure_ascii=False, indent=2)
           EOF
 
-          # 2. 3日間天気予報データの取得（日付マッピング型）
+          # 2. 3日間天気予報（Open-Meteo API版：枚方市 緯度34.8136/経度135.6492）
           python - << 'EOF'
           import urllib.request
           import json
-          import re
           from datetime import datetime
 
-          URL = "https://www.jma.go.jp/bosai/forecast/data/forecast/270000.json"
+          # 枚方市の座標で3日間（今日・明日・明後日）の予報を取得
+          URL = "https://api.open-meteo.com/v1/forecast?latitude=34.8136&longitude=135.6492&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FTokyo&forecast_days=3"
           WEEK_DAYS = ["月", "火", "水", "木", "金", "土", "日"]
 
-          def get_weather_icon(text):
-              if "雨" in text and "晴" in text:
-                  return "🌦️"
-              elif "雨" in text or "雷" in text:
-                  return "🌧️"
-              elif "雪" in text:
-                  return "☃️"
-              elif "晴" in text and ("くもり" in text or "曇" in text):
-                  return "⛅"
-              elif "晴" in text:
-                  return "☀️"
-              elif "くもり" in text or "曇" in text:
-                  return "☁️"
-              return "🌤️"
-
-          def format_weather_text(raw_text):
-              for detail_key in ["所により", "雷を伴", "激しく"]:
-                  raw_text = raw_text.split(detail_key)[0]
-              
-              time_pattern = r'(朝のうち|昼過ぎ|夕方|夜のはじめ頃|夜遅く|夜|明け方|午前中|午後)(から|まで|頃)?'
-              text = re.sub(time_pattern, '', raw_text)
-              
-              text = text.replace(" ", "").replace(" ", "")
-              text = text.replace("のち", "/").replace("時々", "/").replace("一時", "/")
-              
-              parts = [p.strip() for p in text.split("/") if p.strip()]
-              if len(parts) >= 2:
-                  return f"{parts[0]} / {parts[1]}"
-              elif len(parts) == 1:
-                  return parts[0]
-              return "くもり"
+          def parse_wmo_code(code):
+              """WMO天気コードを日本のサイネージ表示用テキストと絵文字に変換"""
+              if code in [0, 1]:
+                  return "晴れ", "☀️"
+              elif code == 2:
+                  return "晴れ / くもり", "⛅"
+              elif code == 3:
+                  return "くもり", "☁️"
+              elif code in [45, 48]:
+                  return "霧", "🌫️"
+              elif code in [51, 53, 55, 56, 57]:
+                  return "小雨", "🌧️"
+              elif code in [61, 63, 65, 66, 67]:
+                  return "雨", "🌧️"
+              elif code in [80, 81, 82]:
+                  return "雨", "🌦️"
+              elif code in [71, 73, 75, 77, 85, 86]:
+                  return "雪", "☃️"
+              elif code in [95, 96, 99]:
+                  return "雷雨", "⛈️"
+              return "晴れ", "☀️"
 
           try:
               req = urllib.request.Request(URL, headers={"User-Agent": "Mozilla/5.0"})
               with urllib.request.urlopen(req, timeout=10) as resp:
                   data = json.loads(resp.read().decode("utf-8"))
 
-              # 日付ごとの気温辞書を作成 { "YYYY-MM-DD": {"high": ..., "low": ...} }
-              temp_dict = {}
-
-              # A. 短期予報 (data[0]) から気温を抽出
-              try:
-                  if len(data[0]["timeSeries"]) > 2:
-                      ts_temp = data[0]["timeSeries"][2]
-                      t_defines = ts_temp.get("timeDefines", [])
-                      t_vals = ts_temp["areas"][0].get("temps", [])
-                      for t_def, val in zip(t_defines, t_vals):
-                          if val == "" or val is None:
-                              continue
-                          dt = datetime.fromisoformat(t_def)
-                          d_str = dt.strftime("%Y-%m-%d")
-                          if d_str not in temp_dict:
-                              temp_dict[d_str] = {"high": None, "low": None}
-                          
-                          # 09:00以前のデータは最低気温、それ以外は最高気温として割り当て
-                          if dt.hour < 9:
-                              temp_dict[d_str]["low"] = str(val)
-                          else:
-                              temp_dict[d_str]["high"] = str(val)
-              except Exception as e:
-                  print(f"[Short Temp Parse Note] {e}")
-
-              # B. 週間予報 (data[1]) から明後日以降の最高・最低気温を補完
-              try:
-                  if len(data) > 1 and "timeSeries" in data[1]:
-                      w_ts_temp = data[1]["timeSeries"][1]
-                      w_defines = w_ts_temp.get("timeDefines", [])
-                      w_area = w_ts_temp["areas"][0]
-                      w_mins = w_area.get("tempMin", [])
-                      w_maxs = w_area.get("tempMax", [])
-
-                      for idx, w_def in enumerate(w_defines):
-                          d_str = w_def.split("T")[0]
-                          if d_str not in temp_dict:
-                              temp_dict[d_str] = {"high": None, "low": None}
-                          
-                          if idx < len(w_mins) and w_mins[idx] != "":
-                              temp_dict[d_str]["low"] = str(w_mins[idx])
-                          if idx < len(w_maxs) and w_maxs[idx] != "":
-                              temp_dict[d_str]["high"] = str(w_maxs[idx])
-              except Exception as e:
-                  print(f"[Weekly Temp Parse Note] {e}")
-
-              # C. 天気予報・降水確率データの組み立て
-              ts_weather = data[0]["timeSeries"][0]
-              dates_raw = ts_weather["timeDefines"]
-              weathers_raw = ts_weather["areas"][0]["weathers"]
-              pops_raw = data[0]["timeSeries"][1]["areas"][0]["pops"] if len(data[0]["timeSeries"]) > 1 else []
+              daily = data.get("daily", {})
+              times = daily.get("time", [])
+              codes = daily.get("weather_code", [])
+              t_maxs = daily.get("temperature_2m_max", [])
+              t_mins = daily.get("temperature_2m_min", [])
+              pops = daily.get("precipitation_probability_max", [])
 
               forecasts = []
-              for i in range(min(3, len(dates_raw))):
-                  dt = datetime.fromisoformat(dates_raw[i])
-                  date_iso = dt.strftime("%Y-%m-%d")
+              for i in range(min(3, len(times))):
+                  dt = datetime.strptime(times[i], "%Y-%m-%d")
                   date_str = f"{dt.month}/{dt.day} ({WEEK_DAYS[dt.weekday()]})"
                   
-                  raw_w = weathers_raw[i]
-                  weather_text = format_weather_text(raw_w)
-                  icon = get_weather_icon(raw_w)
-                  pop = pops_raw[i] if i < len(pops_raw) else "0"
-
-                  # 日付マッチングで最高・最低気温を取得
-                  day_temp = temp_dict.get(date_iso, {})
-                  temp_high = day_temp.get("high")
-                  temp_low = day_temp.get("low")
+                  weather_text, icon = parse_wmo_code(codes[i] if i < len(codes) else 0)
+                  
+                  # 気温を整数で四捨五入（四捨五入して文字列化）
+                  t_max = str(round(t_maxs[i])) if i < len(t_maxs) and t_maxs[i] is not None else None
+                  t_min = str(round(t_mins[i])) if i < len(t_mins) and t_mins[i] is not None else None
+                  pop = str(pops[i]) if i < len(pops) and pops[i] is not None else "0"
 
                   forecasts.append({
                       "date_str": date_str,
                       "weather": weather_text,
                       "icon": icon,
                       "pop": pop,
-                      "temp_high": temp_high,
-                      "temp_low": temp_low
+                      "temp_high": t_max,
+                      "temp_low": t_min
                   })
 
               result = {"forecasts": forecasts}
               with open("weather_3days.json", "w", encoding="utf-8") as f:
                   json.dump(result, f, ensure_ascii=False, indent=2)
-              print("Successfully generated weather_3days.json")
+              print("Successfully generated weather_3days.json via Open-Meteo")
           except Exception as e:
-              print(f"[Forecast Error] {e}")
+              print(f"[Open-Meteo Forecast Error] {e}")
           EOF
 
       - name: Commit and Push if changed
@@ -272,6 +213,6 @@ jobs:
           git config --local user.name "GitHub Action"
           git add hirakata_wbgt.json weather_3days.json
           if ! git diff --cached --quiet; then
-            git commit -m "Update WBGT and 3-day weather forecast data"
+            git commit -m "Update WBGT and 3-day weather forecast data via Open-Meteo"
             git push
           fi
