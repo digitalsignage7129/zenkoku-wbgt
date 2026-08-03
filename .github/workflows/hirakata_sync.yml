@@ -24,9 +24,12 @@ jobs:
           import urllib.request
           import json
           import re
+          import html
           from datetime import datetime, timezone, timedelta
 
-          headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+          headers = {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+          }
 
           wbgt_val = None
           temp_val = None
@@ -44,23 +47,32 @@ jobs:
           for url in moe_urls:
               try:
                   req = urllib.request.Request(url, headers=headers)
-                  with urllib.request.urlopen(req, timeout=10) as resp:
-                      html = resp.read().decode('utf-8', errors='ignore')
+                  with urllib.request.urlopen(req, timeout=15) as resp:
+                      raw_html = resp.read().decode('utf-8', errors='ignore')
                       
-                      # HTMLタグを全て除去してテキストのみにする
-                      text_only = re.sub(r'<[^>]+>', ' ', html)
+                      # HTMLの実体参照(&nbsp;等)を解除し、タグを改行に変換
+                      unescaped = html.unescape(raw_html)
+                      clean_text = re.sub(r'<[^>]+>', '\n', unescaped)
                       
-                      # 時刻 (例: 14:00) の直後にある数値 (WBGT値) を抽出
-                      # 例: "14:00 28.5" や "14:00 \n 28.5"
-                      matches = re.findall(r'\b\d{1,2}:\d{2}\s+([\d\.]+)', text_only)
-                      
-                      # 数値として妥当な範囲 (10.0〜45.0) のWBGT値をフィルタリング
-                      valid_wbgts = [m for m in matches if 10.0 <= float(m) <= 45.0]
-                      
-                      if valid_wbgts:
-                          wbgt_val = valid_wbgts[-1] # 最新時刻の値
+                      # 空白・改行で分解して全トークン化
+                      tokens = [t.strip() for t in clean_text.split() if t.strip()]
+
+                      # 時刻 (例: "14:00") の直後にある数値 (例: "28.5") を抽出
+                      found_wbgts = []
+                      for i in range(len(tokens) - 1):
+                          if re.match(r'^\d{1,2}:\d{2}$', tokens[i]):
+                              next_tok = tokens[i + 1]
+                              # 数値(小数点付き)かつ適正範囲 (10.0〜45.0) か検証
+                              if re.match(r'^\d{1,2}\.\d$', next_tok):
+                                  val = float(next_tok)
+                                  if 10.0 <= val <= 45.0:
+                                      found_wbgts.append(next_tok)
+
+                      if found_wbgts:
+                          wbgt_val = found_wbgts[-1] # 最新時刻の値を取得
                           print(f"[MOE Success] WBGT: {wbgt_val}")
                           break
+
               except Exception as e:
                   print(f"[MOE Warning] Failed to fetch {url}: {e}")
 
@@ -79,15 +91,12 @@ jobs:
                   map_data = json.loads(resp.read().decode('utf-8'))
                   hirakata = map_data.get("62046", {})
 
-                  # 気温
                   if "temp" in hirakata and hirakata["temp"] and hirakata["temp"][0] is not None:
                       temp_val = f"{float(hirakata['temp'][0]):.1f}"
 
-                  # 風速
                   if "wind" in hirakata and hirakata["wind"] and hirakata["wind"][0] is not None:
                       wind_val = f"{float(hirakata['wind'][0]):.1f}"
 
-                  # 天気判定（降水量 / 日照時間）
                   precip = hirakata.get("precipitation10m", [0])[0] or 0
                   sun = hirakata.get("sun10m", [0])[0] or 0
 
