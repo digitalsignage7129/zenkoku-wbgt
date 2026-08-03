@@ -1,0 +1,140 @@
+name: Hirakata Sync
+
+on:
+  schedule:
+    # 毎時 3分, 13分, 23分, 33分, 43分, 53分に自動実行
+    - cron: '3/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Fetch Official Data and Generate JSON
+        run: |
+          python - << 'EOF'
+          import urllib.request
+          import json
+          import re
+          from datetime import datetime, timezone, timedelta
+
+          headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+
+          wbgt_val = None
+          temp_val = None
+          hum_val = None
+          wind_val = None
+          weather_val = "不明"
+
+          # 1. 気象庁アメダスから枚方（62081）の最新実測データを取得
+          try:
+              req_time = urllib.request.Request("https://www.jma.go.jp/bosai/amedas/data/latest_time.txt", headers=headers)
+              with urllib.request.urlopen(req_time, timeout=10) as resp:
+                  latest_time = resp.read().decode('utf-8').strip()
+                  formatted_time = re.sub(r'[-:+T]', '', latest_time)[:14]
+
+              jma_url = f"https://www.jma.go.jp/bosai/amedas/data/map/{formatted_time}.json"
+              req_map = urllib.request.Request(jma_url, headers=headers)
+              with urllib.request.urlopen(req_map, timeout=10) as resp:
+                  map_data = json.loads(resp.read().decode('utf-8'))
+                  hirakata = map_data.get("62081", {})
+
+                  # 気温 (°C)
+                  if "temp" in hirakata and hirakata["temp"] and hirakata["temp"][0] is not None:
+                      temp_val = f"{float(hirakata['temp'][0]):.1f}"
+
+                  # 湿度 (%)
+                  if "humidity" in hirakata and hirakata["humidity"] and hirakata["humidity"][0] is not None:
+                      hum_val = str(int(hirakata["humidity"][0]))
+
+                  # 風速 (m/s)
+                  if "wind" in hirakata and hirakata["wind"] and hirakata["wind"][0] is not None:
+                      wind_val = f"{float(hirakata['wind'][0]):.1f}"
+
+                  # 実測値（10分降水量/日照時間）から天気を判定
+                  precip = hirakata.get("precipitation10m", [0])[0] or 0
+                  sun = hirakata.get("sun10m", [0])[0] or 0
+
+                  if precip >= 0.5:
+                      weather_val = "雨"
+                  elif sun >= 0.1:
+                      weather_val = "晴れ"
+                  else:
+                      weather_val = "くもり"
+
+          except Exception as e:
+              print(f"JMA fetch error: {e}")
+              raise RuntimeError(f"Failed to fetch Amedas data from JMA: {e}")
+
+          # 必須気象データの存在チェック
+          if not temp_val or not hum_val or not wind_val:
+              raise ValueError("Critical weather data is missing from Hirakata Amedas. Aborting.")
+
+          # 2. 環境省サイトから枚方（62081）の公式WBGT値を取得
+          try:
+              moe_url = "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=07&prefecture=62&point=62081"
+              req = urllib.request.Request(moe_url, headers=headers)
+              with urllib.request.urlopen(req, timeout=10) as resp:
+                  html = resp.read().decode('utf-8', errors='ignore')
+                  matches = re.findall(r'>([0-3]?[0-9]\.[0-9])<', html)
+                  if matches:
+                      wbgt_val = matches[0]
+          except Exception as e:
+              print(f"MOE fetch error: {e}")
+
+          # 3. 万が一環境省から取得できなかった場合はアメダスの気温・湿度から簡易WBGT（BOM式）を自動計算
+          if not wbgt_val:
+              print("Warning: Official WBGT could not be fetched. Calculating estimated WBGT.")
+              t = float(temp_val)
+              h = float(hum_val)
+              calc_wbgt = 0.725 * t + 0.0368 * h + 0.00115 * t * h - 0.992
+              wbgt_val = f"{calc_wbgt:.1f}"
+
+          # 警戒度の判定
+          w = float(wbgt_val)
+          if w >= 31.0:
+              level = "危険"
+          elif w >= 28.0:
+              level = "厳重警戒"
+          elif w >= 25.0:
+              level = "警戒"
+          elif w >= 21.0:
+              level = "留意"
+          else:
+              level = "ほぼ安全"
+
+          # JSON出力
+          jst = timezone(timedelta(hours=9))
+          now_str = datetime.now(jst).strftime("%Y-%m-%d %H:%M")
+
+          result = {
+              "location": "大阪府枚方市",
+              "wbgt": str(wbgt_val),
+              "level": level,
+              "temperature": str(temp_val),
+              "humidity": str(hum_val),
+              "wind_speed": str(wind_val),
+              "weather": str(weather_val),
+              "updated_at": now_str
+          }
+
+          with open("hirakata_wbgt.json", "w", encoding="utf-8") as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+
+          print("Generated JSON successfully:", json.dumps(result, ensure_ascii=False))
+          EOF
+
+      - name: Commit and Push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add hirakata_wbgt.json
+          git diff --cached --quiet || (git commit -m "Update Hirakata WBGT & Weather Data" && git push)
