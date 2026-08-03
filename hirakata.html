@@ -140,11 +140,11 @@
       letter-spacing: 0.05em;
     }
 
-    /* 3. サブ気象情報 4列カード (高さ 200px) */
+    /* 3. サブ気象情報 3列カード (高さ 200px) */
     .metrics-grid {
       height: 200px;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr); /* 4列から3列に変更 */
       gap: 12px;
     }
 
@@ -160,14 +160,14 @@
     }
 
     .metric-label {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 900;
       color: #00e5ff;
       margin-bottom: 6px;
     }
 
     .metric-value {
-      font-size: 38px;
+      font-size: 42px;
       font-weight: 900;
       color: #ffffff;
       font-variant-numeric: tabular-nums;
@@ -176,7 +176,7 @@
     }
 
     .metric-unit {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 900;
       color: #cccccc;
       margin-left: 2px;
@@ -217,16 +217,11 @@
       </div>
     </div>
 
-    <!-- 4項目気象データ -->
+    <!-- 3項目気象データ -->
     <div class="metrics-grid">
       <div class="metric-card">
         <div class="metric-label">気温</div>
         <div class="metric-value"><span id="temp">--.-</span><span class="metric-unit">℃</span></div>
-      </div>
-
-      <div class="metric-card">
-        <div class="metric-label">湿度</div>
-        <div class="metric-value"><span id="humidity">--</span><span class="metric-unit">%</span></div>
       </div>
 
       <div class="metric-card">
@@ -236,7 +231,7 @@
 
       <div class="metric-card">
         <div class="metric-label">天気</div>
-        <div class="metric-value" style="font-size: 30px;" id="weather">--</div>
+        <div class="metric-value" style="font-size: 34px;" id="weather">--</div>
       </div>
     </div>
 
@@ -280,7 +275,6 @@
         document.getElementById('location').textContent = data.location || '大阪府枚方市';
         document.getElementById('wbgt').textContent = data.wbgt;
         document.getElementById('temp').textContent = data.temperature;
-        document.getElementById('humidity').textContent = data.humidity;
         document.getElementById('wind').textContent = data.wind_speed;
         document.getElementById('weather').textContent = data.weather || '不明';
 
