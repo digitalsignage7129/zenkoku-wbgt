@@ -26,71 +26,53 @@ jobs:
           import re
           from datetime import datetime, timezone, timedelta
 
-          headers = {"User-Agent": "Mozilla/5.0"}
+          headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
 
           wbgt_val = None
           temp_val = None
-          hum_val = None
           wind_val = None
           weather_val = "晴れ"
 
-          # 1. 環境省サイト（枚方: 62046）から WBGT・気温・湿度・風速 を柔軟に取得
+          # ----------------------------------------------------
+          # 1. WBGT値：環境省（枚方: 62046）から取得
+          # ----------------------------------------------------
           try:
-              urls = [
-                  "https://www.wbgt.env.go.jp/graph_ref_td.php?region=07&prefecture=62&point=62046",
-                  "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=07&prefecture=62&point=62046"
-              ]
-              
-              html = ""
-              for target_url in urls:
-                  try:
-                      req = urllib.request.Request(target_url, headers=headers)
-                      with urllib.request.urlopen(req) as resp:
-                          html = resp.read().decode('utf-8', errors='ignore')
-                          if html:
-                              break
-                  except Exception as err:
-                      print(f"Failed to fetch {target_url}: {err}")
-
-              if html:
-                  # <td/th> タグ区切りでトークン化（タグ内の属性や入れ子要素を無視）
-                  cleaned_html = re.sub(r'<t[dh][^>]*>', '|', html, flags=re.IGNORECASE)
-                  cleaned_html = re.sub(r'<[^>]+>', ' ', cleaned_html)
-                  tokens = [t.strip() for t in cleaned_html.split('|') if t.strip()]
-
-                  # 時刻 (HH:MM) の直後にある [WBGT, 気温, 湿度, 風速] を検索
-                  valid_rows = []
-                  for i in range(len(tokens) - 4):
-                      if re.match(r'^\d{1,2}:\d{2}$', tokens[i]):
-                          w, t, h, v = tokens[i+1], tokens[i+2], tokens[i+3], tokens[i+4]
-                          # 数値フォーマットチェック (例: 31.2, 35.0, 65, 2.1)
-                          if (re.match(r'^\d{1,2}\.\d$', w) and 
-                              re.match(r'^\d{1,2}\.\d$', t) and 
-                              re.match(r'^\d{1,3}$', h) and 
-                              re.match(r'^\d{1,2}\.\d$', v)):
-                              valid_rows.append((w, t, h, v))
-
-                  if valid_rows:
-                      # 最も新しい時刻のデータを採用
-                      latest = valid_rows[-1]
-                      wbgt_val, temp_val, hum_val, wind_val = latest[0], latest[1], latest[2], latest[3]
-
+              moe_url = "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=07&prefecture=62&point=62046"
+              req = urllib.request.Request(moe_url, headers=headers)
+              with urllib.request.urlopen(req, timeout=10) as resp:
+                  html = resp.read().decode('utf-8', errors='ignore')
+                  # 時刻セル直後のWBGT数値(例: 28.5)を抽出
+                  matches = re.findall(r'<td>\d{1,2}:\d{2}</td>\s*<td>([\d\.]+)</td>', html)
+                  if matches:
+                      wbgt_val = matches[-1] # 最新時刻の値
+                      print(f"[MOE] WBGT: {wbgt_val}")
           except Exception as e:
-              print(f"MOE fetch error: {e}")
+              print(f"[MOE Error] {e}")
 
-          # 2. 気象庁アメダスから枚方（62046）の降水・日照データのみ取得して天気を判定
+          # ----------------------------------------------------
+          # 2. 気温・風速・天気：気象庁アメダス（枚方: 62046）から取得
+          # ----------------------------------------------------
           try:
               req_time = urllib.request.Request("https://www.jma.go.jp/bosai/amedas/data/latest_time.txt", headers=headers)
-              with urllib.request.urlopen(req_time) as resp:
+              with urllib.request.urlopen(req_time, timeout=10) as resp:
                   latest_time = resp.read().decode('utf-8').strip()
                   formatted_time = re.sub(r'[-:+T]', '', latest_time)[:14]
 
               jma_url = f"https://www.jma.go.jp/bosai/amedas/data/map/{formatted_time}.json"
               req_map = urllib.request.Request(jma_url, headers=headers)
-              with urllib.request.urlopen(req_map) as resp:
+              with urllib.request.urlopen(req_map, timeout=10) as resp:
                   map_data = json.loads(resp.read().decode('utf-8'))
                   hirakata = map_data.get("62046", {})
 
+                  # 気温
+                  if "temp" in hirakata and hirakata["temp"] and hirakata["temp"][0] is not None:
+                      temp_val = f"{float(hirakata['temp'][0]):.1f}"
+
+                  # 風速
+                  if "wind" in hirakata and hirakata["wind"] and hirakata["wind"][0] is not None:
+                      wind_val = f"{float(hirakata['wind'][0]):.1f}"
+
+                  # 天気判定（降水量 / 日照時間）
                   precip = hirakata.get("precipitation10m", [0])[0] or 0
                   sun = hirakata.get("sun10m", [0])[0] or 0
 
@@ -100,14 +82,21 @@ jobs:
                       weather_val = "晴れ"
                   else:
                       weather_val = "くもり"
+
+                  print(f"[JMA] Temp: {temp_val}℃, Wind: {wind_val}m/s, Weather: {weather_val}")
+
           except Exception as e:
-              print(f"JMA weather error: {e}")
+              print(f"[JMA Error] {e}")
 
-          # 必須データチェック
-          if not wbgt_val or not temp_val or not hum_val or not wind_val:
-              raise ValueError(f"Critical data missing: WBGT={wbgt_val}, Temp={temp_val}, Hum={hum_val}, Wind={wind_val}")
+          # エラーチェック
+          if not wbgt_val:
+              raise ValueError("WBGT data could not be retrieved from MOE.")
+          if not temp_val or not wind_val:
+              raise ValueError("Weather data could not be retrieved from JMA Amedas.")
 
-          # 警戒度の判定
+          # ----------------------------------------------------
+          # 3. 警戒度判定とJSON出力
+          # ----------------------------------------------------
           w = float(wbgt_val)
           if w >= 31.0:
               level = "危険"
@@ -120,7 +109,6 @@ jobs:
           else:
               level = "ほぼ安全"
 
-          # 更新日時の生成（JST）
           jst = timezone(timedelta(hours=9))
           now_str = datetime.now(jst).strftime("%Y-%m-%d %H:%M")
 
@@ -129,7 +117,6 @@ jobs:
               "wbgt": str(wbgt_val),
               "level": level,
               "temperature": str(temp_val),
-              "humidity": str(hum_val),
               "wind_speed": str(wind_val),
               "weather": str(weather_val),
               "updated_at": now_str
@@ -138,7 +125,8 @@ jobs:
           with open("hirakata_wbgt.json", "w", encoding="utf-8") as f:
               json.dump(result, f, ensure_ascii=False, indent=2)
 
-          print("Generated JSON:", json.dumps(result, ensure_ascii=False))
+          print("Generated JSON successfully:")
+          print(json.dumps(result, ensure_ascii=False, indent=2))
           EOF
 
       - name: Commit and Push if changed
