@@ -34,76 +34,77 @@ jobs:
           wind_val = None
           weather_val = "晴れ"
 
-          # 1. Open-Meteo APIから枚方市（北緯34.8136, 東経135.6530）の日本時間(JST)最新気象データを取得
+          # 1. 気象庁(JMA) アメダス枚方(62081)の10分毎【生データ】を取得
           try:
-              lat = 34.8136
-              lon = 135.6530
-              openmeteo_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&wind_speed_unit=ms&timezone=Asia%2FTokyo"
-              
-              req_om = urllib.request.Request(openmeteo_url, headers=headers)
-              with urllib.request.urlopen(req_om, timeout=10) as resp:
-                  om_data = json.loads(resp.read().decode('utf-8'))
-                  current = om_data.get("current", {})
+              req_time = urllib.request.Request("https://www.jma.go.jp/bosai/amedas/data/latest_time.txt", headers=headers)
+              with urllib.request.urlopen(req_time, timeout=10) as resp:
+                  latest_time_str = resp.read().decode('utf-8').strip()
+                  formatted_time = re.sub(r'[-:+T]', '', latest_time_str)[:14]
 
-                  if "temperature_2m" in current and current["temperature_2m"] is not None:
-                      temp_val = f"{float(current['temperature_2m']):.1f}"
+              jma_url = f"https://www.jma.go.jp/bosai/amedas/data/map/{formatted_time}.json"
+              req_map = urllib.request.Request(jma_url, headers=headers)
+              with urllib.request.urlopen(req_map, timeout=10) as resp:
+                  map_data = json.loads(resp.read().decode('utf-8'))
+                  hirakata = map_data.get("62081", {})
 
-                  if "relative_humidity_2m" in current and current["relative_humidity_2m"] is not None:
-                      hum_val = str(int(current["relative_humidity_2m"]))
+                  # 気温 (°C) - アメダス実測値
+                  if "temp" in hirakata and hirakata["temp"] and hirakata["temp"][0] is not None:
+                      temp_val = f"{float(hirakata['temp'][0]):.1f}"
 
-                  if "wind_speed_10m" in current and current["wind_speed_10m"] is not None:
-                      wind_val = f"{float(current['wind_speed_10m']):.1f}"
+                  # 湿度 (%) - アメダス実測値
+                  if "humidity" in hirakata and hirakata["humidity"] and hirakata["humidity"][0] is not None:
+                      hum_val = str(int(hirakata["humidity"][0]))
 
-                  # 天気コード判定
-                  if "weather_code" in current and current["weather_code"] is not None:
-                      code = int(current["weather_code"])
-                      if code in [0, 1]:
-                          weather_val = "晴れ"
-                      elif code in [2, 3]:
-                          weather_val = "くもり"
-                      elif code in [45, 48]:
-                          weather_val = "霧"
-                      elif code in [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82]:
-                          weather_val = "雨"
-                      elif code in [95, 96, 99]:
-                          weather_val = "雷雨"
-                      else:
-                          weather_val = "くもり"
+                  # 風速 (m/s) - アメダス実測値 (index 1が風速)
+                  if "wind" in hirakata and hirakata["wind"] and len(hirakata["wind"]) > 1 and hirakata["wind"][1] is not None:
+                      wind_val = f"{float(hirakata['wind'][1]):.1f}"
 
           except Exception as e:
-              print(f"Open-Meteo fetch error: {e}")
+              print(f"JMA Amedas fetch error: {e}")
 
-          # 2. 環境省HPから枚方（62081）の最新WBGT値（テーブルの最新行）を抽出
+          # 2. 気象庁(JMA) 天気予報APIから大阪府(270000)の公式天気を取得
+          try:
+              jma_fc_url = "https://www.jma.go.jp/bosai/forecast/data/forecast/270000.json"
+              req_fc = urllib.request.Request(jma_fc_url, headers=headers)
+              with urllib.request.urlopen(req_fc, timeout=10) as resp:
+                  fc_data = json.loads(resp.read().decode('utf-8'))
+                  weathers = fc_data[0]["timeSeries"][0]["areas"][0]["weathers"]
+                  if weathers:
+                      raw_w = weathers[0].replace(" ", "")
+                      if "雨" in raw_w and "晴" in raw_w:
+                          weather_val = "晴のち雨" if raw_w.find("晴") < raw_w.find("雨") else "雨のち晴"
+                      elif "雷" in raw_w:
+                          weather_val = "雷雨"
+                      elif "雨" in raw_w:
+                          weather_val = "雨"
+                      elif "晴" in raw_w:
+                          weather_val = "晴れ"
+                      elif "くもり" in raw_w or "曇" in raw_w:
+                          weather_val = "くもり"
+          except Exception as e:
+              print(f"JMA Forecast fetch error: {e}")
+
+          # 3. 環境省HPから「現在の暑さ指数」バナーの公式WBGT値をピンポイント取得
           try:
               moe_url = "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=07&prefecture=62&point=62081"
               req = urllib.request.Request(moe_url, headers=headers)
               with urllib.request.urlopen(req, timeout=10) as resp:
                   html = resp.read().decode('utf-8', errors='ignore')
                   
-                  # テーブルの各行 <tr> を抽出
-                  rows = re.findall(r'<tr[^>]*>(.*?)</tr>', html, re.DOTALL | re.IGNORECASE)
-                  
-                  # 下（最新時間帯）から逆順に解析して、最初にマッチした最新のWBGT数値を取得
-                  for row in reversed(rows):
-                      # <td>タグ内のテキストを取得
-                      tds = re.findall(r'<td[^>]*>(.*?)</td>', row, re.DOTALL | re.IGNORECASE)
-                      clean_tds = [re.sub(r'<[^>]+>', '', td).strip() for td in tds]
-                      
-                      for text in clean_tds:
-                          # 10.0 ～ 39.9 の数値パターン（最新発表の数値）
-                          m = re.match(r'^([0-3]?[0-9]\.[0-9])$', text)
-                          if m:
-                              wbgt_val = m.group(1)
-                              break
-                      if wbgt_val:
-                          break
+                  # 「現在の暑さ指数」の直近にある数値（例: 30.5）をピンポイント抽出
+                  match = re.search(r'現在の暑さ指数[\s\S]{0,300}?([1-3]?[0-9]\.[0-9])', html)
+                  if match:
+                      wbgt_val = match.group(1)
+                  else:
+                      matches = re.findall(r'>([0-3]?[0-9]\.[0-9])<', html)
+                      if matches:
+                          wbgt_val = matches[0]
 
           except Exception as e:
               print(f"MOE fetch error: {e}")
 
-          # 3. 万が一WBGTを取得できなかった場合は気温・湿度から簡易WBGT（BOM式）で算出
+          # 万が一WBGTが取得できなかった場合の簡易計算フォールバック
           if not wbgt_val and temp_val and hum_val:
-              print("Warning: Official WBGT could not be fetched. Calculating estimated WBGT.")
               t = float(temp_val)
               h = float(hum_val)
               calc_wbgt = 0.725 * t + 0.0368 * h + 0.00115 * t * h - 0.992
