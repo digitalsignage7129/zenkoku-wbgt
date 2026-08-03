@@ -134,7 +134,7 @@ jobs:
               json.dump(result, f, ensure_ascii=False, indent=2)
           EOF
 
-          # 2. 3日間天気予報データの取得（気温完全補完 ＋ アイコン修正版）
+          # 2. 3日間天気予報データの取得（日付マッピング型）
           python - << 'EOF'
           import urllib.request
           import json
@@ -181,29 +181,57 @@ jobs:
               with urllib.request.urlopen(req, timeout=10) as resp:
                   data = json.loads(resp.read().decode("utf-8"))
 
-              # 1. 週間予報（data[1]）から日付ごとの気温データを抽出してマップ化
-              weekly_temp_map = {}
-              if len(data) > 1 and "timeSeries" in data[1]:
-                  try:
-                      w_times = data[1]["timeSeries"][1]["timeDefines"]
-                      w_area = data[1]["timeSeries"][1]["areas"][0]
+              # 日付ごとの気温辞書を作成 { "YYYY-MM-DD": {"high": ..., "low": ...} }
+              temp_dict = {}
+
+              # A. 短期予報 (data[0]) から気温を抽出
+              try:
+                  if len(data[0]["timeSeries"]) > 2:
+                      ts_temp = data[0]["timeSeries"][2]
+                      t_defines = ts_temp.get("timeDefines", [])
+                      t_vals = ts_temp["areas"][0].get("temps", [])
+                      for t_def, val in zip(t_defines, t_vals):
+                          if val == "" or val is None:
+                              continue
+                          dt = datetime.fromisoformat(t_def)
+                          d_str = dt.strftime("%Y-%m-%d")
+                          if d_str not in temp_dict:
+                              temp_dict[d_str] = {"high": None, "low": None}
+                          
+                          # 09:00以前のデータは最低気温、それ以外は最高気温として割り当て
+                          if dt.hour < 9:
+                              temp_dict[d_str]["low"] = str(val)
+                          else:
+                              temp_dict[d_str]["high"] = str(val)
+              except Exception as e:
+                  print(f"[Short Temp Parse Note] {e}")
+
+              # B. 週間予報 (data[1]) から明後日以降の最高・最低気温を補完
+              try:
+                  if len(data) > 1 and "timeSeries" in data[1]:
+                      w_ts_temp = data[1]["timeSeries"][1]
+                      w_defines = w_ts_temp.get("timeDefines", [])
+                      w_area = w_ts_temp["areas"][0]
                       w_mins = w_area.get("tempMin", [])
                       w_maxs = w_area.get("tempMax", [])
 
-                      for idx, t_str in enumerate(w_times):
-                          d_key = t_str.split("T")[0]
-                          t_min = w_mins[idx] if idx < len(w_mins) and w_mins[idx] != "" else None
-                          t_max = w_maxs[idx] if idx < len(w_maxs) and w_maxs[idx] != "" else None
-                          weekly_temp_map[d_key] = {"min": t_min, "max": t_max}
-                  except Exception as ex:
-                      print(f"[Weekly Temp Parse Warning] {ex}")
+                      for idx, w_def in enumerate(w_defines):
+                          d_str = w_def.split("T")[0]
+                          if d_str not in temp_dict:
+                              temp_dict[d_str] = {"high": None, "low": None}
+                          
+                          if idx < len(w_mins) and w_mins[idx] != "":
+                              temp_dict[d_str]["low"] = str(w_mins[idx])
+                          if idx < len(w_maxs) and w_maxs[idx] != "":
+                              temp_dict[d_str]["high"] = str(w_maxs[idx])
+              except Exception as e:
+                  print(f"[Weekly Temp Parse Note] {e}")
 
-              # 2. 短期予報（data[0]）のデータ抽出
-              time_series = data[0]["timeSeries"]
-              dates_raw = time_series[0]["timeDefines"]
-              weathers_raw = time_series[0]["areas"][0]["weathers"]
-              pops_raw = time_series[1]["areas"][0]["pops"]
-              temps_raw = time_series[2]["areas"][0]["temps"] if len(time_series) > 2 else []
+              # C. 天気予報・降水確率データの組み立て
+              ts_weather = data[0]["timeSeries"][0]
+              dates_raw = ts_weather["timeDefines"]
+              weathers_raw = ts_weather["areas"][0]["weathers"]
+              pops_raw = data[0]["timeSeries"][1]["areas"][0]["pops"] if len(data[0]["timeSeries"]) > 1 else []
 
               forecasts = []
               for i in range(min(3, len(dates_raw))):
@@ -215,23 +243,11 @@ jobs:
                   weather_text = format_weather_text(raw_w)
                   icon = get_weather_icon(raw_w)
                   pop = pops_raw[i] if i < len(pops_raw) else "0"
-                  
-                  temp_low = None
-                  temp_high = None
-                  
-                  # 短期予報APIからの気温抽出
-                  if i == 0 and len(temps_raw) >= 2:
-                      temp_high = temps_raw[1]
-                  elif i == 1 and len(temps_raw) >= 4:
-                      temp_low = temps_raw[2]
-                      temp_high = temps_raw[3]
 
-                  # 不足分を週間予報マップから補完
-                  if date_iso in weekly_temp_map:
-                      if temp_high is None:
-                          temp_high = weekly_temp_map[date_iso]["max"]
-                      if temp_low is None:
-                          temp_low = weekly_temp_map[date_iso]["min"]
+                  # 日付マッチングで最高・最低気温を取得
+                  day_temp = temp_dict.get(date_iso, {})
+                  temp_high = day_temp.get("high")
+                  temp_low = day_temp.get("low")
 
                   forecasts.append({
                       "date_str": date_str,
