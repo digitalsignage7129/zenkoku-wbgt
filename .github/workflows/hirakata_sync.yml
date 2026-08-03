@@ -34,9 +34,9 @@ jobs:
           wind_val = None
           weather_val = "不明"
 
-          # 1. 環境省サイトから枚方（地点コード: 62031）の公式WBGT値を取得
+          # 1. 環境省サイトから枚方（地点コード: 62046）の公式WBGT値を取得
           try:
-              moe_url = "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=07&prefecture=62&point=62031"
+              moe_url = "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=07&prefecture=62&point=62046"
               req = urllib.request.Request(moe_url, headers=headers)
               with urllib.request.urlopen(req) as resp:
                   html = resp.read().decode('utf-8', errors='ignore')
@@ -46,21 +46,27 @@ jobs:
           except Exception as e:
               print(f"MOE fetch error: {e}")
 
-          # 2. 気象庁アメダスから枚方（観測所コード: 62031）の気温・湿度・風速・天気を取得
+          # 2. 気象庁アメダスから枚方（観測所コード: 62046）の気温・湿度・風速・天気を取得
           try:
               req_time = urllib.request.Request("https://www.jma.go.jp/bosai/amedas/data/latest_time.txt", headers=headers)
               with urllib.request.urlopen(req_time) as resp:
                   latest_time = resp.read().decode('utf-8').strip()
-                  # JST時刻(2026-08-03T13:30:00+09:00)から記号を消して先頭14桁を取得
-                  formatted_time = re.sub(r'[-:+T]', '', latest_time)[:14]
+                  
+                  # ISO形式の時刻文字列からJST時刻のファイル名を生成
+                  dt_utc = datetime.fromisoformat(latest_time)
+                  jst = timezone(timedelta(hours=9))
+                  dt_jst = dt_utc.astimezone(jst)
+                  formatted_time = dt_jst.strftime("%Y%m%d%H%M00")
 
               jma_url = f"https://www.jma.go.jp/bosai/amedas/data/map/{formatted_time}.json"
+              print(f"[JMA] Target URL: {jma_url}")
+
               req_map = urllib.request.Request(jma_url, headers=headers)
               with urllib.request.urlopen(req_map) as resp:
                   map_data = json.loads(resp.read().decode('utf-8'))
                   
-                  # 気象庁のアメダス枚方コード (62031)
-                  hirakata = map_data.get("62031", {})
+                  # アメダス枚方コード: 62046
+                  hirakata = map_data.get("62046", {})
 
                   if "temp" in hirakata and hirakata["temp"] and hirakata["temp"][0] is not None:
                       temp_val = f"{float(hirakata['temp'][0]):.1f}"
@@ -69,7 +75,7 @@ jobs:
                   if "wind" in hirakata and hirakata["wind"] and hirakata["wind"][0] is not None:
                       wind_val = f"{float(hirakata['wind'][0]):.1f}"
 
-                  # 実測値から天気を判定（10分降水量 / 10分日照時間）
+                  # 天気判定（降水量 / 日照時間）
                   precip = hirakata.get("precipitation10m", [0])[0] or 0
                   sun = hirakata.get("sun10m", [0])[0] or 0
 
@@ -105,8 +111,7 @@ jobs:
               level = "ほぼ安全"
 
           # JSON出力
-          jst = timezone(timedelta(hours=9))
-          now_str = datetime.now(jst).strftime("%Y-%m-%d %H:%M")
+          now_str = dt_jst.strftime("%Y-%m-%d %H:%M")
 
           result = {
               "location": "大阪府枚方市",
@@ -130,4 +135,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add hirakata_wbgt.json
-          git diff --cached --quiet || (git commit -m "Update Hirakata WBGT & Weather Data" && git push)
+          if ! git diff --cached --quiet; then
+            git commit -m "Update Hirakata WBGT & Weather Data"
+            git push
+          fi
