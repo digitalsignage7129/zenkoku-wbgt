@@ -139,7 +139,7 @@ jobs:
               json.dump(result, f, ensure_ascii=False, indent=2)
           EOF
 
-          # 2. 3日間天気予報データの取得
+          # 2. 3日間天気予報データの取得（修正版）
           python - << 'EOF'
           import urllib.request
           import json
@@ -149,19 +149,29 @@ jobs:
           WEEK_DAYS = ["月", "火", "水", "木", "金", "土", "日"]
 
           def get_weather_icon(text):
-              if "晴" in text and "雨" in text:
+              if "雨" in text and "晴" in text:
                   return "🌦️"
+              elif "雨" in text or "雷" in text:
+                  return "🌧️"
+              elif "雪" in text:
+                  return "☃️"
               elif "晴" in text and "曇" in text:
                   return "⛅"
               elif "晴" in text:
                   return "☀️"
-              elif "雨" in text:
-                  return "🌧️"
-              elif "雪" in text:
-                  return "☃️"
               elif "曇" in text:
                   return "☁️"
               return "🌤️"
+
+          def format_weather_text(raw_text):
+              text = raw_text.replace(" ", "").replace("時々", "/").replace("一時", "/").replace("のち", "/")
+              text = text.strip("/")
+              while "//" in text:
+                  text = text.replace("//", "/")
+              parts = text.split("/")
+              if len(parts) >= 2:
+                  return f"{parts[0]}/{parts[1]}"
+              return parts[0]
 
           try:
               req = urllib.request.Request(URL, headers={"User-Agent": "Mozilla/5.0"})
@@ -172,18 +182,16 @@ jobs:
               dates_raw = time_series[0]["timeDefines"]
               weathers_raw = time_series[0]["areas"][0]["weathers"]
               pops_raw = time_series[1]["areas"][0]["pops"]
-              temps_raw = time_series[2]["areas"][0]["temps"]
+              temps_raw = time_series[2]["areas"][0]["temps"] if len(time_series) > 2 else []
 
               forecasts = []
               for i in range(min(3, len(dates_raw))):
                   dt = datetime.fromisoformat(dates_raw[i])
                   date_str = f"{dt.month}/{dt.day} ({WEEK_DAYS[dt.weekday()]})"
                   
-                  weather_text = weathers_raw[i].replace(" ", "").replace("のち", "/").replace("時々", "/").replace("一時", "/")
-                  if len(weather_text) > 5:
-                      weather_text = weather_text[:5]
-
-                  icon = get_weather_icon(weathers_raw[i])
+                  raw_w = weathers_raw[i]
+                  weather_text = format_weather_text(raw_w)
+                  icon = get_weather_icon(raw_w)
                   pop = pops_raw[i] if i < len(pops_raw) else "0"
                   
                   temp_low = None
