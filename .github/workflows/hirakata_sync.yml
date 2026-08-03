@@ -22,13 +22,16 @@ jobs:
         run: |
           python - << 'EOF'
           import urllib.request
+          import gzip
           import json
           import re
           import html
           from datetime import datetime, timezone, timedelta
 
           headers = {
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+              "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+              "Accept-Encoding": "gzip, deflate"
           }
 
           wbgt_val = None
@@ -48,29 +51,48 @@ jobs:
               try:
                   req = urllib.request.Request(url, headers=headers)
                   with urllib.request.urlopen(req, timeout=15) as resp:
-                      raw_html = resp.read().decode('utf-8', errors='ignore')
+                      raw_data = resp.read()
                       
-                      # HTMLの実体参照(&nbsp;等)を解除し、タグを改行に変換
-                      unescaped = html.unescape(raw_html)
-                      clean_text = re.sub(r'<[^>]+>', '\n', unescaped)
-                      
-                      # 空白・改行で分解して全トークン化
-                      tokens = [t.strip() for t in clean_text.split() if t.strip()]
+                      # Gzip解凍処理
+                      if resp.headers.get('Content-Encoding') == 'gzip' or raw_data[:2] == b'\x1f\x8b':
+                          raw_data = gzip.decompress(raw_data)
 
-                      # 時刻 (例: "14:00") の直後にある数値 (例: "28.5") を抽出
-                      found_wbgts = []
+                      raw_text = raw_data.decode('utf-8', errors='ignore')
+
+                      # 【パターンA】時刻(HH:MM)に近接する小数値を抽出 (10.0〜45.0の範囲)
+                      time_matches = re.findall(r'\b\d{1,2}:\d{2}\b[\s\S]{1,150}?\b(\d{1,2}\.\d)\b', raw_text)
+                      valid_a = [m for m in time_matches if 10.0 <= float(m) <= 45.0]
+                      if valid_a:
+                          wbgt_val = valid_a[-1]
+                          print(f"[MOE Pattern A Success] WBGT: {wbgt_val}")
+                          break
+
+                      # 【パターンB】HTMLタグを除去してトークン解析
+                      unescaped = html.unescape(raw_text)
+                      clean_text = re.sub(r'<[^>]+>', ' ', unescaped)
+                      tokens = clean_text.split()
+
+                      found_b = []
                       for i in range(len(tokens) - 1):
                           if re.match(r'^\d{1,2}:\d{2}$', tokens[i]):
-                              next_tok = tokens[i + 1]
-                              # 数値(小数点付き)かつ適正範囲 (10.0〜45.0) か検証
-                              if re.match(r'^\d{1,2}\.\d$', next_tok):
-                                  val = float(next_tok)
-                                  if 10.0 <= val <= 45.0:
-                                      found_wbgts.append(next_tok)
+                              # 時刻トークンの後ろ3個まで検索
+                              for j in range(1, 4):
+                                  if i + j < len(tokens):
+                                      tok = tokens[i + j]
+                                      if re.match(r'^\d{1,2}\.\d$', tok) and 10.0 <= float(tok) <= 45.0:
+                                          found_b.append(tok)
+                                          break
+                      if found_b:
+                          wbgt_val = found_b[-1]
+                          print(f"[MOE Pattern B Success] WBGT: {wbgt_val}")
+                          break
 
-                      if found_wbgts:
-                          wbgt_val = found_wbgts[-1] # 最新時刻の値を取得
-                          print(f"[MOE Success] WBGT: {wbgt_val}")
+                      # 【パターンC】JS配列やテキスト内の浮動小数点数をフォールバック抽出
+                      all_floats = re.findall(r'\b\d{1,2}\.\d\b', raw_text)
+                      valid_c = [f for f in all_floats if 10.0 <= float(f) <= 45.0]
+                      if valid_c:
+                          wbgt_val = valid_c[-1]
+                          print(f"[MOE Pattern C Success] WBGT: {wbgt_val}")
                           break
 
               except Exception as e:
@@ -82,13 +104,19 @@ jobs:
           try:
               req_time = urllib.request.Request("https://www.jma.go.jp/bosai/amedas/data/latest_time.txt", headers=headers)
               with urllib.request.urlopen(req_time, timeout=10) as resp:
-                  latest_time = resp.read().decode('utf-8').strip()
+                  raw_data = resp.read()
+                  if resp.headers.get('Content-Encoding') == 'gzip' or raw_data[:2] == b'\x1f\x8b':
+                      raw_data = gzip.decompress(raw_data)
+                  latest_time = raw_data.decode('utf-8').strip()
                   formatted_time = re.sub(r'[-:+T]', '', latest_time)[:14]
 
               jma_url = f"https://www.jma.go.jp/bosai/amedas/data/map/{formatted_time}.json"
               req_map = urllib.request.Request(jma_url, headers=headers)
               with urllib.request.urlopen(req_map, timeout=10) as resp:
-                  map_data = json.loads(resp.read().decode('utf-8'))
+                  raw_data = resp.read()
+                  if resp.headers.get('Content-Encoding') == 'gzip' or raw_data[:2] == b'\x1f\x8b':
+                      raw_data = gzip.decompress(raw_data)
+                  map_data = json.loads(raw_data.decode('utf-8'))
                   hirakata = map_data.get("62046", {})
 
                   if "temp" in hirakata and hirakata["temp"] and hirakata["temp"][0] is not None:
