@@ -139,14 +139,82 @@ jobs:
               json.dump(result, f, ensure_ascii=False, indent=2)
           EOF
 
-          # 2. 3日間天気予報スクリプトの実行（★ここに追加）
-          python get_forecast.py
+          # 2. 3日間天気予報データの取得
+          python - << 'EOF'
+          import urllib.request
+          import json
+          from datetime import datetime
+
+          URL = "https://www.jma.go.jp/bosai/forecast/data/forecast/270000.json"
+          WEEK_DAYS = ["月", "火", "水", "木", "金", "土", "日"]
+
+          def get_weather_icon(text):
+              if "晴" in text and "雨" in text:
+                  return "🌦️"
+              elif "晴" in text and "曇" in text:
+                  return "⛅"
+              elif "晴" in text:
+                  return "☀️"
+              elif "雨" in text:
+                  return "🌧️"
+              elif "雪" in text:
+                  return "☃️"
+              elif "曇" in text:
+                  return "☁️"
+              return "🌤️"
+
+          try:
+              req = urllib.request.Request(URL, headers={"User-Agent": "Mozilla/5.0"})
+              with urllib.request.urlopen(req, timeout=10) as resp:
+                  data = json.loads(resp.read().decode("utf-8"))
+
+              time_series = data[0]["timeSeries"]
+              dates_raw = time_series[0]["timeDefines"]
+              weathers_raw = time_series[0]["areas"][0]["weathers"]
+              pops_raw = time_series[1]["areas"][0]["pops"]
+              temps_raw = time_series[2]["areas"][0]["temps"]
+
+              forecasts = []
+              for i in range(min(3, len(dates_raw))):
+                  dt = datetime.fromisoformat(dates_raw[i])
+                  date_str = f"{dt.month}/{dt.day} ({WEEK_DAYS[dt.weekday()]})"
+                  
+                  weather_text = weathers_raw[i].replace(" ", "").replace("のち", "/").replace("時々", "/").replace("一時", "/")
+                  if len(weather_text) > 5:
+                      weather_text = weather_text[:5]
+
+                  icon = get_weather_icon(weathers_raw[i])
+                  pop = pops_raw[i] if i < len(pops_raw) else "0"
+                  
+                  temp_low = None
+                  temp_high = None
+                  if i == 0 and len(temps_raw) >= 2:
+                      temp_high = temps_raw[1]
+                  elif i == 1 and len(temps_raw) >= 4:
+                      temp_low = temps_raw[2]
+                      temp_high = temps_raw[3]
+
+                  forecasts.append({
+                      "date_str": date_str,
+                      "weather": weather_text,
+                      "icon": icon,
+                      "pop": pop,
+                      "temp_high": temp_high,
+                      "temp_low": temp_low
+                  })
+
+              result = {"forecasts": forecasts}
+              with open("weather_3days.json", "w", encoding="utf-8") as f:
+                  json.dump(result, f, ensure_ascii=False, indent=2)
+              print("Successfully generated weather_3days.json")
+          except Exception as e:
+              print(f"[Forecast Error] {e}")
+          EOF
 
       - name: Commit and Push if changed
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          # ★ 生成される2つのJSONファイルをコミット対象に追加
           git add hirakata_wbgt.json weather_3days.json
           if ! git diff --cached --quiet; then
             git commit -m "Update WBGT and 3-day weather forecast data"
