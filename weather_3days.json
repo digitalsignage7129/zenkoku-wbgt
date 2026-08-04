@@ -1,18 +1,10 @@
 {
   "forecasts": [
     {
-      "date_str": "8/4 (火)",
-      "weather": "雨",
-      "icon": "🌧️",
-      "pop": "27",
-      "temp_high": "33",
-      "temp_low": "25"
-    },
-    {
       "date_str": "8/5 (水)",
       "weather": "晴れ",
       "icon": "☀️",
-      "pop": "13",
+      "pop": "14",
       "temp_high": "34",
       "temp_low": "24"
     },
@@ -20,9 +12,17 @@
       "date_str": "8/6 (木)",
       "weather": "晴れ",
       "icon": "☀️",
-      "pop": "19",
+      "pop": "21",
       "temp_high": "34",
       "temp_low": "27"
+    },
+    {
+      "date_str": "8/7 (金)",
+      "weather": "晴れ",
+      "icon": "☀️",
+      "pop": "73",
+      "temp_high": "37",
+      "temp_low": "28"
     }
   ]
 }
