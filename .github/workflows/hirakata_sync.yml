@@ -30,7 +30,8 @@ jobs:
 
           jst = timezone(timedelta(hours=9))
           now_jst = datetime.now(jst)
-          current_time_str = now_jst.strftime("%H:%M")
+          # 現在時刻を「0時0分からの通算分数」に変換（例: 11:31 -> 691分）
+          current_total_minutes = now_jst.hour * 60 + now_jst.minute
 
           # 1. アメダス実測データの取得（茨木市最寄りの枚方観測所: 62046）
           temp_val = None
@@ -68,7 +69,7 @@ jobs:
           except Exception as e:
               print(f"[JMA Error] {e}")
 
-          # 2. WBGT（暑さ指数）の取得（茨木市最寄りの枚方観測所）
+          # 2. WBGT（暑さ指数）数値時間換算による高精度抽出
           wbgt_val = None
           moe_urls = [
               "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=07&prefecture=62&point=62046",
@@ -89,14 +90,20 @@ jobs:
                       for t_str, val in pairs:
                           try:
                               v = float(val)
-                              if 10.0 <= v <= 45.0 and t_str <= current_time_str:
-                                  valid_pairs.append((t_str, val))
+                              if 10.0 <= v <= 45.0:
+                                  h, m = map(int, t_str.split(':'))
+                                  t_minutes = h * 60 + m
+                                  # 数値として現在時刻以前のデータのみを抽出
+                                  if t_minutes <= current_total_minutes:
+                                      valid_pairs.append((t_minutes, val, t_str))
                           except ValueError:
                               continue
 
                       if valid_pairs:
+                          # 数値順（時間の遅い順）で厳密にソート
                           valid_pairs.sort(key=lambda x: x[0])
                           wbgt_val = valid_pairs[-1][1]
+                          print(f"[MOE Success] {valid_pairs[-1][2]} 時点のWBGT: {wbgt_val}")
                           break
               except Exception as e:
                   print(f"[MOE Error] {url}: {e}")
@@ -111,13 +118,12 @@ jobs:
                   pass
 
           if not wbgt_val:
-              wbgt_val = "26.0"
+              wbgt_val = "30.0"
 
           w = float(wbgt_val)
           level = "危険" if w >= 31.0 else "厳重警戒" if w >= 28.0 else "警戒" if w >= 25.0 else "留意" if w >= 21.0 else "ほぼ安全"
           now_str = now_jst.strftime("%Y-%m-%d %H:%M")
 
-          # 地域表示名を「大阪府茨木市周辺」へ変更（JSONフォーマット・ファイル名は完全維持）
           result = {
               "location": "大阪府茨木市周辺",
               "wbgt": str(wbgt_val),
@@ -131,7 +137,7 @@ jobs:
               json.dump(result, f, ensure_ascii=False, indent=2)
           EOF
 
-          # 3. 茨木市ピンポイント3日間天気予報（Open-Meteo API: 緯度34.8160 / 経度135.5680）
+          # 3. 茨木市ピンポイント3日間天気予報（Open-Meteo API）
           python - << 'EOF'
           import urllib.request
           import json
@@ -194,7 +200,7 @@ jobs:
           git config --local user.name "GitHub Action"
           git add hirakata_wbgt.json weather_3days.json
           if ! git diff --cached --quiet; then
-            git commit -m "Update location display to Ibaraki City and adjust forecast coordinates"
+            git commit -m "Fix WBGT time comparison logic using numeric minutes"
             for i in {1..3}; do
               git push && break || sleep 3
             done
