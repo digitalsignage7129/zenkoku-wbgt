@@ -1,152 +1,121 @@
 import json
-import re
 import urllib.request
 from datetime import datetime, timedelta, timezone
-from bs4 import BeautifulSoup
 
-# tenki.jp 白馬村のURL候補（白馬村はエリア4820: 松本・大町地域）
-CANDIDATE_URLS = [
-    "https://tenki.jp/forecast/3/12/4820/20485/",
-    "https://tenki.jp/forecast/3/12/4810/20485/",
-]
+# 気象庁 API（長野県: 200000）
+JMA_URL = "https://www.jma.go.jp/bosai/forecast/data/forecast/200000.json"
+# 白馬村が含まれるエリアコード（長野県北部: 200010）
+AREA_CODE = "200010"
 
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-}
+HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 
-def clean_num(text):
-    """文字列から数値部分のみ抽出"""
-    if not text:
-        return "--"
-    match = re.search(r"-?\d+", text)
-    return match.group(0) if match else "--"
+def get_jma_weather():
+    req = urllib.request.Request(JMA_URL, headers=HEADERS)
+    with urllib.request.urlopen(req) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
 
+    # データ構造の取得（短期予報と週間予報）
+    short_term = data[0]
+    weekly = data[1]
 
-def clean_weather(text):
-    """天気文字列の余分な改行・空白を除去"""
-    if not text:
-        return "--"
-    return re.sub(r"\s+", "", text).strip()
+    # 北部エリア（200010）のインデックスを特定
+    area_index = 0
+    for idx, area in enumerate(
+        short_term["timeSeries"][0]["areas"]
+    ):
+        if area["area"]["code"] == AREA_CODE:
+            area_index = idx
+            break
 
+    # 1. 天気テキストの抽出 (今日・明日)
+    weathers = short_term["timeSeries"][0]["areas"][area_index]["weathers"]
+    today_weather = weathers[0] if len(weathers) > 0 else "--"
+    tomorrow_weather = weathers[1] if len(weathers) > 1 else "--"
 
-def fetch_html():
-    """URL候補からアクセス可能なページを取得"""
-    for url in CANDIDATE_URLS:
-        try:
-            req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req) as resp:
-                return resp.read().decode("utf-8")
-        except Exception:
-            continue
-    raise Exception("tenki.jp の白馬村ページを取得できませんでした。")
+    # 2. 明後日の天気 (週間予報から抽出)
+    weekly_weathers = weekly["timeSeries"][0]["areas"][0]["weathers"]
+    # 週間予報の2番目（index 2）が明後日
+    day_after_weather = (
+        weekly_weathers[2] if len(weekly_weathers) > 2 else "--"
+    )
 
+    # 3. 降水確率の抽出
+    pops = short_term["timeSeries"][1]["areas"][area_index].get("pops", [])
+    today_pop = max([int(p) for p in pops[:2] if p.isdigit()], default="--")
+    tomorrow_pop = max(
+        [int(p) for p in pops[2:] if p.isdigit()], default="--"
+    )
 
-def get_tenki_data():
-    html = fetch_html()
-    soup = BeautifulSoup(html, "html.parser")
+    # 明後日の降水確率
+    weekly_pops = weekly["timeSeries"][0]["areas"][0].get("pops", [])
+    day_after_pop = (
+        weekly_pops[2]
+        if len(weekly_pops) > 2 and weekly_pops[2]
+        else "--"
+    )
 
+    # 4. 気温の抽出 (今日・明日の最高/最低気温)
+    temps = short_term["timeSeries"][2]["areas"][area_index].get("temps", [])
+    # 気象庁データの気温配列から最高・最低を取得
+    today_temp_min = temps[0] if len(temps) > 0 else "--"
+    today_temp_max = temps[1] if len(temps) > 1 else "--"
+    tomorrow_temp_min = temps[2] if len(temps) > 2 else "--"
+    tomorrow_temp_max = temps[3] if len(temps) > 3 else "--"
+
+    # 明後日の気温
+    weekly_temps_min = weekly["timeSeries"][1]["areas"][0].get(
+        "tempsMin", []
+    )
+    weekly_temps_max = weekly["timeSeries"][1]["areas"][0].get(
+        "tempsMax", []
+    )
+    day_after_min = (
+        weekly_temps_min[2]
+        if len(weekly_temps_min) > 2 and weekly_temps_min[2]
+        else "--"
+    )
+    day_after_max = (
+        weekly_temps_max[2]
+        if len(weekly_temps_max) > 2 and weekly_temps_max[2]
+        else "--"
+    )
+
+    # JST時刻設定
+    jst = timezone(timedelta(hours=9))
+    updated_at = datetime.now(jst).strftime("%Y-%m-%d %H:%M")
+
+    # サイネージ表示用JSON構造の整形
     result = {
         "location": "長野県白馬村",
-        "updated_at": "",
-        "today": {"weather": "--", "temp_max": "--", "temp_min": "--", "pop": "--"},
+        "updated_at": updated_at,
+        "today": {
+            "weather": today_weather.replace(" ", " "),
+            "temp_max": str(today_temp_max),
+            "temp_min": str(today_temp_min),
+            "pop": str(today_pop),
+        },
         "tomorrow": {
-            "weather": "--",
-            "temp_max": "--",
-            "temp_min": "--",
-            "pop": "--",
+            "weather": tomorrow_weather.replace(" ", " "),
+            "temp_max": str(tomorrow_temp_max),
+            "temp_min": str(tomorrow_temp_min),
+            "pop": str(tomorrow_pop),
         },
         "day_after": {
-            "weather": "--",
-            "temp_max": "--",
-            "temp_min": "--",
-            "pop": "--",
+            "weather": str(day_after_weather).replace(" ", " "),
+            "temp_max": str(day_after_max),
+            "temp_min": str(day_after_min),
+            "pop": str(day_after_pop),
         },
     }
 
-    # --- 1. 今日・明日のデータ取得 ---
-    sections = [
-        ("today", soup.find("section", class_="today-weather")),
-        ("tomorrow", soup.find("section", class_="tomorrow-weather")),
-    ]
-
-    for key, sec in sections:
-        if not sec:
-            continue
-
-        # 天気
-        weather_el = sec.find("p", class_="weather-telop")
-        if weather_el:
-            result[key]["weather"] = clean_weather(weather_el.text)
-
-        # 最高気温
-        high_el = sec.find("dd", class_="high-temp")
-        if high_el:
-            val = high_el.find("span", class_="value")
-            if val:
-                result[key]["temp_max"] = clean_num(val.text)
-
-        # 最低気温
-        low_el = sec.find("dd", class_="low-temp")
-        if low_el:
-            val = low_el.find("span", class_="value")
-            if val:
-                result[key]["temp_min"] = clean_num(val.text)
-
-        # 降水確率（時間帯ごとの最大値を取る）
-        precip_table = sec.find("table", class_="precip-table")
-        if precip_table:
-            pops = []
-            for td in precip_table.find_all("td"):
-                txt = clean_num(td.text)
-                if txt.isdigit():
-                    pops.append(int(txt))
-            if pops:
-                result[key]["pop"] = str(max(pops))
-
-    # --- 2. 明後日のデータ取得 (週間予報エリアから抽出) ---
-    week_table = soup.find("table", class_="forecast-point-week-table")
-    if week_table:
-        rows = week_table.find_all("tr")
-
-        for row in rows:
-            # 天気
-            if "weather" in row.get("class", []):
-                tds = row.find_all("td")
-                if len(tds) > 2:
-                    img = tds[2].find("img")
-                    txt = img.get("alt") if img else tds[2].text
-                    result["day_after"]["weather"] = clean_weather(txt)
-
-            # 最高気温
-            elif "high-temp" in row.get("class", []):
-                tds = row.find_all("td")
-                if len(tds) > 2:
-                    result["day_after"]["temp_max"] = clean_num(tds[2].text)
-
-            # 最低気温
-            elif "low-temp" in row.get("class", []):
-                tds = row.find_all("td")
-                if len(tds) > 2:
-                    result["day_after"]["temp_min"] = clean_num(tds[2].text)
-
-            # 降水確率
-            elif "precip" in row.get("class", []):
-                tds = row.find_all("td")
-                if len(tds) > 2:
-                    result["day_after"]["pop"] = clean_num(tds[2].text)
-
-    # 更新時刻
-    jst = timezone(timedelta(hours=9))
-    result["updated_at"] = datetime.now(jst).strftime("%Y-%m-%d %H:%M")
-
-    # JSONへ書き出し
+    # JSON出力
     with open("hakuba_tenki.json", "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 
-    print("hakuba_tenki.json を正常に更新しました:")
+    print("気象庁APIから hakuba_tenki.json を生成しました:")
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
-    get_tenki_data()
+    get_jma_weather()
