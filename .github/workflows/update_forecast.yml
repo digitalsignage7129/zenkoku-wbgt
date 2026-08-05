@@ -2,7 +2,7 @@ name: Update Hakuba Weather Forecast
 
 on:
   schedule:
-    # 毎時0分（UTC）に自動実行（JST 毎時0分）
+    # 毎時0分（UTC）に自動実行
     - cron: '0 * * * *'
   workflow_dispatch: # Actions画面からの手動実行を許可
 
@@ -21,6 +21,9 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: 依存ライブラリのインストール
+        run: pip install beautifulsoup4
+
       - name: 天気予報データの取得・JSON生成
         run: python get_hakuba_tenki.py
 
@@ -31,7 +34,6 @@ jobs:
           
           git add hakuba_tenki.json
           
-          # JSONデータに差分がある場合のみコミット
           if git diff --staged --quiet; then
             echo "データに変更はありません。"
           else
