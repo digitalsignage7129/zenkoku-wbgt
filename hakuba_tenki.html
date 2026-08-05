@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>白馬村 現場用 天気予報表示器（高視認性・屋外仕様）</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* 配信システムの枠いっぱいに広げる */
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #000000; /* 完全な黒 */
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+    }
+
+    /* 【基準キャンバス (690px × 730px)】 */
+    #stage {
+      width: 690px;
+      height: 730px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transform-origin: center center;
+      flex-shrink: 0;
+      background-color: #000000;
+    }
+
+    /* 1. ヘッダーエリア (高さ 45px) */
+    .header {
+      height: 45px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid #444444;
+      padding-bottom: 6px;
+    }
+
+    .location-title {
+      font-size: 28px;
+      font-weight: 900;
+      color: #00e5ff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 440px;
+    }
+
+    .update-time {
+      font-size: 18px;
+      font-weight: 800;
+      color: #aaaaaa;
+      white-space: nowrap;
+    }
+
+    /* 2. 本日の天気メインカード (高さ 340px) */
+    .today-card {
+      height: 340px;
+      background: #0d0d0d;
+      border: 4px solid #00e5ff;
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card-header-label {
+      font-size: 26px;
+      font-weight: 900;
+      color: #ffeb3b;
+    }
+
+    .today-weather {
+      font-size: 52px;
+      font-weight: 900;
+      color: #ffffff;
+      text-align: center;
+      margin: 8px 0;
+      white-space: nowrap;
+    }
+
+    .today-details {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 12px 8px;
+      text-align: center;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .detail-title {
+      font-size: 18px;
+      color: #aaaaaa;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .detail-val {
+      font-size: 32px;
+      font-weight: 900;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .temp-high { color: #ff5555; }
+    .temp-low  { color: #5599ff; }
+
+    /* 3. 明日・明後日の天気 2列サブカード (高さ 280px) */
+    .forecast-grid {
+      height: 280px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .sub-card {
+      background: #0d0d0d;
+      border: 4px solid #555555;
+      border-radius: 18px;
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .sub-day-label {
+      font-size: 22px;
+      font-weight: 900;
+      color: #00e5ff;
+      border-bottom: 2px solid #333333;
+      padding-bottom: 4px;
+    }
+
+    .sub-weather {
+      font-size: 36px;
+      font-weight: 900;
+      color: #ffffff;
+      text-align: center;
+      margin: 6px 0;
+      white-space: nowrap;
+    }
+
+    .sub-details {
+      display: flex;
+      justify-content: space-around;
+      background: #1a1a1a;
+      border-radius: 10px;
+      padding: 8px 4px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- STB側サイズに合わせて自動伸縮する690x730基準ステージ -->
+  <div id="stage">
+    
+    <!-- ヘッダー -->
+    <div class="header">
+      <div class="location-title" id="location">長野県白馬村 天気予報</div>
+      <div class="update-time">更新: <span id="updated-at">--:--</span></div>
+    </div>
+
+    <!-- 本日の天気 -->
+    <div class="today-card">
+      <div class="card-header-label">本日（今日）の天気</div>
+      <div class="today-weather" id="today-weather">--</div>
+      <div class="today-details">
+        <div class="detail-item">
+          <div class="detail-title">最高気温</div>
+          <div class="detail-val temp-high"><span id="today-high">--</span>℃</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-title">最低気温</div>
+          <div class="detail-val temp-low"><span id="today-low">--</span>℃</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-title">降水確率</div>
+          <div class="detail-val" style="color: #ffeb3b;"><span id="today-pop">--</span>%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 明日・明後日の天気 -->
+    <div class="forecast-grid">
+      
+      <!-- 明日 -->
+      <div class="sub-card">
+        <div class="sub-day-label">明日</div>
+        <div class="sub-weather" id="tomorrow-weather">--</div>
+        <div class="sub-details">
+          <div>
+            <div class="detail-title">最高</div>
+            <div class="detail-val temp-high" style="font-size: 24px;"><span id="tomorrow-high">--</span>℃</div>
+          </div>
+          <div>
+            <div class="detail-title">最低</div>
+            <div class="detail-val temp-low" style="font-size: 24px;"><span id="tomorrow-low">--</span>℃</div>
+          </div>
+          <div>
+            <div class="detail-title">降水</div>
+            <div class="detail-val" style="font-size: 24px; color: #ffeb3b;"><span id="tomorrow-pop">--</span>%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 明後日 -->
+      <div class="sub-card">
+        <div class="sub-day-label">明後日</div>
+        <div class="sub-weather" id="day-after-weather">--</div>
+        <div class="sub-details">
+          <div>
+            <div class="detail-title">最高</div>
+            <div class="detail-val temp-high" style="font-size: 24px;"><span id="day-after-high">--</span>℃</div>
+          </div>
+          <div>
+            <div class="detail-title">最低</div>
+            <div class="detail-val temp-low" style="font-size: 24px;"><span id="day-after-low">--</span>℃</div>
+          </div>
+          <div>
+            <div class="detail-title">降水</div>
+            <div class="detail-val" style="font-size: 24px; color: #ffeb3b;"><span id="day-after-pop">--</span>%</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    /* STBの実際の枠領域を計測し、690x730キャンバスを完全フィッティングさせる制御 */
+    function autoFit() {
+      const targetW = 690;
+      const targetH = 730;
+      
+      const currentW = window.innerWidth;
+      const currentH = window.innerHeight;
+
+      if (currentW === 0 || currentH === 0) return;
+
+      const scale = Math.min(currentW / targetW, currentH / targetH);
+      
+      const stage = document.getElementById('stage');
+      if (stage) {
+        stage.style.transform = `scale(${scale})`;
+      }
+    }
+
+    window.addEventListener('resize', autoFit);
+    window.addEventListener('DOMContentLoaded', autoFit);
+    window.addEventListener('load', autoFit);
+    autoFit();
+
+    /* データ取得 & 表示更新 */
+    async function updateData() {
+      try {
+        const response = await fetch('./hakuba_tenki.json?t=' + new Date().getTime());
+        if (!response.ok) return;
+
+        const data = await response.json();
+
+        // 地域名・更新時間
+        document.getElementById('location').textContent = (data.location || '長野県白馬村') + ' 天気予報';
+        if (data.updated_at) {
+          const timeOnly = data.updated_at.includes(' ') ? data.updated_at.split(' ')[1] : data.updated_at;
+          document.getElementById('updated-at').textContent = timeOnly;
+        }
+
+        // 今日
+        if (data.today) {
+          document.getElementById('today-weather').textContent = data.today.weather || '--';
+          document.getElementById('today-high').textContent = data.today.temp_max ?? '--';
+          document.getElementById('today-low').textContent = data.today.temp_min ?? '--';
+          document.getElementById('today-pop').textContent = data.today.pop ?? '--';
+        }
+
+        // 明日
+        if (data.tomorrow) {
+          document.getElementById('tomorrow-weather').textContent = data.tomorrow.weather || '--';
+          document.getElementById('tomorrow-high').textContent = data.tomorrow.temp_max ?? '--';
+          document.getElementById('tomorrow-low').textContent = data.tomorrow.temp_min ?? '--';
+          document.getElementById('tomorrow-pop').textContent = data.tomorrow.pop ?? '--';
+        }
+
+        // 明後日
+        if (data.day_after) {
+          document.getElementById('day-after-weather').textContent = data.day_after.weather || '--';
+          document.getElementById('day-after-high').textContent = data.day_after.temp_max ?? '--';
+          document.getElementById('day-after-low').textContent = data.day_after.temp_min ?? '--';
+          document.getElementById('day-after-pop').textContent = data.day_after.pop ?? '--';
+        }
+
+      } catch (error) {
+        console.error('Data fetch error:', error);
+      }
+    }
+
+    // 初回実行 ＋ 60秒自動更新
+    updateData();
+    setInterval(updateData, 60000);
+  </script>
+</body>
+</html>
