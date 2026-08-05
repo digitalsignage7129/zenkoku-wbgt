@@ -31,24 +31,31 @@ def get_wbgt_from_env():
 
 
 def get_amedas_hakuba():
-    """気象庁アメダス（白馬観測所: 48141）から気温・風速を確実に取得"""
+    """気象庁アメダス（白馬観測所: 48141）から気温・風速を取得"""
     headers = {"User-Agent": "Mozilla/5.0"}
     temp_str = "--"
     wind_str = "--"
 
+    # 1. アメダスの最新更新時刻を取得
+    dt = None
     try:
-        # 1. アメダスの最新更新時刻を取得
         time_url = "https://www.jma.go.jp/bosai/amedas/data/latest_time.json"
         req_time = urllib.request.Request(time_url, headers=headers)
         with urllib.request.urlopen(req_time, timeout=10) as res:
             latest_time_str = json.loads(res.read().decode('utf-8'))
-            base_dt = datetime.fromisoformat(latest_time_str)
+            dt = datetime.fromisoformat(latest_time_str)
     except Exception as e:
         print(f"[Warning] アメダス最新時刻取得失敗: {e}")
-        base_dt = datetime.now(timezone.utc)
 
-    # 2. ファイル未生成エラーを避けるため、最新時刻から10分ずつ最大4回遡ってデータを探索
-    for i in range(4):
+    if not dt:
+        dt = datetime.now(JST)
+
+    # 2. 【重要】分を必ず10分単位（00, 10, 20, 30, 40, 50）に切り捨てる
+    rounded_minute = (dt.minute // 10) * 10
+    base_dt = dt.replace(minute=rounded_minute, second=0, microsecond=0)
+
+    # 3. 10分刻みで過去6回分（1時間前まで）遡って確実に存在するデータを探索
+    for i in range(6):
         target_dt = base_dt - timedelta(minutes=10 * i)
         formatted_time = target_dt.strftime("%Y%m%d%H%M00")
         data_url = f"https://www.jma.go.jp/bosai/amedas/data/map/{formatted_time}.json"
@@ -57,25 +64,28 @@ def get_amedas_hakuba():
             req_data = urllib.request.Request(data_url, headers=headers)
             with urllib.request.urlopen(req_data, timeout=10) as res:
                 amedas_data = json.loads(res.read().decode('utf-8'))
-                
                 hakuba = amedas_data.get("48141", {})
+                
                 if hakuba:
-                    if "temp" in hakuba and hakuba["temp"][0] is not None:
+                    # 気温
+                    if "temp" in hakuba and hakuba["temp"] and hakuba["temp"][0] is not None:
                         temp_str = f"{float(hakuba['temp'][0]):.1f}"
-                    if "wind" in hakuba and hakuba["wind"][0] is not None:
+                    # 風速
+                    if "wind" in hakuba and hakuba["wind"] and hakuba["wind"][0] is not None:
                         wind_str = f"{float(hakuba['wind'][0]):.1f}"
                     
-                    # 取得できたらループを抜ける
                     if temp_str != "--" and wind_str != "--":
+                        print(f"[Success] 気象庁アメダス(白馬 {formatted_time}) 取得成功: 気温={temp_str}℃, 風速={wind_str}m/s")
                         break
-        except Exception:
+        except Exception as e:
+            print(f"[Info] {formatted_time}.json 探索中...")
             continue
 
     return temp_str, wind_str
 
 
 def get_jma_weather():
-    """気象庁公式API（長野県: 200000）から天気を取得"""
+    """気象庁天気予報API（長野県: 200000）から天気を取得"""
     headers = {"User-Agent": "Mozilla/5.0"}
     weather_str = "くもり"
 
@@ -86,10 +96,8 @@ def get_jma_weather():
             forecast_data = json.loads(res.read().decode('utf-8'))
             time_series = forecast_data[0]["timeSeries"][0]
             for area in time_series["areas"]:
-                # 長野県北部エリア
                 if area["area"]["code"] in ["200010", "200000"]:
                     raw_weather = area["weathers"][0]
-                    # テロップから先頭の天気単語を取り出し
                     cleaned = raw_weather.replace(" ", " ").split()[0]
                     if "晴" in cleaned:
                         weather_str = "晴れ"
@@ -124,11 +132,11 @@ def get_wbgt_level(wbgt_val):
 
 
 def main():
-    # 1. 環境省からWBGT取得
+    # 1. 環境省からWBGTを取得
     wbgt = get_wbgt_from_env()
     level = get_wbgt_level(wbgt)
 
-    # 2. 気象庁アメダス（48141白馬）から気温・風速を取得
+    # 2. 気象庁アメダスから気温・風速を取得
     temperature, wind_speed = get_amedas_hakuba()
 
     # 3. 気象庁APIから天気を取得
@@ -149,7 +157,7 @@ def main():
     with open("hakuba_wbgt.json", "w", encoding="utf-8") as f:
         json.dump(output_data, f, ensure_ascii=False, indent=2)
 
-    print(f"[{now_str}] hakuba_wbgt.json を更新しました:")
+    print(f"[{now_str}] hakuba_wbgt.json 更新完了:")
     print(json.dumps(output_data, ensure_ascii=False, indent=2))
 
 
