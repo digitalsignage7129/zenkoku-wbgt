@@ -2,11 +2,12 @@ import json
 import urllib.request
 from datetime import datetime, timezone, timedelta
 
-# 日本標準時 (JST)
+# タイムゾーン定義
 JST = timezone(timedelta(hours=9))
+UTC = timezone.utc
 
 def get_wbgt_from_env():
-    """環境省のCSVデータから白馬（48141）の最新WBGT値を取得"""
+    """環境省のCSVデータから白馬の最新WBGT値を取得"""
     url = "https://www.wbgt.env.go.jp/prev15d/df/pref_48.csv"
     headers = {"User-Agent": "Mozilla/5.0"}
     
@@ -15,77 +16,75 @@ def get_wbgt_from_env():
         with urllib.request.urlopen(req, timeout=10) as res:
             lines = res.read().decode('shift_jis', errors='ignore').splitlines()
             for line in lines:
-                parts = [p.strip() for p in line.split(',')]
-                if len(parts) > 2 and parts[0] == "48141":  # 白馬観測所
-                    for val in reversed(parts[2:]):
-                        if val and val != "--":
+                # 「48141」または「白馬」が含まれる行を特定
+                if "48141" in line or "白馬" in line:
+                    parts = [p.strip() for p in line.split(',')]
+                    # 後ろから順に有効なWBGT数値を探す
+                    for val in reversed(parts):
+                        if val and val != "--" and val.replace('.', '', 1).isdigit():
                             try:
-                                wbgt_num = float(val) / 10.0 if float(val) > 50 else float(val)
+                                wbgt_num = float(val)
+                                # 10倍表記（例: 250 -> 25.0）の補正
+                                if wbgt_num > 50:
+                                    wbgt_num /= 10.0
                                 return f"{wbgt_num:.1f}"
                             except ValueError:
                                 pass
     except Exception as e:
-        print(f"[Warning] 環境省WBGT取得失敗: {e}")
+        print(f"[Warning] 環境省WBGT取得エラー: {e}")
         
-    return "25.0"
+    return "--"
 
 
 def get_amedas_hakuba():
-    """気象庁アメダス（白馬観測所: 48141）から気温・風速を取得"""
+    """気象庁アメダス（白馬: 48141）から現在のリアルタイム気温・風速を取得"""
     headers = {"User-Agent": "Mozilla/5.0"}
     temp_str = "--"
     wind_str = "--"
 
-    # 1. アメダスの最新更新時刻を取得
-    dt = None
     try:
+        # 1. 気象庁の最新データ更新時刻（JST）を取得
         time_url = "https://www.jma.go.jp/bosai/amedas/data/latest_time.json"
         req_time = urllib.request.Request(time_url, headers=headers)
         with urllib.request.urlopen(req_time, timeout=10) as res:
             latest_time_str = json.loads(res.read().decode('utf-8'))
-            dt = datetime.fromisoformat(latest_time_str)
+            dt_jst = datetime.fromisoformat(latest_time_str)
     except Exception as e:
-        print(f"[Warning] アメダス最新時刻取得失敗: {e}")
+        print(f"[Warning] アメダス最新時刻取得エラー: {e}")
+        dt_jst = datetime.now(JST)
 
-    if not dt:
-        dt = datetime.now(JST)
+    # 2. 【重要】JSTからUTC（協定世界時）へ変換（気象庁のファイル名はUTC管理のため）
+    dt_utc = dt_jst.astimezone(UTC)
 
-    # 2. 【重要】分を必ず10分単位（00, 10, 20, 30, 40, 50）に切り捨てる
-    rounded_minute = (dt.minute // 10) * 10
-    base_dt = dt.replace(minute=rounded_minute, second=0, microsecond=0)
-
-    # 3. 10分刻みで過去6回分（1時間前まで）遡って確実に存在するデータを探索
-    for i in range(6):
-        target_dt = base_dt - timedelta(minutes=10 * i)
-        formatted_time = target_dt.strftime("%Y%m%d%H%M00")
+    # 3. 直近のデータファイル（10分刻み）を探索
+    for i in range(3):
+        target_utc = dt_utc - timedelta(minutes=10 * i)
+        formatted_time = target_utc.strftime("%Y%m%d%H%M00")
         data_url = f"https://www.jma.go.jp/bosai/amedas/data/map/{formatted_time}.json"
         
         try:
             req_data = urllib.request.Request(data_url, headers=headers)
             with urllib.request.urlopen(req_data, timeout=10) as res:
                 amedas_data = json.loads(res.read().decode('utf-8'))
-                hakuba = amedas_data.get("48141", {})
                 
+                # 白馬観測所（48141）
+                hakuba = amedas_data.get("48141", {})
                 if hakuba:
-                    # 気温
                     if "temp" in hakuba and hakuba["temp"] and hakuba["temp"][0] is not None:
                         temp_str = f"{float(hakuba['temp'][0]):.1f}"
-                    # 風速
                     if "wind" in hakuba and hakuba["wind"] and hakuba["wind"][0] is not None:
                         wind_str = f"{float(hakuba['wind'][0]):.1f}"
                     
                     if temp_str != "--" and wind_str != "--":
-                        print(f"[Success] 気象庁アメダス(白馬 {formatted_time}) 取得成功: 気温={temp_str}℃, 風速={wind_str}m/s")
                         break
-        except Exception as e:
-            print(f"[Info] {formatted_time}.json 探索中...")
+        except Exception:
             continue
 
     return temp_str, wind_str
 
 
 def get_jma_weather():
-    """気象庁天気予報API（長野県: 200000）から天気を取得"""
+    """気象庁天気予報API（長野県北部）から現在の天気を取得"""
     headers = {"User-Agent": "Mozilla/5.0"}
     weather_str = "くもり"
 
@@ -109,7 +108,7 @@ def get_jma_weather():
                         weather_str = "くもり"
                     break
     except Exception as e:
-        print(f"[Warning] 気象庁天気取得失敗: {e}")
+        print(f"[Warning] 天気予報取得エラー: {e}")
 
     return weather_str
 
@@ -132,14 +131,9 @@ def get_wbgt_level(wbgt_val):
 
 
 def main():
-    # 1. 環境省からWBGTを取得
     wbgt = get_wbgt_from_env()
     level = get_wbgt_level(wbgt)
-
-    # 2. 気象庁アメダスから気温・風速を取得
     temperature, wind_speed = get_amedas_hakuba()
-
-    # 3. 気象庁APIから天気を取得
     weather = get_jma_weather()
 
     now_str = datetime.now(JST).strftime("%Y-%m-%d %H:%M")
