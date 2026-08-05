@@ -4,8 +4,11 @@ import urllib.request
 from datetime import datetime, timedelta, timezone
 from bs4 import BeautifulSoup
 
-# tenki.jp 長野県白馬村のピンポイント天気URL
-URL = "https://tenki.jp/forecast/3/12/4810/20485/"
+# tenki.jp 白馬村のURL候補（白馬村はエリア4820: 松本・大町地域）
+CANDIDATE_URLS = [
+    "https://tenki.jp/forecast/3/12/4820/20485/",
+    "https://tenki.jp/forecast/3/12/4810/20485/",
+]
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -27,11 +30,20 @@ def clean_weather(text):
     return re.sub(r"\s+", "", text).strip()
 
 
-def get_tenki_data():
-    req = urllib.request.Request(URL, headers=headers)
-    with urllib.request.urlopen(req) as resp:
-        html = resp.read().decode("utf-8")
+def fetch_html():
+    """URL候補からアクセス可能なページを取得"""
+    for url in CANDIDATE_URLS:
+        try:
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req) as resp:
+                return resp.read().decode("utf-8")
+        except Exception:
+            continue
+    raise Exception("tenki.jp の白馬村ページを取得できませんでした。")
 
+
+def get_tenki_data():
+    html = fetch_html()
     soup = BeautifulSoup(html, "html.parser")
 
     result = {
@@ -95,7 +107,6 @@ def get_tenki_data():
     # --- 2. 明後日のデータ取得 (週間予報エリアから抽出) ---
     week_table = soup.find("table", class_="forecast-point-week-table")
     if week_table:
-        # 週間表の列構造: index 0=今日, 1=明日, 2=明後日
         rows = week_table.find_all("tr")
 
         for row in rows:
