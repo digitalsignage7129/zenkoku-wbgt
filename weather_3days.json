@@ -4,25 +4,25 @@
       "date_str": "8/5 (水)",
       "weather": "晴れ",
       "icon": "☀️",
-      "pop": "10",
-      "temp_high": "34",
-      "temp_low": "24"
+      "pop": "16",
+      "temp_high": "30",
+      "temp_low": "18"
     },
     {
       "date_str": "8/6 (木)",
       "weather": "晴れ",
       "icon": "☀️",
-      "pop": "18",
-      "temp_high": "34",
-      "temp_low": "26"
+      "pop": "53",
+      "temp_high": "30",
+      "temp_low": "21"
     },
     {
       "date_str": "8/7 (金)",
-      "weather": "晴れ",
-      "icon": "☀️",
-      "pop": "87",
-      "temp_high": "34",
-      "temp_low": "27"
+      "weather": "雨",
+      "icon": "🌧️",
+      "pop": "99",
+      "temp_high": "31",
+      "temp_low": "22"
     }
   ]
 }
