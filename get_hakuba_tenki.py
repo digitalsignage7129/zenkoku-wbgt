@@ -1,97 +1,75 @@
 import json
+import re
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
-# 長野県白馬村の緯度・経度
-LAT = 36.6983
-LON = 137.8619
-
-# 気象庁（JMA）モデルのデータを取得するWeb API
-URL = (
-    f"https://api.open-meteo.com/v1/forecast?"
-    f"latitude={LAT}&longitude={LON}"
-    f"&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max"
-    f"&timezone=Asia%2FTokyo"
-    f"&models=jma_seamless"
-)
-
+JMA_URL = "https://www.jma.go.jp/bosai/forecast/data/forecast/200000.json"
+AREA_CODE = "200020"  # 長野県北部
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 
-# 天気コードから日本語表記への変換表
-WEATHER_MAP = {
-    0: "晴れ",
-    1: "晴れ時々くもり",
-    2: "晴れ時々くもり",
-    3: "くもり",
-    45: "霧",
-    48: "霧",
-    51: "小雨",
-    53: "雨",
-    55: "大雨",
-    56: "雨",
-    57: "雨",
-    61: "雨",
-    63: "雨",
-    65: "大雨",
-    66: "雨",
-    67: "雨",
-    71: "みぞれ・小雪",
-    73: "雪",
-    75: "大雪",
-    77: "雪",
-    80: "にわか雨",
-    81: "にわか雨",
-    82: "激しい雨",
-    85: "にわか雪",
-    86: "にわか雪",
-    95: "雷雨",
-    96: "雷雨",
-    99: "雷雨",
+WEATHER_CODE_MAP = {
+    "100": "晴れ",
+    "101": "晴れ時々くもり",
+    "102": "晴れ一時雨",
+    "103": "晴れ時々雨",
+    "110": "晴れ時々くもり",
+    "200": "くもり",
+    "201": "くもり時々晴れ",
+    "202": "くもり一時雨",
+    "203": "くもり時々雨",
+    "300": "雨",
+    "301": "雨時々晴れ",
+    "302": "雨時々くもり",
+    "400": "雪",
+    "401": "雪時々晴れ",
+    "402": "雪時々くもり",
 }
 
-
-def safe_get(arr, idx, default="--"):
-    """配列から安全に値を取り出す"""
-    try:
-        val = arr[idx]
-        if val is None:
-            return default
-        return val
-    except Exception:
-        return default
+WEEKDAYS = ["月", "火", "水", "木", "金", "土", "日"]
 
 
-def format_temp(val):
-    if val == "--":
+def clean_weather_text(text):
+    if not text:
         return "--"
-    try:
-        return str(round(float(val)))
-    except Exception:
-        return "--"
+    cleaned = re.sub(r"[\s\u3000]+", " ", text).strip()
+    return cleaned.split("所により")[0].strip()
 
 
-def format_pop(val):
-    if val == "--":
-        return "--"
-    try:
-        # 降水確率は10%刻みに整形
-        return str(int(round(float(val) / 10.0) * 10))
-    except Exception:
-        return "--"
+def get_jma_weather():
+    jst = timezone(timedelta(hours=9))
+    now = datetime.now(jst)
+    is_after_17 = now.hour >= 17  # 17時以降かどうか判定
 
+    req = urllib.request.Request(JMA_URL, headers=HEADERS)
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
 
-def get_weather():
+    short_term = data[0] if len(data) > 0 else {}
+    weekly = data[1] if len(data) > 1 else {}
+
     result = {
         "location": "長野県白馬村",
-        "updated_at": "",
-        "today": {"weather": "--", "temp_max": "--", "temp_min": "--", "pop": "--"},
-        "tomorrow": {
+        "updated_at": now.strftime("%Y-%m-%d %H:%M"),
+        "is_night_mode": is_after_17,  # 17時以降フラグ
+        "day1": {
+            "label": "",
+            "date": "",
             "weather": "--",
             "temp_max": "--",
             "temp_min": "--",
             "pop": "--",
         },
-        "day_after": {
+        "day2": {
+            "label": "",
+            "date": "",
+            "weather": "--",
+            "temp_max": "--",
+            "temp_min": "--",
+            "pop": "--",
+        },
+        "day3": {
+            "label": "",
+            "date": "",
             "weather": "--",
             "temp_max": "--",
             "temp_min": "--",
@@ -99,41 +77,90 @@ def get_weather():
         },
     }
 
-    try:
-        req = urllib.request.Request(URL, headers=HEADERS)
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
+    # 日付ラベルと基準日の計算
+    base_date = now if not is_after_17 else now + timedelta(days=1)
+    labels = (
+        ["今日", "明日", "明後日"]
+        if not is_after_17
+        else ["明日", "明後日", "明々後日"]
+    )
 
-        daily = data.get("daily", {})
-        codes = daily.get("weather_code", [])
-        max_temps = daily.get("temperature_2m_max", [])
-        min_temps = daily.get("temperature_2m_min", [])
-        pops = daily.get("precipitation_probability_max", [])
+    for idx, key in enumerate(["day1", "day2", "day3"]):
+        target_date = base_date + timedelta(days=idx)
+        w_str = WEEKDAYS[target_date.weekday()]
+        result[key]["label"] = labels[idx]
+        result[key]["date"] = f"{target_date.month}/{target_date.day}({w_str})"
 
-        keys = ["today", "tomorrow", "day_after"]
-        for i, key in enumerate(keys):
-            code = safe_get(codes, i)
-            result[key]["weather"] = (
-                WEATHER_MAP.get(code, "くもり") if code != "--" else "--"
-            )
-            result[key]["temp_max"] = format_temp(safe_get(max_temps, i))
-            result[key]["temp_min"] = format_temp(safe_get(min_temps, i))
-            result[key]["pop"] = format_pop(safe_get(pops, i))
+    # --- データ取得処理 ---
+    # 週間予報データ（気象庁 data[1]）から 抽出
+    if "timeSeries" in weekly:
+        ts_week0 = weekly["timeSeries"][0]
+        ts_week1 = weekly["timeSeries"][1] if len(weekly["timeSeries"]) > 1 else {}
 
-    except Exception as e:
-        print(f"データ取得エラー (安全なデフォルト値で書き出します): {e}")
+        # エリアインデックス特定
+        area_idx = 0
+        for i, a in enumerate(ts_week0.get("areas", [])):
+            if a.get("area", {}).get("code") == AREA_CODE:
+                area_idx = i
+                break
 
-    # JST時刻設定
-    jst = timezone(timedelta(hours=9))
-    result["updated_at"] = datetime.now(jst).strftime("%Y-%m-%d %H:%M")
+        area_data_w0 = ts_week0["areas"][area_idx]
+        area_data_w1 = (
+            ts_week1.get("areas", [])[0] if ts_week1.get("areas") else {}
+        )
+
+        codes = area_data_w0.get("weatherCodes", [])
+        pops = area_data_w0.get("pops", [])
+        mins = area_data_w1.get("tempsMin", [])
+        maxs = area_data_w1.get("tempsMax", [])
+
+        # 17時以降の場合は週間予報のインデックスを 1, 2, 3 にシフト
+        start_offset = 0 if not is_after_17 else 1
+
+        for i, key in enumerate(["day1", "day2", "day3"]):
+            w_idx = start_offset + i
+            if w_idx < len(codes) and codes[w_idx]:
+                result[key]["weather"] = WEATHER_CODE_MAP.get(
+                    codes[w_idx], "くもり"
+                )
+            if w_idx < len(pops) and pops[w_idx]:
+                result[key]["pop"] = str(pops[w_idx])
+            if w_idx < len(mins) and mins[w_idx]:
+                result[key]["temp_min"] = str(mins[w_idx])
+            if w_idx < len(maxs) and maxs[w_idx]:
+                result[key]["temp_max"] = str(maxs[w_idx])
+
+    # 17時前で短期詳細予報（data[0]）が使える場合は、より正確なテキストで上書き
+    if not is_after_17 and "timeSeries" in short_term:
+        ts0 = short_term["timeSeries"][0]
+        area_idx_s = 0
+        for i, a in enumerate(ts0.get("areas", [])):
+            if a.get("area", {}).get("code") == AREA_CODE:
+                area_idx_s = i
+                break
+
+        weathers = ts0["areas"][area_idx_s].get("weathers", [])
+        if len(weathers) > 0:
+            result["day1"]["weather"] = clean_weather_text(weathers[0])
+        if len(weathers) > 1:
+            result["day2"]["weather"] = clean_weather_text(weathers[1])
+
+        # 気温（短期）
+        if len(short_term["timeSeries"]) > 2:
+            temps = short_term["timeSeries"][2]["areas"][0].get("temps", [])
+            if len(temps) >= 4:
+                result["day1"]["temp_min"] = temps[0]
+                result["day1"]["temp_max"] = temps[1]
+                result["day2"]["temp_min"] = temps[2]
+                result["day2"]["temp_max"] = temps[3]
 
     # JSON書き出し
     with open("hakuba_tenki.json", "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 
-    print("hakuba_tenki.json を更新しました:")
+    print("hakuba_tenki.json を正常に生成しました:")
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
-    get_weather()
+    get_jma_weather()
