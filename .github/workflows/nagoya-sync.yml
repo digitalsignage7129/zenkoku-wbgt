@@ -6,6 +6,11 @@ on:
     - cron: '3/10 * * * *'
   workflow_dispatch:
 
+# 他地域のジョブとPushタイミングが重なった際の同時実行エラー（cannot lock ref）を防止
+concurrency:
+  group: git-push-lock
+  cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -132,6 +137,14 @@ jobs:
           git add nagoya_wbgt.json
           if ! git diff --cached --quiet; then
             git commit -m "Update Nagoya WBGT & Weather Data"
-            git pull --rebase origin main
-            git push origin main
+            
+            # 同時Push衝突対策：成功するまで最大5回リトライ
+            n=0
+            until [ $n -ge 5 ]
+            do
+              git pull --rebase origin main && git push origin main && break
+              n=$((n+1))
+              echo "Push collided, retrying in 3 seconds... ($n/5)"
+              sleep 3
+            done
           fi
