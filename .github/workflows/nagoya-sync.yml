@@ -130,4 +130,8 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add nagoya_wbgt.json
-          git diff --cached --quiet || (git commit -m "Update Nagoya WBGT & Weather Data" && git push)
+          if ! git diff --cached --quiet; then
+            git commit -m "Update Nagoya WBGT & Weather Data"
+            git pull --rebase origin main
+            git push origin main
+          fi
