@@ -1,10 +1,10 @@
 {
   "location": "長野県白馬村",
-  "wbgt": "29.1",
+  "wbgt": "29.0",
   "level": "厳重警戒",
-  "temperature": "31.2",
+  "temperature": "31.6",
   "humidity": "59",
-  "wind_speed": "1.2",
+  "wind_speed": "1.9",
   "weather": "晴れ",
-  "updated_at": "2026-08-07 15:20"
+  "updated_at": "2026-08-07 15:30"
 }
