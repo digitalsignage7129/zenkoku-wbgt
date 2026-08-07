@@ -2,6 +2,7 @@ name: Chiba Official Sync
 
 on:
   schedule:
+    # 毎時 3分, 13分, 23分, 33分, 43分, 53分に自動実行（混雑回避のため数分ズラし）
     - cron: '3/10 * * * *'
   workflow_dispatch:
 
@@ -85,7 +86,7 @@ jobs:
           if not temp_val or not hum_val or not wind_val:
               raise ValueError("Critical weather data is missing. Aborting to prevent invalid display.")
 
-          # 環境省WBGTが万が一取得できなかった場合の安全対策（計算式でごまかさずエラーにするか、厳格に扱う）
+          # 環境省WBGTが万が一取得できなかった場合の安全対策
           if not wbgt_val:
               raise ValueError("Official WBGT data could not be retrieved from MOE.")
 
@@ -128,4 +129,8 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add chiba_wbgt.json
-          git diff --cached --quiet || (git commit -m "Update Chiba WBGT & Weather Data" && git push)
+          if ! git diff --cached --quiet; then
+            git commit -m "Update Chiba WBGT & Weather Data"
+            git pull --rebase origin main
+            git push origin main
+          fi
