@@ -18,10 +18,10 @@
     },
     {
       "date_str": "8/11 (火)",
-      "weather": "晴れ / くもり",
-      "icon": "⛅",
+      "weather": "くもり",
+      "icon": "☁️",
       "pop": "2",
-      "temp_high": "31",
+      "temp_high": "30",
       "temp_low": "22"
     }
   ]
