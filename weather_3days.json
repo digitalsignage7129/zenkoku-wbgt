@@ -13,15 +13,15 @@
       "weather": "雨",
       "icon": "🌧️",
       "pop": "95",
-      "temp_high": "27",
-      "temp_low": "22"
+      "temp_high": "26",
+      "temp_low": "23"
     },
     {
       "date_str": "8/14 (金)",
-      "weather": "雷雨",
-      "icon": "⛈️",
+      "weather": "雨",
+      "icon": "🌧️",
       "pop": "97",
-      "temp_high": "31",
+      "temp_high": "32",
       "temp_low": "23"
     }
   ]
