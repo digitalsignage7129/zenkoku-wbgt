@@ -1,10 +1,10 @@
 {
   "location": "長野県白馬村",
-  "wbgt": "21.2",
+  "wbgt": "21.0",
   "level": "留意",
-  "temperature": "21.9",
-  "humidity": "89",
-  "wind_speed": "1.2",
+  "temperature": "21.6",
+  "humidity": "91",
+  "wind_speed": "0.7",
   "weather": "くもり",
-  "updated_at": "2026-08-15 23:12"
+  "updated_at": "2026-08-15 23:40"
 }
