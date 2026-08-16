@@ -5,15 +5,15 @@
       "weather": "雨",
       "icon": "🌧️",
       "pop": "73",
-      "temp_high": "28",
+      "temp_high": "29",
       "temp_low": "24"
     },
     {
       "date_str": "8/17 (月)",
-      "weather": "雨",
-      "icon": "🌧️",
+      "weather": "くもり",
+      "icon": "☁️",
       "pop": "67",
-      "temp_high": "30",
+      "temp_high": "29",
       "temp_low": "24"
     },
     {
