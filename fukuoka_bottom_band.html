@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>下帯 - 動作確定版</title>
+  <title>下帯 - 確実動作版</title>
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -131,7 +131,6 @@
       font-size: 44px;
       font-weight: 900;
       color: #ffffff;
-      will-change: transform;
       letter-spacing: 1px;
     }
   </style>
@@ -207,11 +206,10 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    let currentAnimation = null;
     let currentText = '';
 
     function startTicker(text) {
-      if (currentText === text && currentAnimation) return;
+      if (currentText === text) return;
       currentText = text;
 
       const el = document.getElementById('ticker-text');
@@ -219,33 +217,36 @@
       
       el.textContent = text;
       
-      if (currentAnimation) {
-        currentAnimation.cancel();
-        currentAnimation = null;
+      // CSSアニメーションを一度解除
+      el.style.animation = 'none';
+      
+      // 強制的にDOMを描画更新（リフロー発生）
+      void el.offsetWidth;
+
+      // 幅を正確に計算
+      const containerWidth = container.clientWidth || 1500;
+      const textWidth = el.scrollWidth || (text.length * 45);
+      const endX = -textWidth - 100;
+      const totalDistance = containerWidth + Math.abs(endX);
+      const duration = totalDistance / 150; // 移動速度: 150px/秒
+
+      // 動的にCSS Keyframesを更新（OBS等のブラウザソースで最も確実に動く手法）
+      let styleEl = document.getElementById('dynamic-ticker-style');
+      if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'dynamic-ticker-style';
+        document.head.appendChild(styleEl);
       }
 
-      // DOM描画の確定を少し待ってから計算・開始（フリーズ防止）
-      setTimeout(() => {
-        const containerWidth = container.clientWidth || 1500;
-        const textWidth = el.scrollWidth || (text.length * 45);
+      styleEl.textContent = `
+        @keyframes tickerScroll {
+          0% { transform: translateX(${containerWidth}px); }
+          100% { transform: translateX(${endX}px); }
+        }
+      `;
 
-        // 文字が左端へ完全に消える位置（テキスト長 ＋ 余白100px）
-        const endX = -textWidth - 100;
-        const totalDistance = containerWidth + Math.abs(endX);
-        const duration = (totalDistance / 160) * 1000; // 速度固定(160px/s)
-
-        currentAnimation = el.animate(
-          [
-            { transform: `translateX(${containerWidth}px)` },
-            { transform: `translateX(${endX}px)` }
-          ],
-          {
-            duration: duration,
-            iterations: Infinity,
-            easing: 'linear'
-          }
-        );
-      }, 50);
+      // CSSアニメーションを適用して発火
+      el.style.animation = `tickerScroll ${duration}s linear infinite`;
     }
 
     startTicker(`【${cityInfo.name}】気象庁から最新データを取得しています...`);
