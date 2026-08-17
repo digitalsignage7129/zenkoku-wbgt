@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=1920, height=216, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>下帯 - 視認性＆レイアウト全面最適化版</title>
+  <title>下帯 - 上下光学センタリング精密微調整版</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
@@ -67,10 +67,14 @@
       color: #000000;
       font-size: 26px;
       font-weight: 900;
-      padding: 6px 24px;
+      padding: 0 24px;
+      height: 100%;
+      display: flex;
+      align-items: center;
       border-radius: 8px;
       white-space: nowrap;
       flex-shrink: 0;
+      margin-top: -1px;
     }
 
     /* 警報バッジ */
@@ -87,6 +91,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      margin-top: -1px;
     }
     .alert-badge.advisory { background: #d99b00; color: #000000; }
     .alert-badge.warning { background: #d92626; color: #ffffff; }
@@ -98,7 +103,7 @@
 
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-    /* 下段：テロップ枠 (高さ: 126px - 枠全体を活用) */
+    /* 下段：テロップ枠 (高さ: 126px) */
     .ticker-container {
       height: 126px;
       background: #0a0d14;
@@ -109,7 +114,7 @@
       width: 100%;
     }
 
-    /* テロップ文字 (文字サイズ 46px、垂直中央揃え) */
+    /* テロップ文字 (margin-top: -6px でフォント底上げ・光学真ん中揃え) */
     .ticker-text {
       position: absolute;
       top: 0;
@@ -123,6 +128,7 @@
       color: #ffffff;
       will-change: transform;
       letter-spacing: 1px;
+      margin-top: -6px;
     }
   </style>
 </head>
@@ -207,16 +213,13 @@
         currentAnimation.cancel();
       }
 
-      // レンダリング後の要素幅を計測してアニメーション実行
       requestAnimationFrame(() => {
         const containerWidth = container.getBoundingClientRect().width || 1500;
         const textWidth = el.getBoundingClientRect().width;
 
-        // 1秒間に180pxの速度で移動
         const totalDistance = containerWidth + textWidth;
         const duration = (totalDistance / 180) * 1000;
 
-        // 画面右外側から、文字が完全に画面左外側に消え切るまで（-textWidth - 50px）移動
         currentAnimation = el.animate(
           [
             { transform: `translateX(${containerWidth}px)` },
