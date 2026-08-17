@@ -5,15 +5,19 @@ from datetime import datetime, timedelta, timezone
 
 headers = {"User-Agent": "Mozilla/5.0"}
 
+# 大牟田市に最も近い総合観測所（久留米: 82056）を参照
+WBGT_POINT = "82056"
+AMEDAS_CODE = "82056"
+
 wbgt_val = None
 temp_val = "--"
 hum_val = "--"
 wind_val = "--"
-weather_val = "不明"
+weather_val = "--"
 
-# 1. 環境省サイトから大牟田（82416）の公式WBGT値を取得
+# 1. 環境省サイトから公式WBGT値を取得
 try:
-    moe_url = "https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=10&prefecture=82&point=82416"
+    moe_url = f"https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=10&prefecture=82&point={WBGT_POINT}"
     req = urllib.request.Request(moe_url, headers=headers)
     with urllib.request.urlopen(req, timeout=10) as resp:
         html = resp.read().decode("utf-8", errors="ignore")
@@ -25,7 +29,7 @@ try:
 except Exception as e:
     print(f"MOE fetch warning: {e}")
 
-# 2. 気象庁アメダスから大牟田（82416）の実測データを取得
+# 2. 気象庁アメダスから実測データを取得
 try:
     req_time = urllib.request.Request(
         "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt",
@@ -41,35 +45,36 @@ try:
     req_map = urllib.request.Request(jma_url, headers=headers)
     with urllib.request.urlopen(req_map, timeout=10) as resp:
         map_data = json.loads(resp.read().decode("utf-8"))
-        omuta = map_data.get("82416", {})  # 大牟田の観測所コード
+        obs_data = map_data.get(AMEDAS_CODE, {})
 
         # 気温
-        if "temp" in omuta and omuta["temp"] and omuta["temp"][0] is not None:
-            temp_val = f"{float(omuta['temp'][0]):.1f}"
+        if "temp" in obs_data and obs_data["temp"] and obs_data["temp"][0] is not None:
+            temp_val = f"{float(obs_data['temp'][0]):.1f}"
 
-        # 湿度（大牟田観測所にデータがある場合のみ取得）
-        if "humidity" in omuta and omuta["humidity"] and omuta["humidity"][0] is not None:
-            hum_val = str(int(omuta["humidity"][0]))
+        # 湿度
+        if "humidity" in obs_data and obs_data["humidity"] and obs_data["humidity"][0] is not None:
+            hum_val = str(int(obs_data["humidity"][0]))
 
         # 風速
-        if "wind" in omuta and omuta["wind"] and omuta["wind"][0] is not None:
-            wind_val = f"{float(omuta['wind'][0]):.1f}"
+        if "wind" in obs_data and obs_data["wind"] and obs_data["wind"][0] is not None:
+            wind_val = f"{float(obs_data['wind'][0]):.1f}"
 
         # 天気判定（10分降水量 / 10分日照時間）
-        precip = omuta.get("precipitation10m", [0])[0] or 0
-        sun = omuta.get("sun10m", [0])[0] or 0
+        if obs_data:
+            precip = obs_data.get("precipitation10m", [0])[0] or 0
+            sun = obs_data.get("sun10m", [0])[0] or 0
 
-        if precip >= 0.5:
-            weather_val = "雨"
-        elif sun >= 0.1:
-            weather_val = "晴れ"
-        else:
-            weather_val = "くもり"
+            if precip >= 0.5:
+                weather_val = "雨"
+            elif sun >= 0.1:
+                weather_val = "晴れ"
+            else:
+                weather_val = "くもり"
 
 except Exception as e:
     print(f"JMA fetch warning: {e}")
 
-# 警戒度の判定（WBGT値が取得できた場合）
+# 警戒度の判定
 level = "--"
 if wbgt_val:
     w = float(wbgt_val)
