@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>右帯 - 天気＆環境情報</title>
+  <title>右帯 - 気象庁API天気予報完全自動版</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -19,7 +19,6 @@
       user-select: none;
     }
 
-    /* 拠点ヘッダー */
     .header {
       height: 40px;
       background: #111111;
@@ -33,9 +32,9 @@
     .location-title { font-size: 16px; font-weight: bold; color: #00e5ff; }
     .update-time { font-size: 11px; color: #aaaaaa; }
 
-    /* 熱中症・WBGTメーターエリア */
+    /* 熱中症目安カード */
     .wbgt-card {
-      height: 90px;
+      height: 85px;
       background: #1a0f00;
       border: 2px solid #ff9900;
       border-radius: 8px;
@@ -44,11 +43,11 @@
       align-items: center;
       justify-content: space-between;
     }
-    .wbgt-label { font-size: 13px; color: #ffcc00; font-weight: bold; }
-    .wbgt-status { font-size: 22px; font-weight: 900; color: #ff3333; }
-    .wbgt-value { font-size: 14px; color: #ffffff; margin-top: 2px; }
+    .wbgt-label { font-size: 12px; color: #ffcc00; font-weight: bold; }
+    .wbgt-status { font-size: 20px; font-weight: 900; color: #ff3333; }
+    .wbgt-value { font-size: 13px; color: #ffffff; margin-top: 2px; }
 
-    /* 3日間天気（縦積み3段） */
+    /* 3日間天気カード */
     .day-card {
       flex: 1;
       background: #0a0a0a;
@@ -74,109 +73,137 @@
     .weather-icon { font-size: 42px; line-height: 1; }
 
     .day-right { width: 30%; text-align: right; }
-    .pop-val { font-size: 15px; font-weight: bold; color: #00ffff; margin-bottom: 6px; }
     .temp-high { font-size: 18px; font-weight: 900; color: #ff3333; }
     .temp-low { font-size: 18px; font-weight: 900; color: #3399ff; }
   </style>
 </head>
 <body>
 
-  <!-- ヘッダー -->
   <div class="header">
     <div class="location-title" id="location-name">読み込み中...</div>
     <div class="update-time" id="updated-at">更新 --:--</div>
   </div>
 
-  <!-- 熱中症警戒カード -->
   <div class="wbgt-card">
     <div>
-      <div class="wbgt-label">熱中症警戒情報 (WBGT)</div>
-      <div class="wbgt-status" id="wbgt-status">厳重警戒</div>
-      <div class="wbgt-value" id="wbgt-val">指数: 29℃</div>
+      <div class="wbgt-label">熱中症目安（最高気温より算出）</div>
+      <div class="wbgt-status" id="wbgt-status">算出中...</div>
+      <div class="wbgt-value" id="wbgt-val">予想最高: --℃</div>
     </div>
-    <div style="font-size: 36px;">⚠️</div>
+    <div style="font-size: 32px;">⚠️</div>
   </div>
 
-  <!-- 今日 -->
+  <!-- Day 1 -->
   <div class="day-card today">
     <div class="day-left">
       <div class="day-label">【 今日 】</div>
-      <div class="day-date" id="date-day1">--/--</div>
-      <div class="weather-text" id="weather-day1">--</div>
+      <div class="day-date" id="date-0">--/--</div>
+      <div class="weather-text" id="weather-0">--</div>
     </div>
-    <div class="day-center">
-      <div class="weather-icon" id="icon-day1">☀️</div>
-    </div>
+    <div class="day-center"><div class="weather-icon" id="icon-0">☀️</div></div>
     <div class="day-right">
-      <div class="pop-val" id="pop-day1">☔--%</div>
-      <div><span class="temp-high" id="high-day1">--℃</span></div>
-      <div><span class="temp-low" id="low-day1">--℃</span></div>
+      <div><span class="temp-high" id="high-0">--℃</span></div>
+      <div><span class="temp-low" id="low-0">--℃</span></div>
     </div>
   </div>
 
-  <!-- 明日 -->
+  <!-- Day 2 -->
   <div class="day-card">
     <div class="day-left">
       <div class="day-label">明日</div>
-      <div class="day-date" id="date-day2">--/--</div>
-      <div class="weather-text" id="weather-day2">--</div>
+      <div class="day-date" id="date-1">--/--</div>
+      <div class="weather-text" id="weather-1">--</div>
     </div>
-    <div class="day-center">
-      <div class="weather-icon" id="icon-day2">⛅</div>
-    </div>
+    <div class="day-center"><div class="weather-icon" id="icon-1">⛅</div></div>
     <div class="day-right">
-      <div class="pop-val" id="pop-day2">☔--%</div>
-      <div><span class="temp-high" id="high-day2">--℃</span></div>
-      <div><span class="temp-low" id="low-day2">--℃</span></div>
+      <div><span class="temp-high" id="high-1">--℃</span></div>
+      <div><span class="temp-low" id="low-1">--℃</span></div>
     </div>
   </div>
 
-  <!-- 明後日 -->
+  <!-- Day 3 -->
   <div class="day-card">
     <div class="day-left">
       <div class="day-label">明後日</div>
-      <div class="day-date" id="date-day3">--/--</div>
-      <div class="weather-text" id="weather-day3">--</div>
+      <div class="day-date" id="date-2">--/--</div>
+      <div class="weather-text" id="weather-2">--</div>
     </div>
-    <div class="day-center">
-      <div class="weather-icon" id="icon-day3">🌧️</div>
-    </div>
+    <div class="day-center"><div class="weather-icon" id="icon-2">🌧️</div></div>
     <div class="day-right">
-      <div class="pop-val" id="pop-day3">☔--%</div>
-      <div><span class="temp-high" id="high-day3">--℃</span></div>
-      <div><span class="temp-low" id="low-day3">--℃</span></div>
+      <div><span class="temp-high" id="high-2">--℃</span></div>
+      <div><span class="temp-low" id="low-2">--℃</span></div>
     </div>
   </div>
 
   <script>
-    // URLの ?city=kurume または ?city=onojo を取得
+    const CITIES = {
+      '4020300': { name: '福岡県久留米市', forecastCode: '400000' },
+      '4021700': { name: '福岡県大野城市', forecastCode: '400000' }
+    };
+
     const params = new URLSearchParams(window.location.search);
-    const city = params.get('city') || 'kurume'; // 指定がない場合はkurume
+    const cityCode = params.get('city') || '4020300';
+    const cityInfo = CITIES[cityCode] || CITIES['4020300'];
 
-    async function loadData() {
-      try {
-        // 例: kurume_data.json または onojo_data.json を取得
-        const res = await fetch(`${city}_data.json?t=` + Date.now());
-        const data = await res.json();
+    document.getElementById('location-name').textContent = cityInfo.name;
 
-        document.getElementById('location-name').textContent = data.location_name;
-        document.getElementById('updated-at').textContent = '更新 ' + data.updated_at;
-        document.getElementById('wbgt-status').textContent = data.wbgt.status;
-        document.getElementById('wbgt-val').textContent = '指数: ' + data.wbgt.value + '℃';
-
-        ['day1', 'day2', 'day3'].forEach(k => {
-          if (!data[k]) return;
-          document.getElementById(`date-${k}`).textContent = data[k].date;
-          document.getElementById(`weather-${k}`).textContent = data[k].weather;
-          document.getElementById(`pop-${k}`).textContent = '☔' + data[k].pop + '%';
-          document.getElementById(`high-${k}`).textContent = data[k].temp_max + '℃';
-          document.getElementById(`low-${k}`).textContent = data[k].temp_min + '℃';
-        });
-      } catch (e) { console.error(e); }
+    function getWeatherIcon(text) {
+      if (!text) return '☀️';
+      if (text.includes('雨')) return text.includes('晴') ? '🌦️' : '🌧️';
+      if (text.includes('雪')) return '❄️';
+      if (text.includes('雷')) return '🌩️';
+      if (text.includes('くもり') || text.includes('曇')) return text.includes('晴') ? '⛅' : '☁️';
+      return '☀️';
     }
 
-    loadData();
-    setInterval(loadData, 60000);
+    async function fetchJmaForecast() {
+      try {
+        const url = `https://www.jma.go.jp/bosai/forecast/data/forecast/${cityInfo.forecastCode}.json?t=` + Date.now();
+        const res = await fetch(url);
+        const data = await res.json();
+
+        const timeSeries = data[0].timeSeries;
+        const weatherArea = timeSeries[0].areas[0]; // 福岡県地域
+        const tempArea = timeSeries[2].areas[0];
+
+        const now = new Date();
+        document.getElementById('updated-at').textContent = '更新 ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+        for (let i = 0; i < 3; i++) {
+          const dateObj = new Date(timeSeries[0].timeDefines[i]);
+          const dateStr = `${dateObj.getMonth()+1}/${dateObj.getDate()} (${['日','月','火','水','木','金','土'][dateObj.getDay()]})`;
+          const wText = weatherArea.weathers[i] ? weatherArea.weathers[i].replace(/ /g, ' ') : '--';
+
+          document.getElementById(`date-${i}`).textContent = dateStr;
+          document.getElementById(`weather-${i}`).textContent = wText.split(' ')[0]; // 短縮表示
+          document.getElementById(`icon-${i}`).textContent = getWeatherIcon(wText);
+
+          // 気温
+          const high = tempArea.temps[i*2 + 1] || tempArea.temps[i] || '--';
+          const low = tempArea.temps[i*2] || '--';
+          document.getElementById(`high-${i}`).textContent = high !== '--' ? high + '℃' : '--℃';
+          document.getElementById(`low-${i}`).textContent = low !== '--' ? low + '℃' : '--℃';
+
+          // 本日の最高気温から熱中症判定
+          if (i === 0 && high !== '--') {
+            const hVal = parseInt(high);
+            let status = '注意';
+            if (hVal >= 35) status = '運動原則中止 (危険)';
+            else if (hVal >= 31) status = '厳重警戒 (激しい運動中止)';
+            else if (hVal >= 28) status = '警戒 (水分補給)';
+
+            document.getElementById('wbgt-status').textContent = status;
+            document.getElementById('wbgt-val').textContent = `本日予想最高: ${high}℃`;
+          }
+        }
+
+      } catch (e) {
+        console.error('天気予報取得エラー:', e);
+      }
+    }
+
+    fetchJmaForecast();
+    setInterval(fetchJmaForecast, 1800000); // 30分ごとに自動更新
   </script>
 </body>
 </html>
