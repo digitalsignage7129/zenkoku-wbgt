@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>下帯 - テロップ完走確定版</title>
+  <title>下帯 - 確定版</title>
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -12,8 +12,8 @@
     }
 
     html, body {
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
       margin: 0;
       padding: 0;
       overflow: hidden;
@@ -24,10 +24,10 @@
     }
 
     body {
-      padding: 10px;
+      padding: 12px;
       display: flex;
-      align-items: center;
-      gap: 16px;
+      align-items: stretch;
+      gap: 12px;
       width: 100%;
       height: 100%;
     }
@@ -106,8 +106,9 @@
 
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-    /* 下段：テロップ枠 */
+    /* 下段：テロップ枠 (Container Queriesを有効化) */
     .ticker-container {
+      container-type: inline-size;
       flex: 1;
       min-height: 0;
       background: #0a0d14;
@@ -118,7 +119,7 @@
       width: 100%;
     }
 
-    /* 流れる文字 */
+    /* 流れる文字：コンテナの右外端(100cqw)から自身の全幅(-100%)まで流す */
     .ticker-text {
       position: absolute;
       top: 0;
@@ -127,11 +128,20 @@
       display: flex;
       align-items: center;
       white-space: nowrap;
-      width: max-content;
       font-size: 44px;
       font-weight: 900;
       color: #ffffff;
       letter-spacing: 1px;
+      will-change: transform;
+    }
+
+    @keyframes tickerMove {
+      0% {
+        transform: translateX(100cqw); /* 親枠の右外端からスタート */
+      }
+      100% {
+        transform: translateX(-100%); /* 自身の幅分左へ抜ける＝最後の1文字まで完全完走 */
+      }
     }
   </style>
 </head>
@@ -213,43 +223,15 @@
       currentText = text;
 
       const el = document.getElementById('ticker-text');
-      const container = document.getElementById('ticker-bg');
-      
-      // アニメーションを一旦リセット
-      el.style.animation = 'none';
       el.textContent = text;
 
-      // 文字列変更後のレイアウト確定を2フレーム待機（ラグ解消）
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          const containerWidth = container.clientWidth || 1500;
-          // ピクセル単位の正確なテキスト幅を取得
-          const textWidth = Math.max(el.scrollWidth, el.getBoundingClientRect().width);
+      // 文字数に応じて流れる時間を算出（JSでのピクセル幅測定は不使用）
+      const duration = Math.max(12, text.length * 0.38 + 6);
 
-          // 画面左端から文字の最後尾が完全に消え去る位置（200pxのマージンを確保）
-          const endX = -(textWidth + 200);
-          const totalDistance = containerWidth + Math.abs(endX);
-          const duration = totalDistance / 140; // 移動速度: 140px/秒
-
-          // 動的スタイルシートの適用
-          let styleEl = document.getElementById('dynamic-ticker-style');
-          if (!styleEl) {
-            styleEl = document.createElement('style');
-            styleEl.id = 'dynamic-ticker-style';
-            document.head.appendChild(styleEl);
-          }
-
-          styleEl.textContent = `
-            @keyframes tickerScroll {
-              0% { transform: translateX(${containerWidth}px); }
-              100% { transform: translateX(${endX}px); }
-            }
-          `;
-
-          // アニメーション再適用
-          el.style.animation = `tickerScroll ${duration}s linear infinite`;
-        });
-      });
+      // アニメーションを再発火
+      el.style.animation = 'none';
+      void el.offsetWidth; // 描画リセット
+      el.style.animation = `tickerMove ${duration}s linear infinite`;
     }
 
     startTicker(`【${cityInfo.name}】気象庁から最新データを取得しています...`);
