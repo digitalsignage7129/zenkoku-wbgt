@@ -5,16 +5,18 @@
   <meta name="viewport" content="width=558, height=424, initial-scale=1.0">
   <title>奈良県田原本町 3日間天気予報</title>
   <style>
-    * {
-      box-sizing: border-box;
+    *, *::before, *::after {
+      box-sizing: border-box; /* 枠線と余白をサイズ内に含める */
       margin: 0;
       padding: 0;
     }
 
-    /* 558px * 424px 完全固定レイアウト */
+    /* 558px * 424px 枠外へのはみ出しを絶対禁止 */
     html, body {
       width: 558px;
       height: 424px;
+      max-width: 558px;
+      max-height: 424px;
       overflow: hidden;
       background-color: #000000;
       color: #ffffff;
@@ -23,43 +25,44 @@
     }
 
     body {
-      padding: 12px;
+      padding: 8px; /* 余白を縮小 */
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
-    /* 1. ヘッダーエリア (高さ: 40px) */
+    /* 1. ヘッダーエリア (高さ: 36px) */
     .header {
-      height: 40px;
+      height: 36px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 16px;
+      padding: 0 12px;
       background-color: #111111;
       border-radius: 6px;
       border: 1px solid #333333;
       flex-shrink: 0;
     }
     .location-name {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 900;
       color: #00e5ff;
       white-space: nowrap;
     }
     .update-time {
-      font-size: 12px;
+      font-size: 11px;
       color: #aaaaaa;
       white-space: nowrap;
     }
 
-    /* 2. 3日間コンテナ (残り高さ: 350px) */
+    /* 2. 3日間コンテナ (残り高さ: 364px) */
     .forecast-container {
-      width: 534px;
-      height: 350px;
+      flex: 1;
+      width: 100%;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+      gap: 8px;
+      min-height: 0; /* flex内の縮小許可 */
     }
 
     /* 各日付カード */
@@ -67,7 +70,7 @@
       background-color: #050505;
       border: 2px solid #444444;
       border-radius: 8px;
-      padding: 10px 6px;
+      padding: 8px 4px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -78,7 +81,7 @@
 
     /* 今日カードの強調 */
     .card.today {
-      border: 3px solid #00e5ff;
+      border: 2px solid #00e5ff;
       background-color: #00121d;
     }
 
@@ -86,10 +89,10 @@
     .date-box {
       width: 100%;
       border-bottom: 1px solid #333333;
-      padding-bottom: 6px;
+      padding-bottom: 4px;
     }
     .date-label {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 900;
       color: #00e5ff;
       white-space: nowrap;
@@ -98,7 +101,7 @@
       color: #aaaaaa;
     }
     .date-val {
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 900;
       color: #ffffff;
       line-height: 1.2;
@@ -112,19 +115,19 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      margin: 4px 0;
+      margin: 2px 0;
     }
     .weather-icon {
-      font-size: 48px;
+      font-size: 40px;
       line-height: 1;
     }
     .weather-text {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 900;
       color: #ffffff;
-      margin-top: 6px;
+      margin-top: 4px;
       word-break: break-all;
-      line-height: 1.2;
+      line-height: 1.1;
     }
 
     /* 降水確率 */
@@ -133,10 +136,10 @@
       background-color: #002233;
       border: 1px solid #0088cc;
       border-radius: 6px;
-      padding: 6px 0;
+      padding: 4px 0;
     }
     .pop-val {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 900;
       color: #00ffff;
       line-height: 1;
@@ -148,7 +151,7 @@
       background-color: #111111;
       border: 1px solid #222222;
       border-radius: 6px;
-      padding: 6px 2px;
+      padding: 4px 2px;
       display: flex;
       justify-content: space-around;
       align-items: center;
@@ -159,19 +162,19 @@
       align-items: center;
     }
     .temp-title {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: bold;
       color: #888888;
-      margin-bottom: 2px;
+      margin-bottom: 1px;
     }
     .temp-val-high {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 900;
       color: #ff3333;
       line-height: 1;
     }
     .temp-val-low {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 900;
       color: #3399ff;
       line-height: 1;
