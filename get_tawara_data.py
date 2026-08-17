@@ -1,13 +1,22 @@
 import json
 import re
+import ssl
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
+# ブラウザからのアクセスに偽装するヘッダー
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept": "*/*",
+    "Referer": "https://www.jma.go.jp/",
 }
 
-# 田原本町周辺の公式WBGT・気象観測点（奈良：64011）
+# SSL証明書エラー回避用
+ssl_context = ssl.create_default_context()
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
+
+# 奈良観測所コード (田原本町周辺): 64011
 AMEDAS_CODE = "64011"
 MOE_POINT = "64011"
 REGION_CODE = "06"  # 近畿
@@ -16,10 +25,10 @@ PREF_CODE = "64"    # 奈良県
 jst = timezone(timedelta(hours=9))
 now_jst = datetime.now(jst)
 
-# 1. 気象庁アメダスから実測値を取得
+# 1. 気象庁アメダスから実測値を取得 (過去40分まで遡って探索)
 temp_val, hum_val, wind_val, weather_val = None, None, None, "不明"
 
-for minutes_back in [10, 20, 30]:
+for minutes_back in [10, 20, 30, 40]:
     target_time = now_jst - timedelta(minutes=minutes_back)
     minute = (target_time.minute // 10) * 10
     time_str = target_time.strftime(f"%Y%m%d%H{minute:02d}00")
@@ -27,7 +36,7 @@ for minutes_back in [10, 20, 30]:
     jma_url = f"https://www.jma.go.jp/bosai/amedas/data/map/{time_str}.json"
     try:
         req = urllib.request.Request(jma_url, headers=headers)
-        with urllib.request.urlopen(req, timeout=5) as resp:
+        with urllib.request.urlopen(req, context=ssl_context, timeout=10) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             if AMEDAS_CODE in data:
                 obs = data[AMEDAS_CODE]
@@ -48,8 +57,10 @@ for minutes_back in [10, 20, 30]:
                     weather_val = "晴れ"
                 else:
                     weather_val = "くもり"
+                print(f"JMA Success: Fetched data from {time_str}")
                 break
-    except Exception:
+    except Exception as e:
+        print(f"JMA Fetch error ({time_str}): {e}")
         continue
 
 # 2. 環境省サイトからWBGT値を直接取得
@@ -58,14 +69,15 @@ moe_url = f"https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region={REGION_CODE}&
 
 try:
     req = urllib.request.Request(moe_url, headers=headers)
-    with urllib.request.urlopen(req, timeout=5) as resp:
+    with urllib.request.urlopen(req, context=ssl_context, timeout=10) as resp:
         html = resp.read().decode("utf-8", errors="ignore")
         matches = re.findall(r"(\d{2}\.\d)", html)
         valid_wbgt = [m for m in matches if 10.0 <= float(m) <= 40.0]
         if valid_wbgt:
             wbgt_val = valid_wbgt[-1]
+            print(f"MOE Success: WBGT = {wbgt_val}")
 except Exception as e:
-    print(f"MOE fetch error: {e}")
+    print(f"MOE Fetch error: {e}")
 
 # 3. 警戒度判定
 level = "--"
