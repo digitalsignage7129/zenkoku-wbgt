@@ -7,16 +7,16 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 }
 
-# 奈良県橿原観測所コード (田原本町最寄り): 64076
-AMEDAS_CODE = "64076"
-MOE_POINT = "64076"
+# 田原本町周辺の公式WBGT・気象観測点（奈良：64011）
+AMEDAS_CODE = "64011"
+MOE_POINT = "64011"
 REGION_CODE = "06"  # 近畿
 PREF_CODE = "64"    # 奈良県
 
 jst = timezone(timedelta(hours=9))
 now_jst = datetime.now(jst)
 
-# 1. 気象庁アメダスから橿原（64076）の実測値を確実に取得
+# 1. 気象庁アメダスから実測値を取得
 temp_val, hum_val, wind_val, weather_val = None, None, None, "不明"
 
 for minutes_back in [10, 20, 30]:
@@ -32,23 +32,11 @@ for minutes_back in [10, 20, 30]:
             if AMEDAS_CODE in data:
                 obs = data[AMEDAS_CODE]
 
-                if (
-                    "temp" in obs
-                    and obs["temp"]
-                    and obs["temp"][0] is not None
-                ):
+                if "temp" in obs and obs["temp"] and obs["temp"][0] is not None:
                     temp_val = f"{float(obs['temp'][0]):.1f}"
-                if (
-                    "humidity" in obs
-                    and obs["humidity"]
-                    and obs["humidity"][0] is not None
-                ):
+                if "humidity" in obs and obs["humidity"] and obs["humidity"][0] is not None:
                     hum_val = str(int(obs["humidity"][0]))
-                if (
-                    "wind" in obs
-                    and obs["wind"]
-                    and obs["wind"][0] is not None
-                ):
+                if "wind" in obs and obs["wind"] and obs["wind"][0] is not None:
                     wind_val = f"{float(obs['wind'][0]):.1f}"
 
                 precip = obs.get("precipitation10m", [0])[0] or 0
@@ -64,7 +52,7 @@ for minutes_back in [10, 20, 30]:
     except Exception:
         continue
 
-# 2. 環境省サイトから橿原（64076）の公式WBGT値を直接取得
+# 2. 環境省サイトからWBGT値を直接取得
 wbgt_val = None
 moe_url = f"https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region={REGION_CODE}&prefecture={PREF_CODE}&point={MOE_POINT}"
 
