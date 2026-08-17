@@ -3,78 +3,81 @@ import re
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
-headers = {"User-Agent": "Mozilla/5.0"}
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+}
 
-# 久留米観測所（82286）のコード
-WBGT_POINT = "82286"
-AMEDAS_CODE = "82286"
+# 大牟田観測所コード: 82361
+AMEDAS_CODE = "82361"
+MOE_POINT = "82361"
 
+jst = timezone(timedelta(hours=9))
+now_jst = datetime.now(jst)
+
+# 1. 気象庁アメダスから大牟田（82361）の実測値を確実に取得 (CDN更新遅延対策)
+temp_val, hum_val, wind_val, weather_val = None, None, None, "不明"
+
+for minutes_back in [10, 20, 30]:
+    target_time = now_jst - timedelta(minutes=minutes_back)
+    minute = (target_time.minute // 10) * 10
+    time_str = target_time.strftime(f"%Y%m%d%H{minute:02d}00")
+
+    jma_url = f"https://www.jma.go.jp/bosai/amedas/data/map/{time_str}.json"
+    try:
+        req = urllib.request.Request(jma_url, headers=headers)
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            if AMEDAS_CODE in data:
+                obs = data[AMEDAS_CODE]
+
+                if (
+                    "temp" in obs
+                    and obs["temp"]
+                    and obs["temp"][0] is not None
+                ):
+                    temp_val = f"{float(obs['temp'][0]):.1f}"
+                if (
+                    "humidity" in obs
+                    and obs["humidity"]
+                    and obs["humidity"][0] is not None
+                ):
+                    hum_val = str(int(obs["humidity"][0]))
+                if (
+                    "wind" in obs
+                    and obs["wind"]
+                    and obs["wind"][0] is not None
+                ):
+                    wind_val = f"{float(obs['wind'][0]):.1f}"
+
+                precip = obs.get("precipitation10m", [0])[0] or 0
+                sun = obs.get("sun10m", [0])[0] or 0
+
+                if precip >= 0.5:
+                    weather_val = "雨"
+                elif sun >= 0.1:
+                    weather_val = "晴れ"
+                else:
+                    weather_val = "くもり"
+                break
+    except Exception:
+        continue
+
+# 2. 環境省サイトから大牟田（82361）の公式WBGT値を直接取得
 wbgt_val = None
-temp_val = "--"
-hum_val = "--"
-wind_val = "--"
-weather_val = "--"
+moe_url = f"https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=10&prefecture=82&point={MOE_POINT}"
 
-# 1. 環境省サイトから久留米（82286）の公式WBGT値を取得
 try:
-    moe_url = f"https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=10&prefecture=82&point={WBGT_POINT}"
     req = urllib.request.Request(moe_url, headers=headers)
-    with urllib.request.urlopen(req, timeout=10) as resp:
+    with urllib.request.urlopen(req, timeout=5) as resp:
         html = resp.read().decode("utf-8", errors="ignore")
-        matches = re.findall(
-            r">(1[5-9]\.[0-9]|2[0-9]\.[0-9]|3[0-9]\.[0-9])<", html
-        )
-        if matches:
-            wbgt_val = matches[0]
+        matches = re.findall(r"(\d{2}\.\d)", html)
+        valid_wbgt = [m for m in matches if 10.0 <= float(m) <= 40.0]
+        if valid_wbgt:
+            wbgt_val = valid_wbgt[-1]
 except Exception as e:
-    print(f"MOE fetch warning: {e}")
+    print(f"MOE fetch error: {e}")
 
-# 2. 気象庁アメダスから久留米（82286）の実測データを取得
-try:
-    req_time = urllib.request.Request(
-        "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt",
-        headers=headers,
-    )
-    with urllib.request.urlopen(req_time, timeout=10) as resp:
-        latest_time = resp.read().decode("utf-8").strip()
-        formatted_time = re.sub(r"[-:+T]", "", latest_time)[:14]
-
-    jma_url = (
-        f"https://www.jma.go.jp/bosai/amedas/data/map/{formatted_time}.json"
-    )
-    req_map = urllib.request.Request(jma_url, headers=headers)
-    with urllib.request.urlopen(req_map, timeout=10) as resp:
-        map_data = json.loads(resp.read().decode("utf-8"))
-        obs_data = map_data.get(AMEDAS_CODE, {})
-
-        # 気温
-        if "temp" in obs_data and obs_data["temp"] and obs_data["temp"][0] is not None:
-            temp_val = f"{float(obs_data['temp'][0]):.1f}"
-
-        # 湿度
-        if "humidity" in obs_data and obs_data["humidity"] and obs_data["humidity"][0] is not None:
-            hum_val = str(int(obs_data["humidity"][0]))
-
-        # 風速
-        if "wind" in obs_data and obs_data["wind"] and obs_data["wind"][0] is not None:
-            wind_val = f"{float(obs_data['wind'][0]):.1f}"
-
-        # 天気判定（10分降水量 / 10分日照時間）
-        if obs_data:
-            precip = obs_data.get("precipitation10m", [0])[0] or 0
-            sun = obs_data.get("sun10m", [0])[0] or 0
-
-            if precip >= 0.5:
-                weather_val = "雨"
-            elif sun >= 0.1:
-                weather_val = "晴れ"
-            else:
-                weather_val = "くもり"
-
-except Exception as e:
-    print(f"JMA fetch warning: {e}")
-
-# 警戒度の判定
+# 3. 警戒度判定
 level = "--"
 if wbgt_val:
     w = float(wbgt_val)
@@ -89,22 +92,19 @@ if wbgt_val:
     else:
         level = "ほぼ安全"
 
-# JSON出力
-jst = timezone(timedelta(hours=9))
-now_str = datetime.now(jst).strftime("%Y-%m-%d %H:%M")
-
+# 4. JSON出力
 result = {
     "location": "福岡県大牟田市",
     "wbgt": str(wbgt_val) if wbgt_val else "--",
     "level": level,
-    "temperature": temp_val,
-    "humidity": hum_val,
-    "wind_speed": wind_val,
+    "temperature": str(temp_val) if temp_val else "--",
+    "humidity": str(hum_val) if hum_val else "--",
+    "wind_speed": str(wind_val) if wind_val else "--",
     "weather": weather_val,
-    "updated_at": now_str,
+    "updated_at": now_jst.strftime("%Y-%m-%d %H:%M"),
 }
 
 with open("omuta_wbgt.json", "w", encoding="utf-8") as f:
     json.dump(result, f, ensure_ascii=False, indent=2)
 
-print("Generated JSON:", json.dumps(result, ensure_ascii=False))
+print("Generated JSON:\n", json.dumps(result, ensure_ascii=False, indent=2))
