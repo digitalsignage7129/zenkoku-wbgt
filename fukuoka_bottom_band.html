@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>下帯 - 確定版</title>
+  <title>下帯 - 完全完走版</title>
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -106,9 +106,8 @@
 
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-    /* 下段：テロップ枠 (Container Queriesを有効化) */
+    /* 下段：テロップ枠 */
     .ticker-container {
-      container-type: inline-size;
       flex: 1;
       min-height: 0;
       background: #0a0d14;
@@ -119,28 +118,31 @@
       width: 100%;
     }
 
-    /* 流れる文字：コンテナの右外端(100cqw)から自身の全幅(-100%)まで流す */
+    /* 流れる文字 */
     .ticker-text {
       position: absolute;
       top: 0;
-      left: 0;
       height: 100%;
       display: flex;
       align-items: center;
       white-space: nowrap;
+      width: max-content !important;
       font-size: 44px;
       font-weight: 900;
       color: #ffffff;
       letter-spacing: 1px;
-      will-change: transform;
+      will-change: transform, left;
     }
 
-    @keyframes tickerMove {
+    /* テロップアニメーション */
+    @keyframes tickerScroll {
       0% {
-        transform: translateX(100cqw); /* 親枠の右外端からスタート */
+        left: 100%;
+        transform: translateX(0);
       }
       100% {
-        transform: translateX(-100%); /* 自身の幅分左へ抜ける＝最後の1文字まで完全完走 */
+        left: 0;
+        transform: translateX(-100%);
       }
     }
   </style>
@@ -225,13 +227,13 @@
       const el = document.getElementById('ticker-text');
       el.textContent = text;
 
-      // 文字数に応じて流れる時間を算出（JSでのピクセル幅測定は不使用）
-      const duration = Math.max(12, text.length * 0.38 + 6);
+      // 文字数に応じた移動速度調整（1文字あたり約0.35秒）
+      const duration = Math.max(12, text.length * 0.35 + 5);
 
       // アニメーションを再発火
       el.style.animation = 'none';
-      void el.offsetWidth; // 描画リセット
-      el.style.animation = `tickerMove ${duration}s linear infinite`;
+      void el.offsetWidth;
+      el.style.animation = `tickerScroll ${duration}s linear infinite`;
     }
 
     startTicker(`【${cityInfo.name}】気象庁から最新データを取得しています...`);
