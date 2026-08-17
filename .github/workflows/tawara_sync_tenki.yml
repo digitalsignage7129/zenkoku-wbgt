@@ -1,0 +1,38 @@
+name: Update Tawaramoto Weather & WBGT Data
+
+on:
+  repository_dispatch:
+    types: [update-tawara]  # 外部からこのイベント名で叩く
+  workflow_dispatch:        # GitHub画面からの手動実行用
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run Weather Data Scripts
+        run: |
+          python get_tawara_data.py
+          python get_tawara_tenki.py
+
+      - name: Commit and Push JSON
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add tawaramoto_wbgt.json tawaramoto_tenki.json
+          
+          if ! git diff --quiet || ! git diff --staged --quiet; then
+            git commit -m "Auto update Tawaramoto weather and WBGT data [skip ci]"
+            git pull --rebase origin main
+            git push
+          fi
