@@ -26,7 +26,7 @@ jobs:
 
       - name: Execute Python script
         # ※実際のスクリプトファイル名（例: main.py）に書き換えてください
-        run: python main.py
+        run: python get_omuta_tenki.py
 
       - name: Commit and push changes
         run: |
