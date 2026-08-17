@@ -1,0 +1,31 @@
+name: Update Tawaramoto Weather Data
+
+on:
+  repository_dispatch:
+    types: [update-tawara] # cron-job.org 等からの呼び出し用
+  workflow_dispatch: # 管理画面および直接API呼び出し用
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run Python script
+        run: python get_tawara_data.py
+
+      - name: Commit and Push JSON
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add tawaramoto_wbgt.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto update tawaramoto_wbgt.json [skip ci]" && git push)
