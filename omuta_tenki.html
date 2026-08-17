@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=558, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>福岡県大牟田市 3日間天気予報</title>
   <style>
     * {
@@ -10,62 +10,64 @@
       margin: 0;
       padding: 0;
     }
-    
-    /* 画面サイズを 558px × 778px に厳密固定 */
+
+    /* 配信枠のサイズ（100%）に完全固定し、はみ出しを禁止 */
     html, body {
-      width: 558px;
-      height: 778px;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
       background-color: #000000;
       color: #ffffff;
-      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", "Arial Black", sans-serif;
+      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
       user-select: none;
     }
 
     body {
-      padding: 12px;
+      padding: 1.5vh 1.5vw;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 1.2vh;
     }
 
-    /* 1. ヘッダーエリア (高さ 44px) */
+    /* 1. ヘッダーエリア */
     .header {
+      height: 6.5vh;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 12px;
+      padding: 0 2vw;
       background-color: #111111;
-      border-radius: 8px;
+      border-radius: 6px;
       border: 1px solid #333333;
-      height: 44px;
       flex-shrink: 0;
     }
     .location-name {
-      font-size: 18px;
+      font-size: 2.6vh;
       font-weight: 900;
       color: #00e5ff;
+      white-space: nowrap;
     }
     .update-time {
-      font-size: 12px;
+      font-size: 1.8vh;
       color: #aaaaaa;
+      white-space: nowrap;
     }
 
-    /* 2. 3日間コンテナ (列の自動拡張を minmax(0, 1fr) で完全に阻止) */
+    /* 2. 3日間コンテナ（横幅を強制的に3等分） */
     .forecast-container {
+      flex: 1;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      flex: 1;
-      min-height: 0; /* 縦方向のはみ出し防止 */
+      gap: 1.5vw;
+      min-height: 0;
     }
 
     /* 各日付カード */
     .card {
       background-color: #050505;
       border: 2px solid #444444;
-      border-radius: 10px;
-      padding: 10px 4px;
+      border-radius: 8px;
+      padding: 1.5vh 0.5vw;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -74,33 +76,33 @@
       overflow: hidden;
     }
 
-    /* 本日カード強調 */
+    /* 今日カードの強調 */
     .card.today {
       border: 3px solid #00e5ff;
       background-color: #00121d;
     }
 
-    /* 日付・区分エリア */
+    /* 日付表示 */
     .date-box {
       width: 100%;
       border-bottom: 1px solid #333333;
-      padding-bottom: 6px;
+      padding-bottom: 0.8vh;
     }
     .date-label {
-      font-size: 15px;
+      font-size: 2.2vh;
       font-weight: 900;
       color: #00e5ff;
+      white-space: nowrap;
     }
     .card:not(.today) .date-label {
       color: #aaaaaa;
     }
-
     .date-val {
-      font-size: 14px;
+      font-size: 2vh;
       font-weight: 900;
       color: #ffffff;
       line-height: 1.2;
-      margin-top: 2px;
+      margin-top: 0.3vh;
       white-space: nowrap;
     }
 
@@ -110,43 +112,43 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      margin: 2px 0;
+      margin: 0.5vh 0;
     }
     .weather-icon {
-      font-size: 48px;
-      line-height: 1.1;
+      font-size: 6.5vh;
+      line-height: 1;
     }
     .weather-text {
-      font-size: 14px;
+      font-size: 2vh;
       font-weight: 900;
       color: #ffffff;
-      margin-top: 4px;
+      margin-top: 0.5vh;
       word-break: break-all;
       line-height: 1.2;
     }
 
     /* 降水確率 */
     .pop-box {
-      width: 100%;
+      width: 95%;
       background-color: #002233;
       border: 1px solid #0088cc;
       border-radius: 6px;
-      padding: 6px 0;
+      padding: 0.8vh 0;
     }
     .pop-val {
-      font-size: 16px;
+      font-size: 2.4vh;
       font-weight: 900;
       color: #00ffff;
       line-height: 1;
     }
 
-    /* 最高・最低気温 */
+    /* 気温エリア */
     .temp-box {
-      width: 100%;
+      width: 95%;
       background-color: #111111;
       border: 1px solid #222222;
       border-radius: 6px;
-      padding: 6px 2px;
+      padding: 0.8vh 0.2vw;
       display: flex;
       justify-content: space-around;
       align-items: center;
@@ -157,19 +159,19 @@
       align-items: center;
     }
     .temp-title {
-      font-size: 10px;
+      font-size: 1.4vh;
       font-weight: bold;
       color: #888888;
-      margin-bottom: 2px;
+      margin-bottom: 0.2vh;
     }
     .temp-val-high {
-      font-size: 17px;
+      font-size: 2.3vh;
       font-weight: 900;
       color: #ff3333;
       line-height: 1;
     }
     .temp-val-low {
-      font-size: 17px;
+      font-size: 2.3vh;
       font-weight: 900;
       color: #3399ff;
       line-height: 1;
@@ -184,6 +186,7 @@
     <div class="update-time" id="updated-at">更新: --:--</div>
   </div>
 
+  <!-- 3日間エリア -->
   <div class="forecast-container">
     <!-- Day 1 -->
     <div class="card today" id="card-day1">
