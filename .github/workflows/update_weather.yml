@@ -1,0 +1,36 @@
+name: Auto Update Omuta Weather
+
+on:
+  schedule:
+    # 10分ごとに実行 (Cron形式)
+    - cron: '*/10 * * * *'
+  # 手動実行および外部cronサービス(cron-job.org等)からのAPI呼び出しに対応
+  workflow_dispatch:
+  repository_dispatch:
+    types: [cron-trigger]
+
+jobs:
+  update-weather:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # リポジトリへの書き込み・コミット権限
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Execute Python script
+        # ※実際のスクリプトファイル名（例: main.py）に書き換えてください
+        run: python main.py
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add omuta_tenki.json
+          git diff --staged --quiet || (git commit -m "auto: update omuta_tenki.json" && git push)
