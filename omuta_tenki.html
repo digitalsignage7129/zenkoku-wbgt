@@ -11,43 +11,34 @@
       padding: 0;
     }
     
+    /* 画面サイズを 558px × 778px に厳密固定 */
     html, body {
-      width: 100vw;
-      height: 100vh;
+      width: 558px;
+      height: 778px;
       overflow: hidden;
       background-color: #000000;
       color: #ffffff;
       font-family: "Hiragino Kaku Gothic ProN", "Meiryo", "Arial Black", sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       user-select: none;
     }
 
-    /* 基準キャンバス（558px × 778px 固定） */
-    #stage {
-      width: 558px;
-      height: 778px;
+    body {
       padding: 12px;
-      background-color: #000000;
       display: flex;
       flex-direction: column;
-      transform-origin: center center;
-      flex-shrink: 0;
-      overflow: hidden;
+      gap: 10px;
     }
 
-    /* ヘッダーエリア (高さ 40px) */
+    /* 1. ヘッダーエリア (高さ 44px) */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 10px;
-      margin-bottom: 10px;
+      padding: 0 12px;
       background-color: #111111;
       border-radius: 8px;
       border: 1px solid #333333;
-      height: 40px;
+      height: 44px;
       flex-shrink: 0;
     }
     .location-name {
@@ -60,14 +51,13 @@
       color: #aaaaaa;
     }
 
-    /* 3日間コンテナ (余白を厳密管理) */
+    /* 2. 3日間コンテナ (列の自動拡張を minmax(0, 1fr) で完全に阻止) */
     .forecast-container {
       display: grid;
-      /* minmax(0, 1fr) で子要素による横幅拡張を防止 */
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
       flex: 1;
-      height: calc(100% - 50px);
+      min-height: 0; /* 縦方向のはみ出し防止 */
     }
 
     /* 各日付カード */
@@ -81,7 +71,7 @@
       justify-content: space-between;
       align-items: center;
       text-align: center;
-      overflow: hidden; /* はみ出し防止 */
+      overflow: hidden;
     }
 
     /* 本日カード強調 */
@@ -90,24 +80,23 @@
       background-color: #00121d;
     }
 
-    /* 1. 日付・区分エリア */
+    /* 日付・区分エリア */
     .date-box {
       width: 100%;
       border-bottom: 1px solid #333333;
       padding-bottom: 6px;
     }
     .date-label {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 900;
       color: #00e5ff;
-      letter-spacing: 0.5px;
     }
     .card:not(.today) .date-label {
       color: #aaaaaa;
     }
 
     .date-val {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 900;
       color: #ffffff;
       line-height: 1.2;
@@ -115,20 +104,20 @@
       white-space: nowrap;
     }
 
-    /* 2. 天気アイコン ＆ テキスト */
+    /* 天気アイコン ＆ テキスト */
     .weather-box {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      margin: 4px 0;
+      margin: 2px 0;
     }
     .weather-icon {
       font-size: 48px;
-      line-height: 1;
+      line-height: 1.1;
     }
     .weather-text {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 900;
       color: #ffffff;
       margin-top: 4px;
@@ -136,7 +125,7 @@
       line-height: 1.2;
     }
 
-    /* 3. 降水確率 */
+    /* 降水確率 */
     .pop-box {
       width: 100%;
       background-color: #002233;
@@ -145,42 +134,42 @@
       padding: 6px 0;
     }
     .pop-val {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 900;
       color: #00ffff;
       line-height: 1;
     }
 
-    /* 4. 最高・最低気温（縦並び配置に変更して幅オーバーを完全防止） */
+    /* 最高・最低気温 */
     .temp-box {
       width: 100%;
       background-color: #111111;
       border: 1px solid #222222;
       border-radius: 6px;
-      padding: 6px 8px;
+      padding: 6px 2px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .temp-group {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-    }
-    .temp-row {
-      display: flex;
-      justify-content: space-between;
       align-items: center;
-      width: 100%;
     }
     .temp-title {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: bold;
       color: #888888;
+      margin-bottom: 2px;
     }
     .temp-val-high {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 900;
       color: #ff3333;
       line-height: 1;
     }
     .temp-val-low {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 900;
       color: #3399ff;
       line-height: 1;
@@ -189,117 +178,90 @@
 </head>
 <body>
 
-  <div id="stage">
+  <!-- ヘッダー -->
+  <div class="header">
+    <div class="location-name" id="location-name">福岡県大牟田市</div>
+    <div class="update-time" id="updated-at">更新: --:--</div>
+  </div>
 
-    <!-- ヘッダー -->
-    <div class="header">
-      <div class="location-name" id="location-name">福岡県大牟田市</div>
-      <div class="update-time" id="updated-at">更新: --:--</div>
-    </div>
-
-    <div class="forecast-container">
-      <!-- Day 1 -->
-      <div class="card today" id="card-day1">
-        <div class="date-box">
-          <div class="date-label" id="label-day1">【 今日 】</div>
-          <div class="date-val" id="date-day1">--/-- (-)</div>
-        </div>
-        <div class="weather-box">
-          <div class="weather-icon" id="icon-day1">☀️</div>
-          <div class="weather-text" id="weather-day1">--</div>
-        </div>
-        <div class="pop-box">
-          <div class="pop-val" id="pop-day1">☔ --%</div>
-        </div>
-        <div class="temp-box">
-          <div class="temp-row">
-            <span class="temp-title">最高</span>
-            <span class="temp-val-high" id="temphigh-day1">--℃</span>
-          </div>
-          <div class="temp-row">
-            <span class="temp-title">最低</span>
-            <span class="temp-val-low" id="templow-day1">--℃</span>
-          </div>
-        </div>
+  <div class="forecast-container">
+    <!-- Day 1 -->
+    <div class="card today" id="card-day1">
+      <div class="date-box">
+        <div class="date-label" id="label-day1">【 今日 】</div>
+        <div class="date-val" id="date-day1">--/-- (-)</div>
       </div>
-
-      <!-- Day 2 -->
-      <div class="card" id="card-day2">
-        <div class="date-box">
-          <div class="date-label" id="label-day2">明日</div>
-          <div class="date-val" id="date-day2">--/-- (-)</div>
-        </div>
-        <div class="weather-box">
-          <div class="weather-icon" id="icon-day2">⛅</div>
-          <div class="weather-text" id="weather-day2">--</div>
-        </div>
-        <div class="pop-box">
-          <div class="pop-val" id="pop-day2">☔ --%</div>
-        </div>
-        <div class="temp-box">
-          <div class="temp-row">
-            <span class="temp-title">最高</span>
-            <span class="temp-val-high" id="temphigh-day2">--℃</span>
-          </div>
-          <div class="temp-row">
-            <span class="temp-title">最低</span>
-            <span class="temp-val-low" id="templow-day2">--℃</span>
-          </div>
-        </div>
+      <div class="weather-box">
+        <div class="weather-icon" id="icon-day1">☀️</div>
+        <div class="weather-text" id="weather-day1">--</div>
       </div>
-
-      <!-- Day 3 -->
-      <div class="card" id="card-day3">
-        <div class="date-box">
-          <div class="date-label" id="label-day3">明後日</div>
-          <div class="date-val" id="date-day3">--/-- (-)</div>
+      <div class="pop-box">
+        <div class="pop-val" id="pop-day1">☔ --%</div>
+      </div>
+      <div class="temp-box">
+        <div class="temp-group">
+          <span class="temp-title">最高</span>
+          <span class="temp-val-high" id="temphigh-day1">--℃</span>
         </div>
-        <div class="weather-box">
-          <div class="weather-icon" id="icon-day3">🌧️</div>
-          <div class="weather-text" id="weather-day3">--</div>
-        </div>
-        <div class="pop-box">
-          <div class="pop-val" id="pop-day3">☔ --%</div>
-        </div>
-        <div class="temp-box">
-          <div class="temp-row">
-            <span class="temp-title">最高</span>
-            <span class="temp-val-high" id="temphigh-day3">--℃</span>
-          </div>
-          <div class="temp-row">
-            <span class="temp-title">最低</span>
-            <span class="temp-val-low" id="templow-day3">--℃</span>
-          </div>
+        <div class="temp-group">
+          <span class="temp-title">最低</span>
+          <span class="temp-val-low" id="templow-day1">--℃</span>
         </div>
       </div>
     </div>
 
+    <!-- Day 2 -->
+    <div class="card" id="card-day2">
+      <div class="date-box">
+        <div class="date-label" id="label-day2">明日</div>
+        <div class="date-val" id="date-day2">--/-- (-)</div>
+      </div>
+      <div class="weather-box">
+        <div class="weather-icon" id="icon-day2">⛅</div>
+        <div class="weather-text" id="weather-day2">--</div>
+      </div>
+      <div class="pop-box">
+        <div class="pop-val" id="pop-day2">☔ --%</div>
+      </div>
+      <div class="temp-box">
+        <div class="temp-group">
+          <span class="temp-title">最高</span>
+          <span class="temp-val-high" id="temphigh-day2">--℃</span>
+        </div>
+        <div class="temp-group">
+          <span class="temp-title">最低</span>
+          <span class="temp-val-low" id="templow-day2">--℃</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Day 3 -->
+    <div class="card" id="card-day3">
+      <div class="date-box">
+        <div class="date-label" id="label-day3">明後日</div>
+        <div class="date-val" id="date-day3">--/-- (-)</div>
+      </div>
+      <div class="weather-box">
+        <div class="weather-icon" id="icon-day3">🌧️</div>
+        <div class="weather-text" id="weather-day3">--</div>
+      </div>
+      <div class="pop-box">
+        <div class="pop-val" id="pop-day3">☔ --%</div>
+      </div>
+      <div class="temp-box">
+        <div class="temp-group">
+          <span class="temp-title">最高</span>
+          <span class="temp-val-high" id="temphigh-day3">--℃</span>
+        </div>
+        <div class="temp-group">
+          <span class="temp-title">最低</span>
+          <span class="temp-val-low" id="templow-day3">--℃</span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    /* STB・ディスプレイ枠にぴったり合わせるスケール制御 */
-    function autoFit() {
-      const targetW = 558;
-      const targetH = 778;
-      
-      const currentW = window.innerWidth;
-      const currentH = window.innerHeight;
-
-      if (currentW === 0 || currentH === 0) return;
-
-      const scale = Math.min(currentW / targetW, currentH / targetH);
-      
-      const stage = document.getElementById('stage');
-      if (stage) {
-        stage.style.transform = `scale(${scale})`;
-      }
-    }
-
-    window.addEventListener('resize', autoFit);
-    window.addEventListener('DOMContentLoaded', autoFit);
-    window.addEventListener('load', autoFit);
-    autoFit();
-
     function getWeatherIcon(weatherText) {
       if (!weatherText || weatherText === '--') return '☀️';
       if (weatherText.includes('雨')) {
