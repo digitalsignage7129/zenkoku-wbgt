@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>右帯 - 降水確率対応完全版</title>
+  <title>右帯 - 修正完全版</title>
   <style>
     * {
       box-sizing: border-box;
@@ -395,12 +395,11 @@
         const popArea = timeSeriesPop ? timeSeriesPop.areas[0] : null;
         const tempAreaShort = timeSeriesTempShort ? timeSeriesTempShort.areas[0] : null;
 
-        // 週間予報の「最高・最低気温」および「降水確率」マップ構築
+        // 週間データのマップ化
         let weeklyTempMap = {};
         let weeklyPopMap = {};
 
         if (weeklyData && weeklyData.timeSeries) {
-          // 降水確率 (timeSeries[0])
           if (weeklyData.timeSeries[0]) {
             const wPopTimes = weeklyData.timeSeries[0].timeDefines;
             const wPopArea = weeklyData.timeSeries[0].areas[0];
@@ -409,7 +408,6 @@
               weeklyPopMap[dateKey] = wPopArea.pops && wPopArea.pops[k] !== "" ? wPopArea.pops[k] : null;
             }
           }
-          // 気温 (timeSeries[1])
           if (weeklyData.timeSeries[1]) {
             const wTempTimes = weeklyData.timeSeries[1].timeDefines;
             const wTempArea = weeklyData.timeSeries[1].areas[0];
@@ -426,7 +424,6 @@
         const now = new Date();
         document.getElementById('updated-at').textContent = '更新 ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
 
-        // 17時発表データ（1番目の日付が明日かどうか）を判定
         const firstApiDateStr = timeSeriesWeather.timeDefines[0].substring(0, 10);
         const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
         const isEveningShift = (firstApiDateStr !== todayStr);
@@ -481,6 +478,15 @@
                 high = temps[0];
               }
             }
+
+            // 【最低気温のキャッシュ保持処理】
+            if (low !== '--') {
+              localStorage.setItem(`saved_low_${localDateKey}`, low);
+            } else {
+              const savedLow = localStorage.getItem(`saved_low_${localDateKey}`);
+              if (savedLow) low = savedLow;
+            }
+
           } else if (i === 0 && isEveningShift) {
             if (tempAreaShort && tempAreaShort.temps && tempAreaShort.temps.length >= 2) {
               if (low === '--') low = tempAreaShort.temps[0] || '--';
@@ -496,26 +502,40 @@
           document.getElementById(`high-${i}`).textContent = high !== '--' ? high + '℃' : '--℃';
           document.getElementById(`low-${i}`).textContent = low !== '--' ? low + '℃' : '--℃';
 
-          // サブカードの降水確率表示セット（週間データからキー照合）
           if (i === 1 || i === 2) {
             let popVal = weeklyPopMap[localDateKey];
-            
-            // 明日かつ短期予報にデータがある場合は短期予報を優先
             if (i === 1 && !isEveningShift && popArea && popArea.pops && popArea.pops[4] !== undefined && popArea.pops[4] !== "") {
               popVal = popArea.pops[4];
             }
-            
             document.getElementById(`sub-pop-${i}`).textContent = popVal ? `降水 ${popVal}%` : '降水 --%';
           }
 
           if (i === 0) setWbgtMeter(high);
         }
 
-        // メインカードの6時間ごと降水確率セット
-        if (popArea && popArea.pops) {
-          for (let p = 0; p < 4; p++) {
-            const popVal = popArea.pops[p] !== undefined && popArea.pops[p] !== "" ? popArea.pops[p] + '%' : '--%';
-            document.getElementById(`pop-${p}`).textContent = popVal;
+        // 【修正】降水確率の時間帯厳密マッピング（00-06, 06-12, 12-18, 18-24）
+        for (let p = 0; p < 4; p++) {
+          document.getElementById(`pop-${p}`).textContent = '--%';
+        }
+
+        if (timeSeriesPop && popArea && popArea.pops) {
+          const popTimes = timeSeriesPop.timeDefines;
+          const targetDateStr = timeSeriesWeather.timeDefines[0].substring(0, 10);
+
+          for (let k = 0; k < popTimes.length; k++) {
+            const pTimeStr = popTimes[k];
+            if (pTimeStr.startsWith(targetDateStr)) {
+              const pHour = new Date(pTimeStr).getHours();
+              let popIdx = -1;
+              if (pHour === 0) popIdx = 0;
+              else if (pHour === 6) popIdx = 1;
+              else if (pHour === 12) popIdx = 2;
+              else if (pHour === 18) popIdx = 3;
+
+              if (popIdx !== -1 && popArea.pops[k] !== undefined && popArea.pops[k] !== "") {
+                document.getElementById(`pop-${popIdx}`).textContent = popArea.pops[k] + '%';
+              }
+            }
           }
         }
 
