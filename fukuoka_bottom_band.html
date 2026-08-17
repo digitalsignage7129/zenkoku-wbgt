@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>下帯 - 確実動作版</title>
+  <title>下帯 - テロップ完走確定版</title>
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -215,38 +215,41 @@
       const el = document.getElementById('ticker-text');
       const container = document.getElementById('ticker-bg');
       
-      el.textContent = text;
-      
-      // CSSアニメーションを一度解除
+      // アニメーションを一旦リセット
       el.style.animation = 'none';
-      
-      // 強制的にDOMを描画更新（リフロー発生）
-      void el.offsetWidth;
+      el.textContent = text;
 
-      // 幅を正確に計算
-      const containerWidth = container.clientWidth || 1500;
-      const textWidth = el.scrollWidth || (text.length * 45);
-      const endX = -textWidth - 100;
-      const totalDistance = containerWidth + Math.abs(endX);
-      const duration = totalDistance / 150; // 移動速度: 150px/秒
+      // 文字列変更後のレイアウト確定を2フレーム待機（ラグ解消）
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const containerWidth = container.clientWidth || 1500;
+          // ピクセル単位の正確なテキスト幅を取得
+          const textWidth = Math.max(el.scrollWidth, el.getBoundingClientRect().width);
 
-      // 動的にCSS Keyframesを更新（OBS等のブラウザソースで最も確実に動く手法）
-      let styleEl = document.getElementById('dynamic-ticker-style');
-      if (!styleEl) {
-        styleEl = document.createElement('style');
-        styleEl.id = 'dynamic-ticker-style';
-        document.head.appendChild(styleEl);
-      }
+          // 画面左端から文字の最後尾が完全に消え去る位置（200pxのマージンを確保）
+          const endX = -(textWidth + 200);
+          const totalDistance = containerWidth + Math.abs(endX);
+          const duration = totalDistance / 140; // 移動速度: 140px/秒
 
-      styleEl.textContent = `
-        @keyframes tickerScroll {
-          0% { transform: translateX(${containerWidth}px); }
-          100% { transform: translateX(${endX}px); }
-        }
-      `;
+          // 動的スタイルシートの適用
+          let styleEl = document.getElementById('dynamic-ticker-style');
+          if (!styleEl) {
+            styleEl = document.createElement('style');
+            styleEl.id = 'dynamic-ticker-style';
+            document.head.appendChild(styleEl);
+          }
 
-      // CSSアニメーションを適用して発火
-      el.style.animation = `tickerScroll ${duration}s linear infinite`;
+          styleEl.textContent = `
+            @keyframes tickerScroll {
+              0% { transform: translateX(${containerWidth}px); }
+              100% { transform: translateX(${endX}px); }
+            }
+          `;
+
+          // アニメーション再適用
+          el.style.animation = `tickerScroll ${duration}s linear infinite`;
+        });
+      });
     }
 
     startTicker(`【${cityInfo.name}】気象庁から最新データを取得しています...`);
