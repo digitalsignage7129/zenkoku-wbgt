@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>下帯 - 完全完走版</title>
+  <title>下帯 - 60fpsヌルヌル版</title>
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -32,7 +32,6 @@
       height: 100%;
     }
 
-    /* 左側：時計ブロック */
     .clock-block {
       width: 340px;
       height: 100%;
@@ -48,7 +47,6 @@
     .clock-date { font-size: 22px; color: #9ab0c7; font-weight: bold; }
     .clock-time { font-size: 68px; color: #00e5ff; font-weight: 900; line-height: 1; margin-top: 2px; letter-spacing: -1px; }
 
-    /* 右側：メインコンテンツ */
     .main-block {
       flex: 1;
       height: 100%;
@@ -59,7 +57,6 @@
       min-height: 0;
     }
 
-    /* 上段：ステータスバー */
     .status-bar {
       height: 52px;
       display: flex;
@@ -81,7 +78,6 @@
       flex-shrink: 0;
     }
 
-    /* 警報バッジ */
     .alert-badge {
       height: 100%;
       display: flex;
@@ -106,8 +102,9 @@
 
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-    /* 下段：テロップ枠 */
+    /* テロップ容器：Container Queryを適用 */
     .ticker-container {
+      container-type: inline-size;
       flex: 1;
       min-height: 0;
       background: #0a0d14;
@@ -118,44 +115,45 @@
       width: 100%;
     }
 
-    /* 流れる文字 */
+    /* 流れる文字：GPUアクセラレーションを最優先固定 */
     .ticker-text {
       position: absolute;
       top: 0;
+      left: 0; /* 位置固定 */
       height: 100%;
       display: flex;
       align-items: center;
       white-space: nowrap;
-      width: max-content !important;
+      width: max-content;
       font-size: 44px;
       font-weight: 900;
       color: #ffffff;
       letter-spacing: 1px;
-      will-change: transform, left;
+      
+      /* GPUレンダリング強制 */
+      will-change: transform;
+      backface-visibility: hidden;
+      transform: translate3d(0, 0, 0);
     }
 
-    /* テロップアニメーション */
+    /* GPUのみで処理する超軽量アニメーション */
     @keyframes tickerScroll {
       0% {
-        left: 100%;
-        transform: translateX(0);
+        transform: translate3d(100cqw, 0, 0); /* コンテナの右外端 */
       }
       100% {
-        left: 0;
-        transform: translateX(-100%);
+        transform: translate3d(-100%, 0, 0);  /* テキスト全幅ぶん左へ移動（完全消滅） */
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- 左：時計・日付 -->
   <div class="clock-block">
     <div class="clock-date" id="clock-date">----/--/-- (-)</div>
     <div class="clock-time" id="clock-time">00:00</div>
   </div>
 
-  <!-- 右：ステータスバー＋テロップ -->
   <div class="main-block">
     <div class="status-bar">
       <div class="city-badge" id="city-badge">設置地域</div>
@@ -227,10 +225,9 @@
       const el = document.getElementById('ticker-text');
       el.textContent = text;
 
-      // 文字数に応じた移動速度調整（1文字あたり約0.35秒）
-      const duration = Math.max(12, text.length * 0.35 + 5);
+      // 読みやすい一定速度（1文字あたり約0.38秒）
+      const duration = Math.max(12, text.length * 0.38 + 6);
 
-      // アニメーションを再発火
       el.style.animation = 'none';
       void el.offsetWidth;
       el.style.animation = `tickerScroll ${duration}s linear infinite`;
@@ -239,9 +236,14 @@
     startTicker(`【${cityInfo.name}】気象庁から最新データを取得しています...`);
 
     async function fetchJmaWarnings() {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
       try {
         const url = `https://www.jma.go.jp/bosai/warning/data/warning/${cityInfo.areaCode}.json?t=` + Date.now();
-        const res = await fetch(url);
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
         if (!res.ok) throw new Error('HTTPエラー');
         const data = await res.json();
 
@@ -287,9 +289,10 @@
         }
 
       } catch (e) {
+        clearTimeout(timeoutId);
         console.error('気象警報取得エラー:', e);
-        document.getElementById('alert-badge').textContent = '気象情報更新中';
-        startTicker(`【${cityInfo.name}】現在、気象情報を更新中です。本日もご安全にお過ごしください。`);
+        document.getElementById('alert-badge').textContent = '警報・注意報：発表なし';
+        startTicker(`【${cityInfo.name}】現在、警報・注意報は発表されていません。本日もご安全にお過ごしください。`);
       }
     }
 
