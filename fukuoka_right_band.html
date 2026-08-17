@@ -3,39 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=384, height=864, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>右帯 - 完全フィット版</title>
+  <title>右帯 - 384x864 完全ジャストサイズ版</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
     html, body {
-      width: 100%;
-      height: 100%;
+      width: 384px;
+      height: 864px;
       margin: 0;
       padding: 0;
       overflow: hidden;
-      background-color: #000000;
+      background-color: #05070a;
+      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      color: #ffffff;
+      user-select: none;
     }
 
     body {
-      color: #ffffff;
-      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
       padding: 8px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      user-select: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      gap: 8px;
+      width: 384px;
+      height: 864px;
     }
 
-    /* 拠点ヘッダー */
+    /* 1. ヘッダー (高さ: 36px) */
     .header {
-      height: 38px;
-      background: #111111;
-      border: 1px solid #333333;
+      height: 36px;
+      background: #111622;
+      border: 1px solid #1f293d;
       border-radius: 6px;
       display: flex;
       justify-content: space-between;
@@ -43,111 +40,205 @@
       padding: 0 10px;
       flex-shrink: 0;
     }
-    .location-title { font-size: 15px; font-weight: bold; color: #00e5ff; }
-    .update-time { font-size: 11px; color: #aaaaaa; }
+    .location-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #00e5ff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 240px;
+    }
+    .update-time { font-size: 10px; color: #8a99ad; flex-shrink: 0; }
 
-    /* 熱中症目安カード */
+    /* 2. 熱中症目安 (高さ: 68px) */
     .wbgt-card {
-      height: 76px;
-      background: #1a0f00;
-      border: 2px solid #ff9900;
+      height: 68px;
+      background: linear-gradient(135deg, #1f1200 0%, #0d0600 100%);
+      border: 1.5px solid #ff9900;
       border-radius: 8px;
       padding: 6px 10px;
+      flex-shrink: 0;
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .wbgt-head { display: flex; justify-content: space-between; align-items: center; }
+    .wbgt-title { font-size: 11px; font-weight: bold; color: #ffcc00; }
+    .wbgt-status { font-size: 15px; font-weight: 900; color: #ff3333; }
+    
+    .wbgt-meter { display: flex; gap: 3px; height: 6px; }
+    .meter-seg { flex: 1; border-radius: 2px; opacity: 0.2; }
+    .seg-1 { background: #00b0f0; }
+    .seg-2 { background: #00b050; }
+    .seg-3 { background: #ffc000; }
+    .seg-4 { background: #ed7d31; }
+    .seg-5 { background: #ff0000; }
+    .meter-seg.active { opacity: 1; box-shadow: 0 0 6px currentColor; }
+
+    .wbgt-desc { font-size: 10px; color: #cccccc; text-align: right; }
+
+    /* 3. 今日の天気 (高さ: 250px) */
+    .today-card {
+      height: 250px;
+      background: linear-gradient(180deg, #0f1c2e 0%, #08101c 100%);
+      border: 2px solid #00e5ff;
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
       justify-content: space-between;
       flex-shrink: 0;
     }
-    .wbgt-label { font-size: 11px; color: #ffcc00; font-weight: bold; }
-    .wbgt-status { font-size: 18px; font-weight: 900; color: #ff3333; }
-    .wbgt-value { font-size: 12px; color: #ffffff; margin-top: 1px; }
+    .today-header { display: flex; justify-content: space-between; align-items: center; }
+    .today-badge { background: #00e5ff; color: #000; font-size: 11px; font-weight: 900; padding: 2px 6px; border-radius: 4px; }
+    .today-date { font-size: 13px; font-weight: bold; color: #ffffff; }
 
-    /* 3日間天気カード（枠内に等分割納める設定） */
-    .day-card {
-      flex: 1;
-      min-height: 0;
-      background: #0a0a0a;
-      border: 2px solid #333333;
+    .today-main { display: flex; align-items: center; justify-content: space-between; height: 110px; }
+    .today-icon { font-size: 58px; line-height: 1; width: 70px; text-align: center; }
+    .today-info { text-align: right; flex: 1; min-width: 0; }
+    .today-weather {
+      font-size: 15px;
+      font-weight: bold;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+    .today-temps { font-size: 22px; font-weight: 900; }
+    .temp-high { color: #ff4d4d; }
+    .temp-low { color: #3399ff; }
+
+    .pop-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      background: rgba(0,0,0,0.5);
+      padding: 6px 2px;
+      border-radius: 6px;
+      border: 1px solid #1a293d;
+      text-align: center;
+    }
+    .pop-item-time { font-size: 9px; color: #8a99ad; }
+    .pop-item-val { font-size: 11px; font-weight: bold; color: #00e5ff; margin-top: 2px; }
+
+    /* 4. 明日・明後日 (高さ: 各180px) */
+    .sub-card {
+      height: 180px;
+      background: #0d121c;
+      border: 1px solid #1f2d42;
       border-radius: 8px;
-      padding: 6px 10px;
+      padding: 10px;
       display: flex;
-      align-items: center;
+      flex-direction: column;
       justify-content: space-between;
+      flex-shrink: 0;
     }
-    .day-card.today {
-      border-color: #00e5ff;
-      background: #00121d;
+    .sub-head { display: flex; justify-content: space-between; align-items: center; }
+    .sub-label { font-size: 13px; font-weight: bold; color: #00e5ff; }
+    .sub-date { font-size: 12px; color: #8a99ad; }
+
+    .sub-body { display: flex; align-items: center; justify-content: space-between; height: 120px; }
+    .sub-icon { font-size: 44px; line-height: 1; width: 60px; text-align: center; }
+    .sub-center { text-align: center; flex: 1; padding: 0 4px; min-width: 0; }
+    .sub-weather {
+      font-size: 13px;
+      font-weight: bold;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-
-    .day-left { width: 45%; text-align: left; }
-    .day-label { font-size: 14px; font-weight: bold; color: #00e5ff; }
-    .day-card:not(.today) .day-label { color: #aaaaaa; }
-    .day-date { font-size: 12px; color: #ffffff; margin-bottom: 2px; }
-    .weather-text { font-size: 13px; font-weight: bold; color: #ffffff; }
-
-    .day-center { width: 25%; text-align: center; }
-    .weather-icon { font-size: 36px; line-height: 1; }
-
-    .day-right { width: 30%; text-align: right; }
-    .temp-high { font-size: 16px; font-weight: 900; color: #ff3333; }
-    .temp-low { font-size: 16px; font-weight: 900; color: #3399ff; }
+    .sub-pop { font-size: 11px; color: #00e5ff; font-weight: bold; margin-top: 4px; }
+    .sub-temps { text-align: right; width: 75px; flex-shrink: 0; }
+    .sub-temp-high { font-size: 18px; font-weight: 900; color: #ff4d4d; }
+    .sub-temp-low { font-size: 18px; font-weight: 900; color: #3399ff; }
   </style>
 </head>
 <body>
 
+  <!-- 1. ヘッダー -->
   <div class="header">
     <div class="location-title" id="location-name">読み込み中...</div>
     <div class="update-time" id="updated-at">更新 --:--</div>
   </div>
 
+  <!-- 2. 熱中症目安 -->
   <div class="wbgt-card">
-    <div>
-      <div class="wbgt-label">熱中症目安（最高気温より算出）</div>
+    <div class="wbgt-head">
+      <div class="wbgt-title">熱中症目安情報</div>
       <div class="wbgt-status" id="wbgt-status">算出中...</div>
-      <div class="wbgt-value" id="wbgt-val">予想最高: --℃</div>
     </div>
-    <div style="font-size: 28px;">⚠️</div>
+    <div class="wbgt-meter">
+      <div class="meter-seg seg-1" id="m-1"></div>
+      <div class="meter-seg seg-2" id="m-2"></div>
+      <div class="meter-seg seg-3" id="m-3"></div>
+      <div class="meter-seg seg-4" id="m-4"></div>
+      <div class="meter-seg seg-5" id="m-5"></div>
+    </div>
+    <div class="wbgt-desc" id="wbgt-val">本日予想最高: --℃</div>
   </div>
 
-  <!-- 今日 -->
-  <div class="day-card today">
-    <div class="day-left">
-      <div class="day-label">【 今日 】</div>
-      <div class="day-date" id="date-0">--/--</div>
-      <div class="weather-text" id="weather-0">--</div>
+  <!-- 3. 今日 -->
+  <div class="today-card">
+    <div class="today-header">
+      <div class="today-badge">TODAY</div>
+      <div class="today-date" id="date-0">--/-- (-)</div>
     </div>
-    <div class="day-center"><div class="weather-icon" id="icon-0">☀️</div></div>
-    <div class="day-right">
-      <div><span class="temp-high" id="high-0">--℃</span></div>
-      <div><span class="temp-low" id="low-0">--℃</span></div>
+    <div class="today-main">
+      <div class="today-icon" id="icon-0">☀️</div>
+      <div class="today-info">
+        <div class="today-weather" id="weather-0">--</div>
+        <div class="today-temps">
+          <span class="temp-high" id="high-0">--℃</span>
+          <span style="color:#555; font-size:14px;">/</span>
+          <span class="temp-low" id="low-0">--℃</span>
+        </div>
+      </div>
     </div>
-  </div>
-
-  <!-- 明日 -->
-  <div class="day-card">
-    <div class="day-left">
-      <div class="day-label">明日</div>
-      <div class="day-date" id="date-1">--/--</div>
-      <div class="weather-text" id="weather-1">--</div>
-    </div>
-    <div class="day-center"><div class="weather-icon" id="icon-1">⛅</div></div>
-    <div class="day-right">
-      <div><span class="temp-high" id="high-1">--℃</span></div>
-      <div><span class="temp-low" id="low-1">--℃</span></div>
+    <div class="pop-grid">
+      <div><div class="pop-item-time">00-06</div><div class="pop-item-val" id="pop-0">--%</div></div>
+      <div><div class="pop-item-time">06-12</div><div class="pop-item-val" id="pop-1">--%</div></div>
+      <div><div class="pop-item-time">12-18</div><div class="pop-item-val" id="pop-2">--%</div></div>
+      <div><div class="pop-item-time">18-24</div><div class="pop-item-val" id="pop-3">--%</div></div>
     </div>
   </div>
 
-  <!-- 明後日 -->
-  <div class="day-card">
-    <div class="day-left">
-      <div class="day-label">明後日</div>
-      <div class="day-date" id="date-2">--/--</div>
-      <div class="weather-text" id="weather-2">--</div>
+  <!-- 4. 明日 -->
+  <div class="sub-card">
+    <div class="sub-head">
+      <div class="sub-label">明日</div>
+      <div class="sub-date" id="date-1">--/-- (-)</div>
     </div>
-    <div class="day-center"><div class="weather-icon" id="icon-2">🌧️</div></div>
-    <div class="day-right">
-      <div><span class="temp-high" id="high-2">--℃</span></div>
-      <div><span class="temp-low" id="low-2">--℃</span></div>
+    <div class="sub-body">
+      <div class="sub-icon" id="icon-1">⛅</div>
+      <div class="sub-center">
+        <div class="sub-weather" id="weather-1">--</div>
+        <div class="sub-pop" id="sub-pop-1">降水 --%</div>
+      </div>
+      <div class="sub-temps">
+        <div class="sub-temp-high" id="high-1">--℃</div>
+        <div class="sub-temp-low" id="low-1">--℃</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. 明後日 -->
+  <div class="sub-card">
+    <div class="sub-head">
+      <div class="sub-label">明後日</div>
+      <div class="sub-date" id="date-2">--/-- (-)</div>
+    </div>
+    <div class="sub-body">
+      <div class="sub-icon" id="icon-2">🌧️</div>
+      <div class="sub-center">
+        <div class="sub-weather" id="weather-2">--</div>
+      </div>
+      <div class="sub-temps">
+        <div class="sub-temp-high" id="high-2">--℃</div>
+        <div class="sub-temp-low" id="low-2">--℃</div>
+      </div>
     </div>
   </div>
 
@@ -172,6 +263,39 @@
       return '☀️';
     }
 
+    function setWbgtMeter(highTemp) {
+      for(let i=1; i<=5; i++) {
+        document.getElementById(`m-${i}`).classList.remove('active');
+      }
+      const statusEl = document.getElementById('wbgt-status');
+      const valEl = document.getElementById('wbgt-val');
+
+      if (highTemp === '--') {
+        statusEl.textContent = '取得中';
+        return;
+      }
+
+      const h = parseInt(highTemp);
+      valEl.textContent = `本日予想最高気温: ${h}℃`;
+
+      if (h >= 35) {
+        statusEl.textContent = '危険 (運動中止)';
+        document.getElementById('m-5').classList.add('active');
+      } else if (h >= 31) {
+        statusEl.textContent = '厳重警戒';
+        document.getElementById('m-4').classList.add('active');
+      } else if (h >= 28) {
+        statusEl.textContent = '警戒';
+        document.getElementById('m-3').classList.add('active');
+      } else if (h >= 25) {
+        statusEl.textContent = '注意';
+        document.getElementById('m-2').classList.add('active');
+      } else {
+        statusEl.textContent = 'ほぼ安全';
+        document.getElementById('m-1').classList.add('active');
+      }
+    }
+
     async function fetchJmaForecast() {
       try {
         const url = `https://www.jma.go.jp/bosai/forecast/data/forecast/${cityInfo.forecastCode}.json?t=` + Date.now();
@@ -180,6 +304,7 @@
 
         const timeSeries = data[0].timeSeries;
         const weatherArea = timeSeries[0].areas[0];
+        const popArea = timeSeries[1] ? timeSeries[1].areas[0] : null;
         const tempArea = timeSeries[2].areas[0];
 
         const now = new Date();
@@ -199,15 +324,16 @@
           document.getElementById(`high-${i}`).textContent = high !== '--' ? high + '℃' : '--℃';
           document.getElementById(`low-${i}`).textContent = low !== '--' ? low + '℃' : '--℃';
 
-          if (i === 0 && high !== '--') {
-            const hVal = parseInt(high);
-            let status = '注意';
-            if (hVal >= 35) status = '運動原則中止 (危険)';
-            else if (hVal >= 31) status = '厳重警戒 (激しい運動中止)';
-            else if (hVal >= 28) status = '警戒 (水分補給)';
+          if (i === 0) setWbgtMeter(high);
+        }
 
-            document.getElementById('wbgt-status').textContent = status;
-            document.getElementById('wbgt-val').textContent = `本日予想最高: ${high}℃`;
+        if (popArea && popArea.pops) {
+          for (let p = 0; p < 4; p++) {
+            const popVal = popArea.pops[p] !== undefined ? popArea.pops[p] + '%' : '--%';
+            document.getElementById(`pop-${p}`).textContent = popVal;
+          }
+          if (popArea.pops[4] !== undefined) {
+            document.getElementById('sub-pop-1').textContent = `降水 ${popArea.pops[4]}%`;
           }
         }
 
