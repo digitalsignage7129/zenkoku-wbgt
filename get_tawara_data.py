@@ -12,22 +12,24 @@ ssl_context = ssl.create_default_context()
 ssl_context.check_hostname = False
 ssl_context.verify_mode = ssl.CERT_NONE
 
-# 観測点：奈良（64011）
 AMEDAS_CODE = "64011"
 MOE_POINT = "64011"
 
 jst = timezone(timedelta(hours=9))
 now_jst = datetime.now(jst)
 
+print(f"=== START: {now_jst.strftime('%Y-%m-%d %H:%M:%S')} JST ===")
+
 temp_val, hum_val, wind_val, weather_val = None, None, None, "不明"
 
-# 1. 気象庁アメダスからデータ取得（直近60分を10分刻みで探索）
-for offset in range(0, 70, 10):
+# 1. 気象庁アメダス (10分前〜60分前を探索)
+for offset in range(10, 70, 10):
     target = now_jst - timedelta(minutes=offset)
     minute = (target.minute // 10) * 10
     time_str = target.strftime("%Y%m%d%H") + f"{minute:02d}00"
     jma_url = f"https://www.jma.go.jp/bosai/amedas/data/map/{time_str}.json"
 
+    print(f"[JMA] Requesting: {jma_url}")
     try:
         req = urllib.request.Request(jma_url, headers=headers)
         with urllib.request.urlopen(req, context=ssl_context, timeout=5) as resp:
@@ -52,16 +54,18 @@ for offset in range(0, 70, 10):
                 else:
                     weather_val = "くもり"
                 
-                print(f"JMA Success ({time_str}): Temp={temp_val}, Hum={hum_val}, Wind={wind_val}")
+                print(f"[JMA SUCCESS] {time_str} -> Temp:{temp_val}, Hum:{hum_val}, Wind:{wind_val}")
                 break
-    except Exception:
-        continue
+            else:
+                print(f"[JMA WARN] Station {AMEDAS_CODE} not found in JSON keys")
+    except Exception as e:
+        print(f"[JMA ERROR] {time_str}: {e}")
 
-# 2. 環境省WBGTデータの取得（公式CSVおよびHTMLの二重化）
+# 2. 環境省WBGT
 wbgt_val = None
-
-# Aパターン: 公式CSVデータからの抽出
 csv_url = f"https://www.wbgt.env.go.jp/prev15d/list/tbl/prev15d_{MOE_POINT}.csv"
+
+print(f"[MOE CSV] Requesting: {csv_url}")
 try:
     req = urllib.request.Request(csv_url, headers=headers)
     with urllib.request.urlopen(req, context=ssl_context, timeout=5) as resp:
@@ -70,14 +74,14 @@ try:
             cols = line.split(",")
             if len(cols) >= 3 and re.match(r"^\d{2}\.\d$", cols[-1].strip()):
                 wbgt_val = cols[-1].strip()
-                print(f"MOE CSV Success: WBGT={wbgt_val}")
+                print(f"[MOE CSV SUCCESS] WBGT={wbgt_val}")
                 break
 except Exception as e:
-    print(f"MOE CSV Error: {e}")
+    print(f"[MOE CSV ERROR] {e}")
 
-# Bパターン: CSV取得失敗時のHTMLフォールバック
 if not wbgt_val:
     html_url = f"https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=06&prefecture=64&point={MOE_POINT}"
+    print(f"[MOE HTML] Requesting: {html_url}")
     try:
         req = urllib.request.Request(html_url, headers=headers)
         with urllib.request.urlopen(req, context=ssl_context, timeout=5) as resp:
@@ -86,26 +90,20 @@ if not wbgt_val:
             valid = [m for m in matches if 10.0 <= float(m) <= 40.0]
             if valid:
                 wbgt_val = valid[-1]
-                print(f"MOE HTML Success: WBGT={wbgt_val}")
+                print(f"[MOE HTML SUCCESS] WBGT={wbgt_val}")
     except Exception as e:
-        print(f"MOE HTML Error: {e}")
+        print(f"[MOE HTML ERROR] {e}")
 
-# 3. 警戒度判定
+# 3. 判定 & 保存
 level = "--"
 if wbgt_val:
     w = float(wbgt_val)
-    if w >= 31.0:
-        level = "危険"
-    elif w >= 28.0:
-        level = "厳重警戒"
-    elif w >= 25.0:
-        level = "警戒"
-    elif w >= 21.0:
-        level = "留意"
-    else:
-        level = "ほぼ安全"
+    if w >= 31.0: level = "危険"
+    elif w >= 28.0: level = "厳重警戒"
+    elif w >= 25.0: level = "警戒"
+    elif w >= 21.0: level = "留意"
+    else: level = "ほぼ安全"
 
-# 4. JSON出力
 result = {
     "location": "奈良県田原本町",
     "wbgt": str(wbgt_val) if wbgt_val else "--",
@@ -120,4 +118,5 @@ result = {
 with open("tawaramoto_wbgt.json", "w", encoding="utf-8") as f:
     json.dump(result, f, ensure_ascii=False, indent=2)
 
-print("Generated JSON:\n", json.dumps(result, ensure_ascii=False, indent=2))
+print("=== FINAL RESULT ===")
+print(json.dumps(result, ensure_ascii=False, indent=2))
