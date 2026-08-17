@@ -10,17 +10,30 @@
       margin: 0;
       padding: 0;
     }
-    body {
-      width: 558px;
-      height: 778px;
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       background-color: #000000;
       color: #ffffff;
       font-family: "Hiragino Kaku Gothic ProN", "Meiryo", "Arial Black", sans-serif;
-      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       user-select: none;
-      padding: 16px;
+    }
+
+    /* 基準キャンバス（W558px × H778px） */
+    #stage {
+      width: 558px;
+      height: 778px;
+      padding: 14px;
+      background-color: #000000;
       display: flex;
       flex-direction: column;
+      transform-origin: center center;
+      flex-shrink: 0;
     }
 
     /* ヘッダーエリア */
@@ -29,13 +42,14 @@
       justify-content: space-between;
       align-items: center;
       padding: 8px 12px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       background-color: #111111;
       border-radius: 8px;
       border: 1px solid #333333;
+      height: 46px;
     }
     .location-name {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 900;
       color: #00e5ff;
     }
@@ -48,7 +62,7 @@
     .forecast-container {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      gap: 10px;
       flex: 1;
     }
 
@@ -57,7 +71,7 @@
       background-color: #050505;
       border: 3px solid #444444;
       border-radius: 12px;
-      padding: 16px 8px;
+      padding: 12px 6px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -65,9 +79,9 @@
       text-align: center;
     }
 
-    /* 本日/一律のカード強調 */
+    /* 本日カード強調 */
     .card.today {
-      border: 4px solid #00e5ff;
+      border: 3px solid #00e5ff;
       background-color: #00121d;
     }
 
@@ -75,10 +89,10 @@
     .date-box {
       width: 100%;
       border-bottom: 2px solid #333333;
-      padding-bottom: 10px;
+      padding-bottom: 8px;
     }
     .date-label {
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 900;
       color: #00e5ff;
       letter-spacing: 1px;
@@ -88,11 +102,11 @@
     }
 
     .date-val {
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 900;
       color: #ffffff;
       line-height: 1.2;
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
     /* 2. 天気アイコン ＆ テキスト */
@@ -101,18 +115,19 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      margin: 10px 0;
+      margin: 8px 0;
     }
     .weather-icon {
-      font-size: 72px;
+      font-size: 56px;
       line-height: 1;
     }
     .weather-text {
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 900;
       color: #ffffff;
-      margin-top: 8px;
+      margin-top: 6px;
       word-break: break-all;
+      line-height: 1.2;
     }
 
     /* 3. 降水確率 */
@@ -121,10 +136,10 @@
       background-color: #002233;
       border: 2px solid #0088cc;
       border-radius: 8px;
-      padding: 10px 0;
+      padding: 8px 0;
     }
     .pop-val {
-      font-size: 26px;
+      font-size: 20px;
       font-weight: 900;
       color: #00ffff;
       line-height: 1;
@@ -136,7 +151,7 @@
       background-color: #111111;
       border: 2px solid #222222;
       border-radius: 8px;
-      padding: 10px 0;
+      padding: 8px 2px;
       display: flex;
       justify-content: space-around;
       align-items: center;
@@ -147,18 +162,19 @@
       align-items: center;
     }
     .temp-title {
-      font-size: 13px;
+      font-size: 11px;
       font-weight: bold;
       color: #888888;
+      margin-bottom: 2px;
     }
     .temp-val-high {
-      font-size: 28px;
+      font-size: 22px;
       font-weight: 900;
       color: #ff3333;
       line-height: 1;
     }
     .temp-val-low {
-      font-size: 28px;
+      font-size: 22px;
       font-weight: 900;
       color: #3399ff;
       line-height: 1;
@@ -167,90 +183,118 @@
 </head>
 <body>
 
-  <!-- ヘッダー -->
-  <div class="header">
-    <div class="location-name" id="location-name">福岡県大牟田市</div>
-    <div class="update-time" id="updated-at">更新: --:--</div>
-  </div>
+  <!-- STB側サイズに合わせて自動伸縮する558x778基準ステージ -->
+  <div id="stage">
 
-  <div class="forecast-container">
-    <!-- Day 1 -->
-    <div class="card today" id="card-day1">
-      <div class="date-box">
-        <div class="date-label" id="label-day1">【 今日 】</div>
-        <div class="date-val" id="date-day1">--/-- (-)</div>
-      </div>
-      <div class="weather-box">
-        <div class="weather-icon" id="icon-day1">☀️</div>
-        <div class="weather-text" id="weather-day1">--</div>
-      </div>
-      <div class="pop-box">
-        <div class="pop-val" id="pop-day1">☔ --%</div>
-      </div>
-      <div class="temp-box">
-        <div class="temp-group">
-          <span class="temp-title">最高</span>
-          <span class="temp-val-high" id="temphigh-day1">--℃</span>
+    <!-- ヘッダー -->
+    <div class="header">
+      <div class="location-name" id="location-name">福岡県大牟田市</div>
+      <div class="update-time" id="updated-at">更新: --:--</div>
+    </div>
+
+    <div class="forecast-container">
+      <!-- Day 1 -->
+      <div class="card today" id="card-day1">
+        <div class="date-box">
+          <div class="date-label" id="label-day1">【 今日 】</div>
+          <div class="date-val" id="date-day1">--/-- (-)</div>
         </div>
-        <div class="temp-group">
-          <span class="temp-title">最低</span>
-          <span class="temp-val-low" id="templow-day1">--℃</span>
+        <div class="weather-box">
+          <div class="weather-icon" id="icon-day1">☀️</div>
+          <div class="weather-text" id="weather-day1">--</div>
+        </div>
+        <div class="pop-box">
+          <div class="pop-val" id="pop-day1">☔ --%</div>
+        </div>
+        <div class="temp-box">
+          <div class="temp-group">
+            <span class="temp-title">最高</span>
+            <span class="temp-val-high" id="temphigh-day1">--℃</span>
+          </div>
+          <div class="temp-group">
+            <span class="temp-title">最低</span>
+            <span class="temp-val-low" id="templow-day1">--℃</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day 2 -->
+      <div class="card" id="card-day2">
+        <div class="date-box">
+          <div class="date-label" id="label-day2">明日</div>
+          <div class="date-val" id="date-day2">--/-- (-)</div>
+        </div>
+        <div class="weather-box">
+          <div class="weather-icon" id="icon-day2">⛅</div>
+          <div class="weather-text" id="weather-day2">--</div>
+        </div>
+        <div class="pop-box">
+          <div class="pop-val" id="pop-day2">☔ --%</div>
+        </div>
+        <div class="temp-box">
+          <div class="temp-group">
+            <span class="temp-title">最高</span>
+            <span class="temp-val-high" id="temphigh-day2">--℃</span>
+          </div>
+          <div class="temp-group">
+            <span class="temp-title">最低</span>
+            <span class="temp-val-low" id="templow-day2">--℃</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day 3 -->
+      <div class="card" id="card-day3">
+        <div class="date-box">
+          <div class="date-label" id="label-day3">明後日</div>
+          <div class="date-val" id="date-day3">--/-- (-)</div>
+        </div>
+        <div class="weather-box">
+          <div class="weather-icon" id="icon-day3">🌧️</div>
+          <div class="weather-text" id="weather-day3">--</div>
+        </div>
+        <div class="pop-box">
+          <div class="pop-val" id="pop-day3">☔ --%</div>
+        </div>
+        <div class="temp-box">
+          <div class="temp-group">
+            <span class="temp-title">最高</span>
+            <span class="temp-val-high" id="temphigh-day3">--℃</span>
+          </div>
+          <div class="temp-group">
+            <span class="temp-title">最低</span>
+            <span class="temp-val-low" id="templow-day3">--℃</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Day 2 -->
-    <div class="card" id="card-day2">
-      <div class="date-box">
-        <div class="date-label" id="label-day2">明日</div>
-        <div class="date-val" id="date-day2">--/-- (-)</div>
-      </div>
-      <div class="weather-box">
-        <div class="weather-icon" id="icon-day2">⛅</div>
-        <div class="weather-text" id="weather-day2">--</div>
-      </div>
-      <div class="pop-box">
-        <div class="pop-val" id="pop-day2">☔ --%</div>
-      </div>
-      <div class="temp-box">
-        <div class="temp-group">
-          <span class="temp-title">最高</span>
-          <span class="temp-val-high" id="temphigh-day2">--℃</span>
-        </div>
-        <div class="temp-group">
-          <span class="temp-title">最低</span>
-          <span class="temp-val-low" id="templow-day2">--℃</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Day 3 -->
-    <div class="card" id="card-day3">
-      <div class="date-box">
-        <div class="date-label" id="label-day3">明後日</div>
-        <div class="date-val" id="date-day3">--/-- (-)</div>
-      </div>
-      <div class="weather-box">
-        <div class="weather-icon" id="icon-day3">🌧️</div>
-        <div class="weather-text" id="weather-day3">--</div>
-      </div>
-      <div class="pop-box">
-        <div class="pop-val" id="pop-day3">☔ --%</div>
-      </div>
-      <div class="temp-box">
-        <div class="temp-group">
-          <span class="temp-title">最高</span>
-          <span class="temp-val-high" id="temphigh-day3">--℃</span>
-        </div>
-        <div class="temp-group">
-          <span class="temp-title">最低</span>
-          <span class="temp-val-low" id="templow-day3">--℃</span>
-        </div>
-      </div>
-    </div>
   </div>
 
   <script>
+    /* STB・ディスプレイ枠に合わせて自動フィットさせる拡大縮小ロジック */
+    function autoFit() {
+      const targetW = 558;
+      const targetH = 778;
+      
+      const currentW = window.innerWidth;
+      const currentH = window.innerHeight;
+
+      if (currentW === 0 || currentH === 0) return;
+
+      const scale = Math.min(currentW / targetW, currentH / targetH);
+      
+      const stage = document.getElementById('stage');
+      if (stage) {
+        stage.style.transform = `scale(${scale})`;
+      }
+    }
+
+    window.addEventListener('resize', autoFit);
+    window.addEventListener('DOMContentLoaded', autoFit);
+    window.addEventListener('load', autoFit);
+    autoFit();
+
     // 天気文字列から絵文字を判定する関数
     function getWeatherIcon(weatherText) {
       if (!weatherText || weatherText === '--') return '☀️';
@@ -270,7 +314,6 @@
     // JSONデータを取得して表示を更新する
     async function loadWeather() {
       try {
-        // キャッシュ回避のためタイムスタンプを付与
         const response = await fetch('omuta_tenki.json?t=' + new Date().getTime());
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
@@ -321,8 +364,9 @@
       }
     }
 
-    // 初回読み込み
+    // 初回読み込み ＋ 定期更新（60秒ごと）
     loadWeather();
+    setInterval(loadWeather, 60000);
   </script>
 </body>
 </html>
