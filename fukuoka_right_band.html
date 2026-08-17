@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=384, height=864, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>右帯 - 384x864 完全ピクセル固定版</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>右帯 - 全画面・全環境100%自動フィット版</title>
   <style>
     * {
       box-sizing: border-box;
@@ -12,10 +12,10 @@
     }
     
     html, body {
-      width: 384px;
-      height: 864px;
-      max-width: 384px;
-      max-height: 864px;
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
       overflow: hidden;
       background-color: #05070a;
       font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
@@ -24,56 +24,67 @@
     }
 
     body {
-      padding: 8px;
+      padding: 1vh 2vw;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      width: 384px;
-      height: 864px;
+      gap: 1vh;
+      width: 100vw;
+      height: 100vh;
     }
 
-    /* 1. ヘッダー (36px) */
+    /* 各カード共通設定 */
+    .card-common {
+      width: 100%;
+      min-height: 0;
+      min-width: 0;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    /* 1. ヘッダー (高さ: 約4.5vh) */
     .header {
-      width: 368px;
-      height: 36px;
+      height: 4.5vh;
       background: #111622;
       border: 1.5px solid #1f293d;
       border-radius: 6px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 10px;
+      padding: 0 3vw;
       flex-shrink: 0;
     }
     .location-title {
-      font-size: 14px;
+      font-size: clamp(11px, 1.8vh, 16px);
       font-weight: bold;
       color: #00e5ff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 240px;
     }
-    .update-time { font-size: 11px; color: #8a99ad; flex-shrink: 0; }
+    .update-time {
+      font-size: clamp(9px, 1.3vh, 12px);
+      color: #8a99ad;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
 
-    /* 2. 熱中症目安 (74px) */
+    /* 2. 熱中症目安 (高さ: 約8.5vh) */
     .wbgt-card {
-      width: 368px;
-      height: 74px;
+      height: 8.5vh;
       background: linear-gradient(135deg, #1f1200 0%, #0d0600 100%);
       border: 1.5px solid #ff9900;
       border-radius: 6px;
-      padding: 6px 10px;
+      padding: 0.6vh 2vw;
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: space-around;
     }
     .wbgt-head { display: flex; justify-content: space-between; align-items: center; }
-    .wbgt-title { font-size: 12px; font-weight: bold; color: #ffcc00; }
-    .wbgt-status { font-size: 13px; font-weight: 900; color: #ff3333; }
+    .wbgt-title { font-size: clamp(10px, 1.4vh, 13px); font-weight: bold; color: #ffcc00; }
+    .wbgt-status { font-size: clamp(11px, 1.6vh, 14px); font-weight: 900; color: #ff3333; }
     
-    .wbgt-meter { display: flex; gap: 4px; height: 6px; width: 100%; }
+    .wbgt-meter { display: flex; gap: 3px; height: 0.8vh; min-height: 4px; width: 100%; }
     .meter-seg { flex: 1; border-radius: 2px; opacity: 0.2; }
     .seg-1 { background: #00b0f0; }
     .seg-2 { background: #00b050; }
@@ -82,109 +93,131 @@
     .seg-5 { background: #ff0000; }
     .meter-seg.active { opacity: 1; box-shadow: 0 0 4px currentColor; }
 
-    .wbgt-desc { font-size: 11px; color: #cccccc; text-align: right; }
+    .wbgt-desc { font-size: clamp(9px, 1.2vh, 11px); color: #cccccc; text-align: right; }
 
-    /* 3. 今日 (330px) */
+    /* 3. 今日 (flex: 3.8 - 最重要メイン領域) */
     .today-card {
-      width: 368px;
-      height: 330px;
+      flex: 3.8;
       background: linear-gradient(180deg, #0f1c2e 0%, #08101c 100%);
       border: 2px solid #00e5ff;
       border-radius: 6px;
-      padding: 10px;
-      flex-shrink: 0;
+      padding: 1vh 2.5vw;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      min-height: 0;
     }
     .today-header { display: flex; justify-content: space-between; align-items: center; }
-    .today-badge { background: #00e5ff; color: #000; font-size: 11px; font-weight: 900; padding: 2px 6px; border-radius: 4px; }
-    .today-date { font-size: 13px; font-weight: bold; color: #ffffff; }
+    .today-badge {
+      background: #00e5ff;
+      color: #000;
+      font-size: clamp(10px, 1.4vh, 12px);
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: 4px;
+      line-height: 1;
+    }
+    .today-date { font-size: clamp(11px, 1.6vh, 14px); font-weight: bold; color: #ffffff; }
 
     .today-main {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 180px;
-      padding: 0 4px;
+      flex: 1;
+      padding: 0.5vh 0;
+      min-height: 0;
     }
-    .today-icon { font-size: 64px; line-height: 1; width: 80px; text-align: center; flex-shrink: 0; }
+    .today-icon {
+      font-size: clamp(36px, 6vh, 56px);
+      line-height: 1;
+      width: 25%;
+      text-align: center;
+      flex-shrink: 0;
+    }
     .today-info { text-align: right; flex: 1; min-width: 0; }
     .today-weather {
-      font-size: 16px;
+      font-size: clamp(13px, 2vh, 18px);
       font-weight: bold;
       color: #ffffff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-bottom: 8px;
+      margin-bottom: 0.5vh;
     }
-    .today-temps { font-size: 26px; font-weight: 900; }
+    .today-temps { font-size: clamp(18px, 3vh, 28px); font-weight: 900; line-height: 1; }
     .temp-high { color: #ff4d4d; }
     .temp-low { color: #3399ff; }
 
     .pop-grid {
       display: flex;
       width: 100%;
-      height: 48px;
+      height: 5.5vh;
+      min-height: 32px;
       background: rgba(0,0,0,0.6);
       border-radius: 6px;
       border: 1px solid #1a293d;
       align-items: center;
+      flex-shrink: 0;
     }
     .pop-item { flex: 1; text-align: center; }
-    .pop-item-time { font-size: 10px; color: #8a99ad; }
-    .pop-item-val { font-size: 12px; font-weight: bold; color: #00e5ff; margin-top: 2px; }
+    .pop-item-time { font-size: clamp(8px, 1.1vh, 10px); color: #8a99ad; }
+    .pop-item-val { font-size: clamp(10px, 1.4vh, 13px); font-weight: bold; color: #00e5ff; margin-top: 1px; }
 
-    /* 4. 明日 (170px) */
+    /* 4 & 5. 明日・明後日 (flex: 2.2 ずつ配分) */
     .sub-card {
-      width: 368px;
-      height: 170px;
+      flex: 2.2;
       background: #0d121c;
       border: 1.5px solid #1f2d42;
       border-radius: 6px;
-      padding: 10px;
-      flex-shrink: 0;
+      padding: 1vh 2.5vw;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      min-height: 0;
     }
     .sub-head { display: flex; justify-content: space-between; align-items: center; }
-    .sub-label { font-size: 14px; font-weight: bold; color: #00e5ff; }
-    .sub-date { font-size: 12px; color: #8a99ad; }
+    .sub-label { font-size: clamp(12px, 1.6vh, 15px); font-weight: bold; color: #00e5ff; }
+    .sub-date { font-size: clamp(10px, 1.4vh, 12px); color: #8a99ad; }
 
     .sub-body {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 110px;
-      padding: 0 4px;
+      flex: 1;
+      padding: 0.3vh 0;
+      min-height: 0;
     }
-    .sub-icon { font-size: 44px; line-height: 1; width: 60px; text-align: center; flex-shrink: 0; }
-    .sub-center { text-align: center; flex: 1; padding: 0 8px; min-width: 0; }
+    .sub-icon {
+      font-size: clamp(28px, 4.5vh, 40px);
+      line-height: 1;
+      width: 20%;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .sub-center { text-align: center; flex: 1; padding: 0 4px; min-width: 0; }
     .sub-weather {
-      font-size: 14px;
+      font-size: clamp(12px, 1.7vh, 15px);
       font-weight: bold;
       color: #ffffff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .sub-pop { font-size: 12px; color: #00e5ff; font-weight: bold; margin-top: 4px; }
-    .sub-temps { text-align: right; flex-shrink: 0; }
-    .sub-temp-high { font-size: 20px; font-weight: 900; color: #ff4d4d; }
-    .sub-temp-low { font-size: 20px; font-weight: 900; color: #3399ff; }
+    .sub-pop { font-size: clamp(10px, 1.3vh, 12px); color: #00e5ff; font-weight: bold; margin-top: 2px; }
+    .sub-temps { text-align: right; flex-shrink: 0; line-height: 1; }
+    .sub-temp-high { font-size: clamp(15px, 2.3vh, 20px); font-weight: 900; color: #ff4d4d; }
+    .sub-temp-low { font-size: clamp(15px, 2.3vh, 20px); font-weight: 900; color: #3399ff; }
   </style>
 </head>
 <body>
 
-  <!-- 1. ヘッダー (36px) -->
+  <!-- 1. ヘッダー -->
   <div class="header">
     <div class="location-title" id="location-name">読み込み中...</div>
     <div class="update-time" id="updated-at">更新 --:--</div>
   </div>
 
-  <!-- 2. 熱中症目安 (74px) -->
+  <!-- 2. 熱中症目安 -->
   <div class="wbgt-card">
     <div class="wbgt-head">
       <div class="wbgt-title">熱中症目安情報</div>
@@ -200,7 +233,7 @@
     <div class="wbgt-desc" id="wbgt-val">本日予想最高: --℃</div>
   </div>
 
-  <!-- 3. 今日 (330px) -->
+  <!-- 3. 今日 -->
   <div class="today-card">
     <div class="today-header">
       <div class="today-badge">TODAY</div>
@@ -212,7 +245,7 @@
         <div class="today-weather" id="weather-0">--</div>
         <div class="today-temps">
           <span class="temp-high" id="high-0">--℃</span>
-          <span style="color:#555; font-size:18px;">/</span>
+          <span style="color:#555; font-size:80%;">/</span>
           <span class="temp-low" id="low-0">--℃</span>
         </div>
       </div>
@@ -225,7 +258,7 @@
     </div>
   </div>
 
-  <!-- 4. 明日 (170px) -->
+  <!-- 4. 明日 -->
   <div class="sub-card">
     <div class="sub-head">
       <div class="sub-label">明日</div>
@@ -239,13 +272,13 @@
       </div>
       <div class="sub-temps">
         <span class="sub-temp-high" id="high-1">--℃</span>
-        <span style="color:#555; font-size:14px;">/</span>
+        <span style="color:#555; font-size:80%;">/</span>
         <span class="sub-temp-low" id="low-1">--℃</span>
       </div>
     </div>
   </div>
 
-  <!-- 5. 明後日 (170px) -->
+  <!-- 5. 明後日 -->
   <div class="sub-card">
     <div class="sub-head">
       <div class="sub-label">明後日</div>
@@ -258,7 +291,7 @@
       </div>
       <div class="sub-temps">
         <span class="sub-temp-high" id="high-2">--℃</span>
-        <span style="color:#555; font-size:14px;">/</span>
+        <span style="color:#555; font-size:80%;">/</span>
         <span class="sub-temp-low" id="low-2">--℃</span>
       </div>
     </div>
