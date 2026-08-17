@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>下帯 - 警報・テロップ・時計</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 1920px;
+      height: 216px;
+      overflow: hidden;
+      background-color: #000000;
+      color: #ffffff;
+      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      padding: 12px 20px;
+      display: flex;
+      gap: 20px;
+      user-select: none;
+    }
+
+    /* 左側：デジタル時計 */
+    .clock-block {
+      width: 320px;
+      height: 100%;
+      background: #111111;
+      border: 2px solid #333333;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .clock-date { font-size: 20px; color: #aaaaaa; font-weight: bold; }
+    .clock-time { font-size: 58px; color: #00e5ff; font-weight: 900; line-height: 1; margin-top: 4px; }
+
+    /* 右側：警報ステータス ＆ テロップ */
+    .main-block {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* 上段ステータスバー */
+    .status-bar {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .city-badge {
+      background: #00e5ff;
+      color: #000000;
+      font-size: 22px;
+      font-weight: 900;
+      padding: 4px 20px;
+      border-radius: 6px;
+    }
+    .alert-badge {
+      font-size: 20px;
+      font-weight: bold;
+      padding: 4px 20px;
+      border-radius: 6px;
+      background: #008800; /* 通常時緑、警報時赤 */
+      color: #ffffff;
+    }
+    .alert-badge.warning {
+      background: #cc0000;
+      animation: blink 1.5s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* 下段ニュース・警報テロップ表示枠 */
+    .ticker-container {
+      flex: 1;
+      background: #111111;
+      border: 2px solid #333333;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+    .ticker-text {
+      position: absolute;
+      white-space: nowrap;
+      font-size: 36px;
+      font-weight: 900;
+      color: #ffffff;
+      will-change: transform;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 時計エリア -->
+  <div class="clock-block">
+    <div class="clock-date" id="clock-date">----/--/-- (-)</div>
+    <div class="clock-time" id="clock-time">00:00</div>
+  </div>
+
+  <!-- 情報テロップエリア -->
+  <div class="main-block">
+    <div class="status-bar">
+      <div class="city-badge" id="city-badge">福岡県久留米市</div>
+      <div class="alert-badge" id="alert-badge">警報・注意報：発表なし</div>
+    </div>
+    <div class="ticker-container" id="ticker-bg">
+      <div class="ticker-text" id="ticker-text">情報を読み込んでいます...</div>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const city = params.get('city') || 'kurume';
+
+    // 時計の更新
+    function updateClock() {
+      const now = new Date();
+      const days = ['日', '月', '火', '水', '木', '金', '土'];
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const day = days[now.getDay()];
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+
+      document.getElementById('clock-date').textContent = `${y}/${m}/${d} (${day})`;
+      document.getElementById('clock-time').textContent = `${hh}:${mm}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // テロップアニメーション
+    function startTicker(text) {
+      const el = document.getElementById('ticker-text');
+      el.textContent = text;
+      let pos = 1500; // 右端からスタート
+      
+      function step() {
+        pos -= 2.5; // スクロール速度
+        if (pos < -el.offsetWidth) {
+          pos = 1500;
+        }
+        el.style.transform = `translateX(${pos}px)`;
+        requestAnimationFrame(step);
+      }
+      step();
+    }
+
+    // 警報・お知らせデータの取得
+    async function loadAlertData() {
+      try {
+        const res = await fetch(`${city}_data.json?t=` + Date.now());
+        const data = await res.json();
+
+        document.getElementById('city-badge').textContent = data.location_name;
+        
+        const badgeEl = document.getElementById('alert-badge');
+        badgeEl.textContent = data.alert_status.title;
+
+        if (data.alert_status.is_warning) {
+          badgeEl.classList.add('warning');
+          document.getElementById('ticker-bg').style.borderColor = '#ff3333';
+        } else {
+          badgeEl.classList.remove('warning');
+          document.getElementById('ticker-bg').style.borderColor = '#333333';
+        }
+
+        startTicker(data.ticker_message);
+      } catch (e) { console.error(e); }
+    }
+
+    loadAlertData();
+  </script>
+</body>
+</html>
