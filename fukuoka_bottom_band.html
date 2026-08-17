@@ -2,20 +2,32 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>下帯 - 気象庁API完全全自動版</title>
+  <meta name="viewport" content="width=1920, height=216, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>下帯 - データ読み込み確実版</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      width: 1920px;
-      height: 216px;
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
       overflow: hidden;
       background-color: #000000;
+    }
+
+    body {
       color: #ffffff;
       font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
       padding: 12px 20px;
       display: flex;
       gap: 20px;
       user-select: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
     }
 
     /* 時計エリア */
@@ -29,6 +41,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      flex-shrink: 0;
     }
     .clock-date { font-size: 20px; color: #aaaaaa; font-weight: bold; }
     .clock-time { font-size: 58px; color: #00e5ff; font-weight: 900; line-height: 1; margin-top: 4px; }
@@ -40,6 +53,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      min-width: 0;
     }
 
     /* 上段ステータスバー */
@@ -48,6 +62,7 @@
       display: flex;
       align-items: center;
       gap: 16px;
+      flex-shrink: 0;
     }
     .city-badge {
       background: #00e5ff;
@@ -58,20 +73,20 @@
       border-radius: 6px;
     }
 
-    /* 警報バッジ（自動色変化） */
+    /* 警報バッジ */
     .alert-badge {
       font-size: 20px;
       font-weight: bold;
       padding: 4px 20px;
       border-radius: 6px;
-      background: #008800; /* 平常時：緑 */
+      background: #008800;
       color: #ffffff;
     }
-    .alert-badge.advisory { background: #cc9900; color: #000; } /* 注意報：黄 */
-    .alert-badge.warning { background: #cc0000; color: #fff; }  /* 警報：赤 */
-    .alert-badge.emergency {                                  /* 特別警報：紫（点滅） */
+    .alert-badge.advisory { background: #cc9900; color: #000000; }
+    .alert-badge.warning { background: #cc0000; color: #ffffff; }
+    .alert-badge.emergency {
       background: #800080;
-      color: #fff;
+      color: #ffffff;
       animation: blink 1s infinite;
     }
 
@@ -95,6 +110,8 @@
       font-weight: 900;
       color: #ffffff;
       will-change: transform;
+      top: 50%;
+      transform: translateY(-50%);
     }
   </style>
 </head>
@@ -111,18 +128,16 @@
       <div class="alert-badge" id="alert-badge">気象情報を確認中...</div>
     </div>
     <div class="ticker-container" id="ticker-bg">
-      <div class="ticker-text" id="ticker-text">気象庁から最新データを自動取得しています...</div>
+      <div class="ticker-text" id="ticker-text">データ取得中...</div>
     </div>
   </div>
 
   <script>
-    // 拠点コードマップ (気象庁市町村コード)
     const CITIES = {
       '4020300': { name: '福岡県久留米市', areaCode: '400000' },
       '4021700': { name: '福岡県大野城市', areaCode: '400000' }
     };
 
-    // 警報マスターコード（気象庁コード → 名称・種別）
     const WARNING_CODES = {
       '02': { name: '暴風雪特別警報', type: 'emergency' },
       '03': { name: '大雨特別警報', type: 'emergency' },
@@ -155,12 +170,11 @@
     };
 
     const params = new URLSearchParams(window.location.search);
-    const cityCode = params.get('city') || '4020300'; // デフォルト久留米市
+    const cityCode = params.get('city') || '4020300';
     const cityInfo = CITIES[cityCode] || CITIES['4020300'];
 
     document.getElementById('city-badge').textContent = cityInfo.name;
 
-    // 時計の自動更新
     function updateClock() {
       const now = new Date();
       const days = ['日', '月', '火', '水', '木', '金', '土'];
@@ -170,36 +184,55 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // テロップアニメーション制御
-    let animationId = null;
+    let currentAnimation = null;
+
     function startTicker(text) {
-      if (animationId) cancelAnimationFrame(animationId);
       const el = document.getElementById('ticker-text');
+      const container = document.getElementById('ticker-bg');
+      
       el.textContent = text;
-      let pos = 1500;
-      function step() {
-        pos -= 3; // スクロール速度
-        if (pos < -el.offsetWidth) pos = 1500;
-        el.style.transform = `translateX(${pos}px)`;
-        animationId = requestAnimationFrame(step);
+      
+      if (currentAnimation) {
+        currentAnimation.cancel();
       }
-      step();
+
+      const containerWidth = container.offsetWidth || 1500;
+      const textWidth = el.offsetWidth;
+      const duration = ((containerWidth + textWidth) / 160) * 1000;
+
+      currentAnimation = el.animate(
+        [
+          { transform: `translate3d(${containerWidth}px, -50%, 0)` },
+          { transform: `translate3d(${-textWidth}px, -50%, 0)` }
+        ],
+        {
+          duration: duration,
+          iterations: Infinity,
+          easing: 'linear'
+        }
+      );
     }
 
-    // 気象庁防災APIから警報・注意報を全自動取得
+    // 初期起動テロップ
+    startTicker(`【${cityInfo.name}】気象庁から最新データを取得しています...`);
+
     async function fetchJmaWarnings() {
       try {
         const url = `https://www.jma.go.jp/bosai/warning/data/warning/${cityInfo.areaCode}.json?t=` + Date.now();
         const res = await fetch(url);
+        if (!res.ok) throw new Error('HTTPエラー');
         const data = await res.json();
 
-        // 該当市町村のデータを検索
-        let activeWarnings = [];
-        let maxLevel = 'none'; // none, advisory, warning, emergency
+        // 配列・オブジェクト両構造に対応
+        const root = Array.isArray(data) ? data[0] : data;
+        const areaTypes = root?.areaTypes || [];
 
-        for (const areaType of data.areaTypes || []) {
+        let activeWarnings = [];
+        let maxLevel = 'none';
+
+        for (const areaType of areaTypes) {
           for (const area of areaType.areas || []) {
-            if (area.code === cityCode) {
+            if (String(area.code) === String(cityCode)) {
               for (const w of area.warnings || []) {
                 if (w.status === "発表" || w.status === "継続") {
                   const master = WARNING_CODES[w.code];
@@ -234,12 +267,13 @@
 
       } catch (e) {
         console.error('気象警報取得エラー:', e);
-        document.getElementById('alert-badge').textContent = '情報取得エラー';
+        document.getElementById('alert-badge').textContent = '気象情報確認中';
+        startTicker(`【${cityInfo.name}】現在、気象情報を更新中です。本日もご安全にお過ごしください。`);
       }
     }
 
     fetchJmaWarnings();
-    setInterval(fetchJmaWarnings, 300000); // 5分ごとに自動更新
+    setInterval(fetchJmaWarnings, 600000);
   </script>
 </body>
 </html>
