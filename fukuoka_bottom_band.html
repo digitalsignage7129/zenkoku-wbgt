@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>下帯 - テロップ完全フィット版</title>
+  <title>下帯 - 動作確定版</title>
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -11,7 +11,6 @@
       padding: 0;
     }
 
-    /* 描画枠（1920x216等）に対して100%可変で追従 */
     html, body {
       width: 100%;
       height: 100%;
@@ -119,7 +118,7 @@
       width: 100%;
     }
 
-    /* 流れる文字 (width: max-content で文字幅の頭打ちを防止) */
+    /* 流れる文字 */
     .ticker-text {
       position: absolute;
       top: 0;
@@ -211,8 +210,7 @@
     let currentAnimation = null;
     let currentText = '';
 
-    async function startTicker(text) {
-      // 全く同じテキストで既にアニメーション中であれば再呼び出しによるリセットを防ぐ
+    function startTicker(text) {
       if (currentText === text && currentAnimation) return;
       currentText = text;
 
@@ -226,20 +224,15 @@
         currentAnimation = null;
       }
 
-      // フォント描画の完了を確実にする
-      if (document.fonts && document.fonts.ready) {
-        await document.fonts.ready;
-      }
+      // DOM描画の確定を少し待ってから計算・開始（フリーズ防止）
+      setTimeout(() => {
+        const containerWidth = container.clientWidth || 1500;
+        const textWidth = el.scrollWidth || (text.length * 45);
 
-      requestAnimationFrame(() => {
-        const containerWidth = container.getBoundingClientRect().width || 1500;
-        // 実効テキスト幅を正確に取得
-        const textWidth = el.scrollWidth || el.getBoundingClientRect().width;
-
-        // 右端が画面左外へ完全に消える座標（余白マージンとして150px追加）
-        const endX = -textWidth - 150;
+        // 文字が左端へ完全に消える位置（テキスト長 ＋ 余白100px）
+        const endX = -textWidth - 100;
         const totalDistance = containerWidth + Math.abs(endX);
-        const duration = (totalDistance / 180) * 1000;
+        const duration = (totalDistance / 160) * 1000; // 速度固定(160px/s)
 
         currentAnimation = el.animate(
           [
@@ -252,7 +245,7 @@
             easing: 'linear'
           }
         );
-      });
+      }, 50);
     }
 
     startTicker(`【${cityInfo.name}】気象庁から最新データを取得しています...`);
