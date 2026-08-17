@@ -12,8 +12,11 @@ ssl_context = ssl.create_default_context()
 ssl_context.check_hostname = False
 ssl_context.verify_mode = ssl.CERT_NONE
 
-AMEDAS_CODE = "64011"
-MOE_POINT = "64011"
+# 【確定】奈良観測所の正しい地点コード
+AMEDAS_CODE = "64036"
+MOE_POINT = "64036"
+REGION_CODE = "06"  # 近畿
+PREF_CODE = "64"    # 奈良県
 
 jst = timezone(timedelta(hours=9))
 now_jst = datetime.now(jst)
@@ -22,14 +25,13 @@ print(f"=== START: {now_jst.strftime('%Y-%m-%d %H:%M:%S')} JST ===")
 
 temp_val, hum_val, wind_val, weather_val = None, None, None, "不明"
 
-# 1. 気象庁アメダス (10分前〜60分前を探索)
+# 1. 気象庁アメダスから実測値を取得
 for offset in range(10, 70, 10):
     target = now_jst - timedelta(minutes=offset)
     minute = (target.minute // 10) * 10
     time_str = target.strftime("%Y%m%d%H") + f"{minute:02d}00"
     jma_url = f"https://www.jma.go.jp/bosai/amedas/data/map/{time_str}.json"
 
-    print(f"[JMA] Requesting: {jma_url}")
     try:
         req = urllib.request.Request(jma_url, headers=headers)
         with urllib.request.urlopen(req, context=ssl_context, timeout=5) as resp:
@@ -54,18 +56,15 @@ for offset in range(10, 70, 10):
                 else:
                     weather_val = "くもり"
                 
-                print(f"[JMA SUCCESS] {time_str} -> Temp:{temp_val}, Hum:{hum_val}, Wind:{wind_val}")
+                print(f"[JMA SUCCESS] {time_str} -> 気温:{temp_val}℃, 湿度:{hum_val}%, 風速:{wind_val}m/s")
                 break
-            else:
-                print(f"[JMA WARN] Station {AMEDAS_CODE} not found in JSON keys")
     except Exception as e:
         print(f"[JMA ERROR] {time_str}: {e}")
 
-# 2. 環境省WBGT
+# 2. 環境省WBGTデータの取得
 wbgt_val = None
 csv_url = f"https://www.wbgt.env.go.jp/prev15d/list/tbl/prev15d_{MOE_POINT}.csv"
 
-print(f"[MOE CSV] Requesting: {csv_url}")
 try:
     req = urllib.request.Request(csv_url, headers=headers)
     with urllib.request.urlopen(req, context=ssl_context, timeout=5) as resp:
@@ -79,9 +78,9 @@ try:
 except Exception as e:
     print(f"[MOE CSV ERROR] {e}")
 
+# CSVで取れなかった場合のHTMLフォールバック
 if not wbgt_val:
-    html_url = f"https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=06&prefecture=64&point={MOE_POINT}"
-    print(f"[MOE HTML] Requesting: {html_url}")
+    html_url = f"https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region={REGION_CODE}&prefecture={PREF_CODE}&point={MOE_POINT}"
     try:
         req = urllib.request.Request(html_url, headers=headers)
         with urllib.request.urlopen(req, context=ssl_context, timeout=5) as resp:
@@ -94,7 +93,7 @@ if not wbgt_val:
     except Exception as e:
         print(f"[MOE HTML ERROR] {e}")
 
-# 3. 判定 & 保存
+# 3. 警戒度判定
 level = "--"
 if wbgt_val:
     w = float(wbgt_val)
@@ -104,6 +103,7 @@ if wbgt_val:
     elif w >= 21.0: level = "留意"
     else: level = "ほぼ安全"
 
+# 4. JSON出力
 result = {
     "location": "奈良県田原本町",
     "wbgt": str(wbgt_val) if wbgt_val else "--",
@@ -118,5 +118,5 @@ result = {
 with open("tawaramoto_wbgt.json", "w", encoding="utf-8") as f:
     json.dump(result, f, ensure_ascii=False, indent=2)
 
-print("=== FINAL RESULT ===")
+print("\n=== FINAL RESULT ===")
 print(json.dumps(result, ensure_ascii=False, indent=2))
