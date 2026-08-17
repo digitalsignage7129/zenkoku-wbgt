@@ -4,85 +4,91 @@ import ssl
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
-# ブラウザリクエストの完全擬態ヘッダー
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,json;q=0.8,*/*;q=0.8",
-    "Referer": "https://www.jma.go.jp/",
 }
 
-# SSLエラー回避設定
 ssl_context = ssl.create_default_context()
 ssl_context.check_hostname = False
 ssl_context.verify_mode = ssl.CERT_NONE
 
-# 【精査済み】田原本町周辺の全項目対応観測点：奈良（64011）
+# 観測点：奈良（64011）
 AMEDAS_CODE = "64011"
 MOE_POINT = "64011"
-REGION_CODE = "06"  # 近畿
-PREF_CODE = "64"    # 奈良県
 
 jst = timezone(timedelta(hours=9))
 now_jst = datetime.now(jst)
 
 temp_val, hum_val, wind_val, weather_val = None, None, None, "不明"
 
-# 1. 気象庁アメダスから最新確定データを取得
-try:
-    # 気象庁の「最新確定時刻インデックス」を叩く
-    latest_time_url = "https://www.jma.go.jp/bosai/amedas/data/latest_time.json"
-    req_time = urllib.request.Request(latest_time_url, headers=headers)
-    
-    with urllib.request.urlopen(req_time, context=ssl_context, timeout=10) as resp:
-        raw_time = json.loads(resp.read().decode("utf-8"))
-        # Format: "2026-08-17T16:50:00+09:00" -> "20260817165000"
-        time_str = raw_time.replace("-", "").replace("T", "").replace(":", "").replace("+09:00", "")
-
-    # 確定時刻のJSONを取得
+# 1. 気象庁アメダスからデータ取得（直近60分を10分刻みで探索）
+for offset in range(0, 70, 10):
+    target = now_jst - timedelta(minutes=offset)
+    minute = (target.minute // 10) * 10
+    time_str = target.strftime("%Y%m%d%H") + f"{minute:02d}00"
     jma_url = f"https://www.jma.go.jp/bosai/amedas/data/map/{time_str}.json"
-    req_map = urllib.request.Request(jma_url, headers=headers)
-    
-    with urllib.request.urlopen(req_map, context=ssl_context, timeout=10) as resp:
-        data = json.loads(resp.read().decode("utf-8"))
-        if AMEDAS_CODE in data:
-            obs = data[AMEDAS_CODE]
 
-            if "temp" in obs and obs["temp"] and obs["temp"][0] is not None:
-                temp_val = f"{float(obs['temp'][0]):.1f}"
-            if "humidity" in obs and obs["humidity"] and obs["humidity"][0] is not None:
-                hum_val = str(int(obs["humidity"][0]))
-            if "wind" in obs and obs["wind"] and obs["wind"][0] is not None:
-                wind_val = f"{float(obs['wind'][0]):.1f}"
+    try:
+        req = urllib.request.Request(jma_url, headers=headers)
+        with urllib.request.urlopen(req, context=ssl_context, timeout=5) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            if AMEDAS_CODE in data:
+                obs = data[AMEDAS_CODE]
+                
+                if "temp" in obs and obs["temp"] and obs["temp"][0] is not None:
+                    temp_val = f"{float(obs['temp'][0]):.1f}"
+                if "humidity" in obs and obs["humidity"] and obs["humidity"][0] is not None:
+                    hum_val = str(int(obs["humidity"][0]))
+                if "wind" in obs and obs["wind"] and obs["wind"][0] is not None:
+                    wind_val = f"{float(obs['wind'][0]):.1f}"
 
-            precip = obs.get("precipitation10m", [0])[0] or 0
-            sun = obs.get("sun10m", [0])[0] or 0
+                precip = obs.get("precipitation10m", [0])[0] or 0
+                sun = obs.get("sun10m", [0])[0] or 0
 
-            if precip >= 0.5:
-                weather_val = "雨"
-            elif sun >= 0.1:
-                weather_val = "晴れ"
-            else:
-                weather_val = "くもり"
-            print(f"JMA Success: Fetched data from {time_str}")
+                if precip >= 0.5:
+                    weather_val = "雨"
+                elif sun >= 0.1:
+                    weather_val = "晴れ"
+                else:
+                    weather_val = "くもり"
+                
+                print(f"JMA Success ({time_str}): Temp={temp_val}, Hum={hum_val}, Wind={wind_val}")
+                break
+    except Exception:
+        continue
 
-except Exception as e:
-    print(f"JMA Fetch Error: {e}")
-
-# 2. 環境省サイトから奈良（64011）の公式WBGT値を直接取得
+# 2. 環境省WBGTデータの取得（公式CSVおよびHTMLの二重化）
 wbgt_val = None
-moe_url = f"https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region={REGION_CODE}&prefecture={PREF_CODE}&point={MOE_POINT}"
 
+# Aパターン: 公式CSVデータからの抽出
+csv_url = f"https://www.wbgt.env.go.jp/prev15d/list/tbl/prev15d_{MOE_POINT}.csv"
 try:
-    req_moe = urllib.request.Request(moe_url, headers=headers)
-    with urllib.request.urlopen(req_moe, context=ssl_context, timeout=10) as resp:
-        html = resp.read().decode("utf-8", errors="ignore")
-        matches = re.findall(r"(\d{2}\.\d)", html)
-        valid_wbgt = [m for m in matches if 10.0 <= float(m) <= 40.0]
-        if valid_wbgt:
-            wbgt_val = valid_wbgt[-1]
-            print(f"MOE Success: WBGT = {wbgt_val}")
+    req = urllib.request.Request(csv_url, headers=headers)
+    with urllib.request.urlopen(req, context=ssl_context, timeout=5) as resp:
+        lines = resp.read().decode("shift_jis", errors="ignore").strip().splitlines()
+        for line in reversed(lines):
+            cols = line.split(",")
+            if len(cols) >= 3 and re.match(r"^\d{2}\.\d$", cols[-1].strip()):
+                wbgt_val = cols[-1].strip()
+                print(f"MOE CSV Success: WBGT={wbgt_val}")
+                break
 except Exception as e:
-    print(f"MOE Fetch Error: {e}")
+    print(f"MOE CSV Error: {e}")
+
+# Bパターン: CSV取得失敗時のHTMLフォールバック
+if not wbgt_val:
+    html_url = f"https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=06&prefecture=64&point={MOE_POINT}"
+    try:
+        req = urllib.request.Request(html_url, headers=headers)
+        with urllib.request.urlopen(req, context=ssl_context, timeout=5) as resp:
+            html = resp.read().decode("utf-8", errors="ignore")
+            matches = re.findall(r"(\d{2}\.\d)", html)
+            valid = [m for m in matches if 10.0 <= float(m) <= 40.0]
+            if valid:
+                wbgt_val = valid[-1]
+                print(f"MOE HTML Success: WBGT={wbgt_val}")
+    except Exception as e:
+        print(f"MOE HTML Error: {e}")
 
 # 3. 警戒度判定
 level = "--"
