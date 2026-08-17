@@ -3,62 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=1920, height=216, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>下帯 - データ読み込み確実版</title>
+  <title>下帯 - 視認性＆レイアウト全面最適化版</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
     html, body {
-      width: 100%;
-      height: 100%;
+      width: 1920px;
+      height: 216px;
       margin: 0;
       padding: 0;
       overflow: hidden;
       background-color: #000000;
+      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      color: #ffffff;
+      user-select: none;
     }
 
     body {
-      color: #ffffff;
-      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
-      padding: 12px 20px;
+      padding: 12px;
       display: flex;
-      gap: 20px;
-      user-select: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      align-items: center;
+      gap: 16px;
+      width: 1920px;
+      height: 216px;
     }
 
-    /* 時計エリア */
+    /* 左側：時計ブロック */
     .clock-block {
-      width: 320px;
+      width: 340px;
       height: 100%;
-      background: #111111;
-      border: 2px solid #333333;
-      border-radius: 10px;
+      background: #11141a;
+      border: 2px solid #2a364a;
+      border-radius: 12px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       flex-shrink: 0;
     }
-    .clock-date { font-size: 20px; color: #aaaaaa; font-weight: bold; }
-    .clock-time { font-size: 58px; color: #00e5ff; font-weight: 900; line-height: 1; margin-top: 4px; }
+    .clock-date { font-size: 22px; color: #9ab0c7; font-weight: bold; }
+    .clock-time { font-size: 68px; color: #00e5ff; font-weight: 900; line-height: 1; margin-top: 2px; letter-spacing: -1px; }
 
-    /* メインエリア */
+    /* 右側：メインコンテンツ */
     .main-block {
       flex: 1;
       height: 100%;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      justify-content: space-between;
       min-width: 0;
     }
 
-    /* 上段ステータスバー */
+    /* 上段：ステータスバー (高さ: 54px) */
     .status-bar {
-      height: 48px;
+      height: 54px;
       display: flex;
       align-items: center;
       gap: 16px;
@@ -67,51 +65,64 @@
     .city-badge {
       background: #00e5ff;
       color: #000000;
-      font-size: 22px;
+      font-size: 26px;
       font-weight: 900;
-      padding: 4px 20px;
-      border-radius: 6px;
+      padding: 6px 24px;
+      border-radius: 8px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     /* 警報バッジ */
     .alert-badge {
-      font-size: 20px;
-      font-weight: bold;
-      padding: 4px 20px;
-      border-radius: 6px;
-      background: #008800;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      font-size: 24px;
+      font-weight: 900;
+      padding: 0 24px;
+      border-radius: 8px;
+      background: #007700;
       color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .alert-badge.advisory { background: #cc9900; color: #000000; }
-    .alert-badge.warning { background: #cc0000; color: #ffffff; }
+    .alert-badge.advisory { background: #d99b00; color: #000000; }
+    .alert-badge.warning { background: #d92626; color: #ffffff; }
     .alert-badge.emergency {
-      background: #800080;
+      background: #990099;
       color: #ffffff;
       animation: blink 1s infinite;
     }
 
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-    /* 下段テロップエリア */
+    /* 下段：テロップ枠 (高さ: 126px - 枠全体を活用) */
     .ticker-container {
-      flex: 1;
-      background: #111111;
-      border: 2px solid #333333;
-      border-radius: 10px;
+      height: 126px;
+      background: #0a0d14;
+      border: 2px solid #2a364a;
+      border-radius: 12px;
       overflow: hidden;
-      display: flex;
-      align-items: center;
       position: relative;
+      width: 100%;
     }
+
+    /* テロップ文字 (文字サイズ 46px、垂直中央揃え) */
     .ticker-text {
       position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
       white-space: nowrap;
-      font-size: 34px;
+      font-size: 46px;
       font-weight: 900;
       color: #ffffff;
       will-change: transform;
-      top: 50%;
-      transform: translateY(-50%);
+      letter-spacing: 1px;
     }
   </style>
 </head>
@@ -196,24 +207,30 @@
         currentAnimation.cancel();
       }
 
-      const containerWidth = container.offsetWidth || 1500;
-      const textWidth = el.offsetWidth;
-      const duration = ((containerWidth + textWidth) / 160) * 1000;
+      // レンダリング後の要素幅を計測してアニメーション実行
+      requestAnimationFrame(() => {
+        const containerWidth = container.getBoundingClientRect().width || 1500;
+        const textWidth = el.getBoundingClientRect().width;
 
-      currentAnimation = el.animate(
-        [
-          { transform: `translate3d(${containerWidth}px, -50%, 0)` },
-          { transform: `translate3d(${-textWidth}px, -50%, 0)` }
-        ],
-        {
-          duration: duration,
-          iterations: Infinity,
-          easing: 'linear'
-        }
-      );
+        // 1秒間に180pxの速度で移動
+        const totalDistance = containerWidth + textWidth;
+        const duration = (totalDistance / 180) * 1000;
+
+        // 画面右外側から、文字が完全に画面左外側に消え切るまで（-textWidth - 50px）移動
+        currentAnimation = el.animate(
+          [
+            { transform: `translateX(${containerWidth}px)` },
+            { transform: `translateX(${-textWidth - 50}px)` }
+          ],
+          {
+            duration: duration,
+            iterations: Infinity,
+            easing: 'linear'
+          }
+        );
+      });
     }
 
-    // 初期起動テロップ
     startTicker(`【${cityInfo.name}】気象庁から最新データを取得しています...`);
 
     async function fetchJmaWarnings() {
@@ -223,7 +240,6 @@
         if (!res.ok) throw new Error('HTTPエラー');
         const data = await res.json();
 
-        // 配列・オブジェクト両構造に対応
         const root = Array.isArray(data) ? data[0] : data;
         const areaTypes = root?.areaTypes || [];
 
@@ -267,7 +283,7 @@
 
       } catch (e) {
         console.error('気象警報取得エラー:', e);
-        document.getElementById('alert-badge').textContent = '気象情報確認中';
+        document.getElementById('alert-badge').textContent = '気象情報更新中';
         startTicker(`【${cityInfo.name}】現在、気象情報を更新中です。本日もご安全にお過ごしください。`);
       }
     }
