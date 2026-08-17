@@ -5,9 +5,9 @@ from datetime import datetime, timedelta, timezone
 
 headers = {"User-Agent": "Mozilla/5.0"}
 
-# 大牟田市に最も近い総合観測所（久留米: 82056）を参照
-WBGT_POINT = "82056"
-AMEDAS_CODE = "82056"
+# 久留米観測所（82286）のコード
+WBGT_POINT = "82286"
+AMEDAS_CODE = "82286"
 
 wbgt_val = None
 temp_val = "--"
@@ -15,7 +15,7 @@ hum_val = "--"
 wind_val = "--"
 weather_val = "--"
 
-# 1. 環境省サイトから公式WBGT値を取得
+# 1. 環境省サイトから久留米（82286）の公式WBGT値を取得
 try:
     moe_url = f"https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=10&prefecture=82&point={WBGT_POINT}"
     req = urllib.request.Request(moe_url, headers=headers)
@@ -29,7 +29,7 @@ try:
 except Exception as e:
     print(f"MOE fetch warning: {e}")
 
-# 2. 気象庁アメダスから実測データを取得
+# 2. 気象庁アメダスから久留米（82286）の実測データを取得
 try:
     req_time = urllib.request.Request(
         "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt",
