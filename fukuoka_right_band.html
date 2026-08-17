@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>シンプル3日天気</title>
+  <title>シンプル3日天気 - 極限版</title>
   <style>
     * {
       box-sizing: border-box;
@@ -22,10 +22,10 @@
     }
 
     body {
-      padding: 1.5vh 3vw;
+      padding: 2vh 3vw;
       display: flex;
       flex-direction: column;
-      gap: 1.5vh;
+      gap: 2vh;
     }
 
     /* 天気カード（3分割） */
@@ -33,72 +33,63 @@
       flex: 1;
       background: #111722;
       border: 1px solid #1f2b3e;
-      border-radius: 12px;
-      padding: 1.5vh 4vw;
+      border-radius: 16px;
+      padding: 0 4vw;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    /* 今日だけ少し目立たせる（アクセント枠線） */
+    /* 今日（最上段）の強調 */
     .weather-card.today {
       background: linear-gradient(135deg, #132238 0%, #0d1726 100%);
       border: 2px solid #00e5ff;
     }
 
-    /* 左側：日付と曜日 */
+    /* 1. 左：日付・曜日 */
     .date-box {
+      width: 30%;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      width: 28%;
     }
     .day-label {
-      font-size: clamp(12px, 1.8vh, 16px);
+      font-size: clamp(14px, 2.2vh, 20px);
       font-weight: bold;
       color: #00e5ff;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
     .today .day-label {
       color: #ffcc00;
     }
     .date-text {
-      font-size: clamp(14px, 2.2vh, 20px);
-      font-weight: 900;
-      color: #ffffff;
-    }
-
-    /* 中央：天気アイコンと天気名 */
-    .weather-box {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-      justify-content: center;
-    }
-    .weather-icon {
-      font-size: clamp(32px, 5vh, 48px);
-      line-height: 1;
-    }
-    .weather-name {
-      font-size: clamp(13px, 2vh, 18px);
-      font-weight: bold;
-      color: #ffffff;
-    }
-
-    /* 右側：気温 */
-    .temp-box {
-      display: flex;
-      align-items: center;
-      gap: 6px;
       font-size: clamp(18px, 3vh, 28px);
       font-weight: 900;
+      color: #ffffff;
+      white-space: nowrap;
+    }
+
+    /* 2. 中央：巨大天気アイコン（文字全カット） */
+    .icon-box {
+      width: 30%;
+      text-align: center;
+      font-size: clamp(48px, 9vh, 80px);
+      line-height: 1;
+    }
+
+    /* 3. 右：気温 */
+    .temp-box {
+      width: 40%;
+      display: flex;
+      align-items: center;
       justify-content: flex-end;
-      width: 32%;
+      gap: 8px;
+      font-size: clamp(22px, 4.5vh, 42px);
+      font-weight: 900;
       white-space: nowrap;
     }
     .temp-high { color: #ff5555; }
-    .temp-slash { color: #445566; font-size: 80%; }
+    .temp-slash { color: #3a4b60; font-weight: 400; }
     .temp-low { color: #3399ff; }
   </style>
 </head>
@@ -110,10 +101,7 @@
       <div class="day-label" id="label-0">今日</div>
       <div class="date-text" id="date-0">--/-- (-)</div>
     </div>
-    <div class="weather-box">
-      <div class="weather-icon" id="icon-0">☀️</div>
-      <div class="weather-name" id="weather-0">--</div>
-    </div>
+    <div class="icon-box" id="icon-0">☀️</div>
     <div class="temp-box">
       <span class="temp-high" id="high-0">--℃</span>
       <span class="temp-slash">/</span>
@@ -127,10 +115,7 @@
       <div class="day-label" id="label-1">明日</div>
       <div class="date-text" id="date-1">--/-- (-)</div>
     </div>
-    <div class="weather-box">
-      <div class="weather-icon" id="icon-1">⛅</div>
-      <div class="weather-name" id="weather-1">--</div>
-    </div>
+    <div class="icon-box" id="icon-1">⛅</div>
     <div class="temp-box">
       <span class="temp-high" id="high-1">--℃</span>
       <span class="temp-slash">/</span>
@@ -144,10 +129,7 @@
       <div class="day-label" id="label-2">明後日</div>
       <div class="date-text" id="date-2">--/-- (-)</div>
     </div>
-    <div class="weather-box">
-      <div class="weather-icon" id="icon-2">🌧️</div>
-      <div class="weather-name" id="weather-2">--</div>
-    </div>
+    <div class="icon-box" id="icon-2">🌧️</div>
     <div class="temp-box">
       <span class="temp-high" id="high-2">--℃</span>
       <span class="temp-slash">/</span>
@@ -165,13 +147,19 @@
     const cityCode = params.get('city') || '4020300';
     const cityInfo = CITIES[cityCode] || CITIES['4020300'];
 
+    // 長い文章からシンプルなアイコンだけを判定
     function getWeatherIcon(text) {
       if (!text) return '☀️';
-      if (text.includes('雨')) return text.includes('晴') ? '🌦️' : '🌧️';
-      if (text.includes('雪')) return '❄️';
       if (text.includes('雷')) return '🌩️';
+      if (text.includes('雪')) return '❄️';
+      if (text.includes('雨')) return text.includes('晴') ? '🌦️' : '🌧️';
       if (text.includes('くもり') || text.includes('曇')) return text.includes('晴') ? '⛅' : '☁️';
       return '☀️';
+    }
+
+    function getDateKey(isoStr) {
+      const d = new Date(isoStr);
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     }
 
     async function fetchForecast() {
@@ -183,99 +171,76 @@
         const shortData = data[0];
         const weeklyData = data[1] || null;
 
-        const timeSeriesWeather = shortData.timeSeries[0];
-        const timeSeriesTempShort = shortData.timeSeries[2];
+        const dailyMap = {};
 
-        const weatherArea = timeSeriesWeather.areas[0];
-        const tempAreaShort = timeSeriesTempShort ? timeSeriesTempShort.areas[0] : null;
-
-        // 週間気温データのマップ作成
-        let weeklyTempMap = {};
-        if (weeklyData && weeklyData.timeSeries && weeklyData.timeSeries[1]) {
-          const wTempTimes = weeklyData.timeSeries[1].timeDefines;
-          const wTempArea = weeklyData.timeSeries[1].areas[0];
-          for (let k = 0; k < wTempTimes.length; k++) {
-            const dateKey = wTempTimes[k].substring(0, 10);
-            weeklyTempMap[dateKey] = {
-              min: wTempArea.tempsMin && wTempArea.tempsMin[k] !== "" ? wTempArea.tempsMin[k] : null,
-              max: wTempArea.tempsMax && wTempArea.tempsMax[k] !== "" ? wTempArea.tempsMax[k] : null
-            };
+        // 1. 天気アイコン判定用のテキスト保持
+        const tsWeather = shortData.timeSeries[0];
+        const areaWeather = tsWeather.areas[0];
+        tsWeather.timeDefines.forEach((tStr, idx) => {
+          const key = getDateKey(tStr);
+          if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
+          if (areaWeather.weathers && areaWeather.weathers[idx]) {
+            dailyMap[key].weather = areaWeather.weathers[idx].trim();
           }
+        });
+
+        // 2. 短期気温データの保持
+        if (shortData.timeSeries[2]) {
+          const tsTemp = shortData.timeSeries[2];
+          const areaTemp = tsTemp.areas[0];
+          tsTemp.timeDefines.forEach((tStr, idx) => {
+            const key = getDateKey(tStr);
+            const val = parseInt(areaTemp.temps[idx]);
+            if (!isNaN(val)) {
+              if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
+              dailyMap[key].temps.push(val);
+            }
+          });
         }
 
+        // 3. 週間データの補完
+        if (weeklyData && weeklyData.timeSeries && weeklyData.timeSeries[1]) {
+          const tsWTemp = weeklyData.timeSeries[1];
+          const areaWTemp = tsWTemp.areas[0];
+          tsWTemp.timeDefines.forEach((tStr, idx) => {
+            const key = getDateKey(tStr);
+            if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
+            if (areaWTemp.tempsMax && areaWTemp.tempsMax[idx] !== "") dailyMap[key].high = areaWTemp.tempsMax[idx];
+            if (areaWTemp.tempsMin && areaWTemp.tempsMin[idx] !== "") dailyMap[key].low = areaWTemp.tempsMin[idx];
+          });
+        }
+
+        // 4. 今日の日付以降を抽出
         const now = new Date();
-        const firstApiDateStr = timeSeriesWeather.timeDefines[0].substring(0, 10);
-        const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-        const isEveningShift = (firstApiDateStr !== todayStr);
+        const todayKey = getDateKey(now);
+        const sortedKeys = Object.keys(dailyMap).filter(k => k >= todayKey).sort();
 
-        // 夕方以降の表示調整（明日・明後日・3日後）
-        if (isEveningShift) {
-          document.getElementById('label-0').textContent = '明日';
-          document.getElementById('label-1').textContent = '明後日';
-          document.getElementById('label-2').textContent = '3日後';
-        } else {
-          document.getElementById('label-0').textContent = '今日';
-          document.getElementById('label-1').textContent = '明日';
-          document.getElementById('label-2').textContent = '明後日';
-        }
+        const labels = ['今日', '明日', '明後日'];
 
         for (let i = 0; i < 3; i++) {
-          if (!timeSeriesWeather.timeDefines[i]) continue;
+          const key = sortedKeys[i];
+          if (!key) continue;
 
-          const dateObj = new Date(timeSeriesWeather.timeDefines[i]);
-          const dateStr = `${dateObj.getMonth()+1}/${dateObj.getDate()} (${['日','月','火','水','木','金','土'][dateObj.getDay()]})`;
-          
-          const year = dateObj.getFullYear();
-          const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-          const day = String(dateObj.getDate()).padStart(2, '0');
-          const localDateKey = `${year}-${month}-${day}`;
+          const item = dailyMap[key];
+          const d = item.dateObj;
+          const dateStr = `${d.getMonth()+1}/${d.getDate()} (${['日','月','火','水','木','金','土'][d.getDay()]})`;
 
-          const wText = weatherArea.weathers[i] ? weatherArea.weathers[i].trim() : '--';
-
+          document.getElementById(`label-${i}`).textContent = labels[i] || `${i}日後`;
           document.getElementById(`date-${i}`).textContent = dateStr;
-          document.getElementById(`weather-${i}`).textContent = wText;
-          document.getElementById(`icon-${i}`).textContent = getWeatherIcon(wText);
+          document.getElementById(`icon-${i}`).textContent = getWeatherIcon(item.weather);
 
-          let high = '--';
-          let low = '--';
+          let highVal = item.high;
+          let lowVal = item.low;
 
-          const wData = weeklyTempMap[localDateKey];
-          if (wData) {
-            if (wData.max) high = wData.max;
-            if (wData.min) low = wData.min;
+          if (item.temps.length > 0) {
+            const maxTemp = Math.max(...item.temps);
+            const minTemp = Math.min(...item.temps);
+            if (!highVal) highVal = maxTemp;
+            if (!lowVal && item.temps.length > 1) lowVal = minTemp;
           }
 
-          // 気温取得ロジック
-          if (i === 0 && !isEveningShift) {
-            if (tempAreaShort && tempAreaShort.temps) {
-              const temps = tempAreaShort.temps;
-              if (temps.length >= 2 && temps[0] !== temps[1]) {
-                high = String(Math.max(parseInt(temps[0]), parseInt(temps[1])));
-                low = String(Math.min(parseInt(temps[0]), parseInt(temps[1])));
-              } else if (temps.length >= 1) {
-                high = temps[0];
-              }
-            }
-            // キャッシュ保持
-            if (low !== '--') localStorage.setItem(`saved_low_${localDateKey}`, low);
-            else {
-              const savedLow = localStorage.getItem(`saved_low_${localDateKey}`);
-              if (savedLow) low = savedLow;
-            }
-          } else if (i === 0 && isEveningShift) {
-            if (tempAreaShort && tempAreaShort.temps && tempAreaShort.temps.length >= 2) {
-              if (low === '--') low = tempAreaShort.temps[0] || '--';
-              if (high === '--') high = tempAreaShort.temps[1] || '--';
-            }
-          } else if (i === 1 && !isEveningShift) {
-            if (tempAreaShort && tempAreaShort.temps && tempAreaShort.temps.length >= 4) {
-              if (low === '--') low = tempAreaShort.temps[2] || '--';
-              if (high === '--') high = tempAreaShort.temps[3] || '--';
-            }
-          }
-
-          document.getElementById(`high-${i}`).textContent = high !== '--' ? high + '℃' : '--℃';
-          document.getElementById(`low-${i}`).textContent = low !== '--' ? low + '℃' : '--℃';
+          document.getElementById(`high-${i}`).textContent = (highVal !== null && highVal !== undefined) ? `${highVal}℃` : '--℃';
+          document.getElementById(`low-${i}`).textContent = (lowVal !== null && lowVal !== undefined) ? `${lowVal}℃` : '--℃';
         }
 
       } catch (e) {
@@ -284,7 +249,7 @@
     }
 
     fetchForecast();
-    setInterval(fetchForecast, 600000); // 10分ごとに自動更新
+    setInterval(fetchForecast, 600000);
   </script>
 </body>
 </html>
