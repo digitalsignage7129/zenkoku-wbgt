@@ -2,14 +2,17 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>右帯 - 気象庁API天気予報完全自動版</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>右帯 - 天気＆環境情報</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      width: 384px;
-      height: 864px;
-      overflow: hidden;
+    html, body {
+      width: 100%;
+      height: 100vh;
       background-color: #000000;
+      overflow: hidden;
+    }
+    body {
       color: #ffffff;
       font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
       padding: 10px;
@@ -19,15 +22,17 @@
       user-select: none;
     }
 
+    /* 拠点ヘッダー */
     .header {
       height: 40px;
       background: #111111;
-      border: 1px solid #333;
+      border: 1px solid #333333;
       border-radius: 6px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 0 10px;
+      flex-shrink: 0;
     }
     .location-title { font-size: 16px; font-weight: bold; color: #00e5ff; }
     .update-time { font-size: 11px; color: #aaaaaa; }
@@ -42,6 +47,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-shrink: 0;
     }
     .wbgt-label { font-size: 12px; color: #ffcc00; font-weight: bold; }
     .wbgt-status { font-size: 20px; font-weight: 900; color: #ff3333; }
@@ -93,7 +99,7 @@
     <div style="font-size: 32px;">⚠️</div>
   </div>
 
-  <!-- Day 1 -->
+  <!-- 今日 -->
   <div class="day-card today">
     <div class="day-left">
       <div class="day-label">【 今日 】</div>
@@ -107,7 +113,7 @@
     </div>
   </div>
 
-  <!-- Day 2 -->
+  <!-- 明日 -->
   <div class="day-card">
     <div class="day-left">
       <div class="day-label">明日</div>
@@ -121,7 +127,7 @@
     </div>
   </div>
 
-  <!-- Day 3 -->
+  <!-- 明後日 -->
   <div class="day-card">
     <div class="day-left">
       <div class="day-label">明後日</div>
@@ -163,7 +169,7 @@
         const data = await res.json();
 
         const timeSeries = data[0].timeSeries;
-        const weatherArea = timeSeries[0].areas[0]; // 福岡県地域
+        const weatherArea = timeSeries[0].areas[0];
         const tempArea = timeSeries[2].areas[0];
 
         const now = new Date();
@@ -175,16 +181,14 @@
           const wText = weatherArea.weathers[i] ? weatherArea.weathers[i].replace(/ /g, ' ') : '--';
 
           document.getElementById(`date-${i}`).textContent = dateStr;
-          document.getElementById(`weather-${i}`).textContent = wText.split(' ')[0]; // 短縮表示
+          document.getElementById(`weather-${i}`).textContent = wText.split(' ')[0];
           document.getElementById(`icon-${i}`).textContent = getWeatherIcon(wText);
 
-          // 気温
           const high = tempArea.temps[i*2 + 1] || tempArea.temps[i] || '--';
           const low = tempArea.temps[i*2] || '--';
           document.getElementById(`high-${i}`).textContent = high !== '--' ? high + '℃' : '--℃';
           document.getElementById(`low-${i}`).textContent = low !== '--' ? low + '℃' : '--℃';
 
-          // 本日の最高気温から熱中症判定
           if (i === 0 && high !== '--') {
             const hVal = parseInt(high);
             let status = '注意';
@@ -203,7 +207,7 @@
     }
 
     fetchJmaForecast();
-    setInterval(fetchJmaForecast, 1800000); // 30分ごとに自動更新
+    setInterval(fetchJmaForecast, 600000); // 10分ごとに更新
   </script>
 </body>
 </html>
