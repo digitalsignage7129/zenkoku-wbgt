@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=1920, height=216, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>下帯 - 上下光学センタリング精密微調整版</title>
+  <title>下帯 - テロップ上寄り配置版</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
@@ -74,7 +74,6 @@
       border-radius: 8px;
       white-space: nowrap;
       flex-shrink: 0;
-      margin-top: -1px;
     }
 
     /* 警報バッジ */
@@ -91,7 +90,6 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-top: -1px;
     }
     .alert-badge.advisory { background: #d99b00; color: #000000; }
     .alert-badge.warning { background: #d92626; color: #ffffff; }
@@ -114,7 +112,7 @@
       width: 100%;
     }
 
-    /* テロップ文字 (margin-top: -6px でフォント底上げ・光学真ん中揃え) */
+    /* 流れる文字（margin-top: -16px で文字位置を上に引き上げ） */
     .ticker-text {
       position: absolute;
       top: 0;
@@ -128,17 +126,19 @@
       color: #ffffff;
       will-change: transform;
       letter-spacing: 1px;
-      margin-top: -6px;
+      margin-top: -16px;
     }
   </style>
 </head>
 <body>
 
+  <!-- 左：時計・日付 -->
   <div class="clock-block">
     <div class="clock-date" id="clock-date">----/--/-- (-)</div>
     <div class="clock-time" id="clock-time">00:00</div>
   </div>
 
+  <!-- 右：ステータスバー＋テロップ -->
   <div class="main-block">
     <div class="status-bar">
       <div class="city-badge" id="city-badge">設置地域</div>
