@@ -28,10 +28,10 @@
       height: 216px;
     }
 
-    /* 左側：時計ブロック */
+    /* 左側：時計ブロック (216px - 24px = 192pxに明示固定) */
     .clock-block {
       width: 340px;
-      height: 100%;
+      height: 192px;
       background: #11141a;
       border: 2px solid #2a364a;
       border-radius: 12px;
@@ -44,10 +44,10 @@
     .clock-date { font-size: 22px; color: #9ab0c7; font-weight: bold; }
     .clock-time { font-size: 68px; color: #00e5ff; font-weight: 900; line-height: 1; margin-top: 2px; letter-spacing: -1px; }
 
-    /* 右側：メインコンテンツ */
+    /* 右側：メインコンテンツ (216px - 24px = 192pxに明示固定) */
     .main-block {
       flex: 1;
-      height: 100%;
+      height: 192px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -112,7 +112,7 @@
       width: 100%;
     }
 
-    /* 流れる文字（margin-top: -16px で文字位置を上に引き上げ） */
+    /* 流れる文字 */
     .ticker-text {
       position: absolute;
       top: 0;
