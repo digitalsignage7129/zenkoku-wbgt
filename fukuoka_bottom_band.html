@@ -5,8 +5,13 @@
   <meta name="viewport" content="width=1920, height=216, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>下帯 - テロップ上寄り配置版</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
+    /* 1. 特殊文字を除去し、全要素のサイズ計算を厳密化 */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     html, body {
       width: 1920px;
       height: 216px;
@@ -19,19 +24,20 @@
       user-select: none;
     }
 
+    /* 2. body全体を固定長(1920x216)とし、要素を上下左右に溢れさせない */
     body {
-      padding: 12px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
       width: 1920px;
       height: 216px;
+      padding: 12px;
+      display: flex;
+      align-items: stretch; /* 子要素の高さを枠内いっぱいに自動伸縮 */
+      gap: 16px;
     }
 
-    /* 左側：時計ブロック (216px - 24px = 192pxに明示固定) */
+    /* 左側：時計ブロック（高さは親の可飽和領域に完全同期） */
     .clock-block {
       width: 340px;
-      height: 192px;
+      height: 100%;
       background: #11141a;
       border: 2px solid #2a364a;
       border-radius: 12px;
@@ -44,17 +50,18 @@
     .clock-date { font-size: 22px; color: #9ab0c7; font-weight: bold; }
     .clock-time { font-size: 68px; color: #00e5ff; font-weight: 900; line-height: 1; margin-top: 2px; letter-spacing: -1px; }
 
-    /* 右側：メインコンテンツ (216px - 24px = 192pxに明示固定) */
+    /* 右側：メインコンテンツ（高さは親の可飽和領域に完全同期） */
     .main-block {
       flex: 1;
-      height: 192px;
+      height: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      gap: 12px; /* 固定間隔を明示 */
       min-width: 0;
+      min-height: 0;
     }
 
-    /* 上段：ステータスバー (高さ: 54px) */
+    /* 上段：ステータスバー (高さ固定: 54px) */
     .status-bar {
       height: 54px;
       display: flex;
@@ -101,9 +108,10 @@
 
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-    /* 下段：テロップ枠 (高さ: 126px) */
+    /* 下段：テロップ枠 (余白を自動計算して埋めるため px直打ちを廃止) */
     .ticker-container {
-      height: 126px;
+      flex: 1; /* 残りの高さを自動計算して溢れを防止 */
+      min-height: 0;
       background: #0a0d14;
       border: 2px solid #2a364a;
       border-radius: 12px;
