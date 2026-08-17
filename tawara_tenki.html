@@ -2,25 +2,20 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <!-- Viewportを端末固定にして勝手な自動拡大を防止 -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>奈良県田原本町 3日間天気予報</title>
   <style>
     *, *::before, *::after {
-      box-sizing: border-box !important;
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    /* 全体コンテナを絶対値 558px * 424px でピクセル固定 */
+    /* どんな環境でも親枠（558x424）の100%に完全追従（固定pxによる拡大事故を防止） */
     html, body {
-      width: 558px !important;
-      height: 424px !important;
-      min-width: 558px !important;
-      min-height: 424px !important;
-      max-width: 558px !important;
-      max-height: 424px !important;
-      overflow: hidden !important;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       background-color: #000000;
       color: #ffffff;
       font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
@@ -34,42 +29,42 @@
       gap: 6px;
     }
 
-    /* 1. ヘッダー (固定高: 32px) */
+    /* 1. ヘッダーエリア */
     .header {
-      height: 32px;
-      width: 542px; /* 558 - 8*2 */
+      height: 36px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 10px;
+      padding: 0 12px;
       background-color: #111111;
-      border-radius: 4px;
+      border-radius: 6px;
       border: 1px solid #333333;
       flex-shrink: 0;
     }
     .location-name {
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 900;
       color: #00e5ff;
+      white-space: nowrap;
     }
     .update-time {
       font-size: 11px;
       color: #aaaaaa;
+      white-space: nowrap;
     }
 
-    /* 2. 3日間コンテナ (固定高: 370px, 幅: 542px) */
+    /* 2. 3日間コンテナ（枠幅に合わせて均等割） */
     .forecast-container {
-      width: 542px;
-      height: 370px;
-      display: flex; /* gridの押し出し事故を防ぐため flex で 170px * 3 に均等割り */
-      justify-content: space-between;
-      align-items: stretch;
+      flex: 1;
+      display: flex;
+      gap: 8px;
+      min-height: 0; /* 縦方向のはみ出しを強制リセット */
     }
 
-    /* 各カードの幅を 174px に完全固定（174 * 3 + 間隔 = 542px） */
+    /* 各日付カード */
     .card {
-      width: 174px;
-      height: 370px;
+      flex: 1;
+      min-width: 0; /* 横方向のはみ出しを強制リセット */
       background-color: #050505;
       border: 1px solid #444444;
       border-radius: 6px;
@@ -79,8 +74,7 @@
       justify-content: space-between;
       align-items: center;
       text-align: center;
-      box-sizing: border-box;
-      flex-shrink: 0; /* 縮小破綻を防止 */
+      overflow: hidden;
     }
 
     .card.today {
@@ -91,76 +85,79 @@
     /* 日付表示 */
     .date-box {
       width: 100%;
-      height: 42px;
       border-bottom: 1px solid #333333;
+      padding-bottom: 4px;
+      flex-shrink: 0;
     }
     .date-label {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 900;
       color: #00e5ff;
+      white-space: nowrap;
     }
     .card:not(.today) .date-label {
       color: #aaaaaa;
     }
     .date-val {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 900;
       color: #ffffff;
-      margin-top: 1px;
+      line-height: 1.2;
+      margin-top: 2px;
+      white-space: nowrap;
     }
 
-    /* 天気アイコン ＆ テキスト (固定高: 150px) */
+    /* 天気アイコン ＆ テキスト */
     .weather-box {
-      width: 100%;
-      height: 150px;
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      min-height: 0;
+      padding: 2px 0;
     }
     .weather-icon {
-      font-size: 44px;
-      height: 50px;
-      line-height: 50px;
+      font-size: 36px;
+      line-height: 1;
     }
     .weather-text {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 900;
       color: #ffffff;
-      margin-top: 6px;
+      margin-top: 4px;
       line-height: 1.2;
-      width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis; /* テキスト長大化による突き破りを防止 */
+      word-break: break-all;
     }
 
-    /* 降水確率 (固定高: 32px) */
+    /* 降水確率 */
     .pop-box {
       width: 100%;
-      height: 32px;
       background-color: #002233;
       border: 1px solid #0088cc;
       border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      padding: 4px 0;
+      flex-shrink: 0;
     }
     .pop-val {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 900;
       color: #00ffff;
+      line-height: 1;
     }
 
-    /* 気温エリア (固定高: 48px) */
+    /* 気温エリア */
     .temp-box {
       width: 100%;
-      height: 48px;
       background-color: #111111;
       border: 1px solid #222222;
       border-radius: 4px;
+      padding: 4px 2px;
       display: flex;
       justify-content: space-around;
       align-items: center;
+      margin-top: 2px;
+      flex-shrink: 0;
     }
     .temp-group {
       display: flex;
@@ -168,29 +165,34 @@
       align-items: center;
     }
     .temp-title {
-      font-size: 10px;
+      font-size: 9px;
       font-weight: bold;
       color: #888888;
+      margin-bottom: 1px;
     }
     .temp-val-high {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 900;
       color: #ff3333;
+      line-height: 1;
     }
     .temp-val-low {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 900;
       color: #3399ff;
+      line-height: 1;
     }
   </style>
 </head>
 <body>
 
+  <!-- ヘッダー -->
   <div class="header">
     <div class="location-name" id="location-name">奈良県田原本町</div>
     <div class="update-time" id="updated-at">更新: --:--</div>
   </div>
 
+  <!-- 3日間エリア -->
   <div class="forecast-container">
     <!-- Day 1 -->
     <div class="card today" id="card-day1">
@@ -298,10 +300,9 @@
           const dayData = data[key];
           if (!dayData) return;
 
-          // JSエラーによる途中で更新が止まる事故を完全ガード
           const labelEl = document.getElementById(`label-${key}`);
           const dateEl = document.getElementById(`date-${key}`);
-          if (labelEl) labelEl.textContent = dayData.label || '--';
+          if (labelEl) labelEl.textContent = dayData.label === '今日' ? '【 今日 】' : (dayData.label || '--');
           if (dateEl) dateEl.textContent = dayData.date || '--/--';
 
           const weatherEl = document.getElementById(`weather-${key}`);
@@ -325,7 +326,7 @@
           }
         });
       } catch (error) {
-        console.error('データ読み込み失敗:', error);
+        console.error('天気データの読み込みに失敗しました:', error);
       }
     }
 
