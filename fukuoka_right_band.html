@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>右帯 - 天気＆環境情報</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 384px;
+      height: 864px;
+      overflow: hidden;
+      background-color: #000000;
+      color: #ffffff;
+      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      user-select: none;
+    }
+
+    /* 拠点ヘッダー */
+    .header {
+      height: 40px;
+      background: #111111;
+      border: 1px solid #333;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px;
+    }
+    .location-title { font-size: 16px; font-weight: bold; color: #00e5ff; }
+    .update-time { font-size: 11px; color: #aaaaaa; }
+
+    /* 熱中症・WBGTメーターエリア */
+    .wbgt-card {
+      height: 90px;
+      background: #1a0f00;
+      border: 2px solid #ff9900;
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .wbgt-label { font-size: 13px; color: #ffcc00; font-weight: bold; }
+    .wbgt-status { font-size: 22px; font-weight: 900; color: #ff3333; }
+    .wbgt-value { font-size: 14px; color: #ffffff; margin-top: 2px; }
+
+    /* 3日間天気（縦積み3段） */
+    .day-card {
+      flex: 1;
+      background: #0a0a0a;
+      border: 2px solid #333333;
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .day-card.today {
+      border-color: #00e5ff;
+      background: #00121d;
+    }
+
+    .day-left { width: 45%; text-align: left; }
+    .day-label { font-size: 15px; font-weight: bold; color: #00e5ff; }
+    .day-card:not(.today) .day-label { color: #aaaaaa; }
+    .day-date { font-size: 13px; color: #ffffff; margin-bottom: 4px; }
+    .weather-text { font-size: 14px; font-weight: bold; color: #ffffff; }
+
+    .day-center { width: 25%; text-align: center; }
+    .weather-icon { font-size: 42px; line-height: 1; }
+
+    .day-right { width: 30%; text-align: right; }
+    .pop-val { font-size: 15px; font-weight: bold; color: #00ffff; margin-bottom: 6px; }
+    .temp-high { font-size: 18px; font-weight: 900; color: #ff3333; }
+    .temp-low { font-size: 18px; font-weight: 900; color: #3399ff; }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <div class="header">
+    <div class="location-title" id="location-name">読み込み中...</div>
+    <div class="update-time" id="updated-at">更新 --:--</div>
+  </div>
+
+  <!-- 熱中症警戒カード -->
+  <div class="wbgt-card">
+    <div>
+      <div class="wbgt-label">熱中症警戒情報 (WBGT)</div>
+      <div class="wbgt-status" id="wbgt-status">厳重警戒</div>
+      <div class="wbgt-value" id="wbgt-val">指数: 29℃</div>
+    </div>
+    <div style="font-size: 36px;">⚠️</div>
+  </div>
+
+  <!-- 今日 -->
+  <div class="day-card today">
+    <div class="day-left">
+      <div class="day-label">【 今日 】</div>
+      <div class="day-date" id="date-day1">--/--</div>
+      <div class="weather-text" id="weather-day1">--</div>
+    </div>
+    <div class="day-center">
+      <div class="weather-icon" id="icon-day1">☀️</div>
+    </div>
+    <div class="day-right">
+      <div class="pop-val" id="pop-day1">☔--%</div>
+      <div><span class="temp-high" id="high-day1">--℃</span></div>
+      <div><span class="temp-low" id="low-day1">--℃</span></div>
+    </div>
+  </div>
+
+  <!-- 明日 -->
+  <div class="day-card">
+    <div class="day-left">
+      <div class="day-label">明日</div>
+      <div class="day-date" id="date-day2">--/--</div>
+      <div class="weather-text" id="weather-day2">--</div>
+    </div>
+    <div class="day-center">
+      <div class="weather-icon" id="icon-day2">⛅</div>
+    </div>
+    <div class="day-right">
+      <div class="pop-val" id="pop-day2">☔--%</div>
+      <div><span class="temp-high" id="high-day2">--℃</span></div>
+      <div><span class="temp-low" id="low-day2">--℃</span></div>
+    </div>
+  </div>
+
+  <!-- 明後日 -->
+  <div class="day-card">
+    <div class="day-left">
+      <div class="day-label">明後日</div>
+      <div class="day-date" id="date-day3">--/--</div>
+      <div class="weather-text" id="weather-day3">--</div>
+    </div>
+    <div class="day-center">
+      <div class="weather-icon" id="icon-day3">🌧️</div>
+    </div>
+    <div class="day-right">
+      <div class="pop-val" id="pop-day3">☔--%</div>
+      <div><span class="temp-high" id="high-day3">--℃</span></div>
+      <div><span class="temp-low" id="low-day3">--℃</span></div>
+    </div>
+  </div>
+
+  <script>
+    // URLの ?city=kurume または ?city=onojo を取得
+    const params = new URLSearchParams(window.location.search);
+    const city = params.get('city') || 'kurume'; // 指定がない場合はkurume
+
+    async function loadData() {
+      try {
+        // 例: kurume_data.json または onojo_data.json を取得
+        const res = await fetch(`${city}_data.json?t=` + Date.now());
+        const data = await res.json();
+
+        document.getElementById('location-name').textContent = data.location_name;
+        document.getElementById('updated-at').textContent = '更新 ' + data.updated_at;
+        document.getElementById('wbgt-status').textContent = data.wbgt.status;
+        document.getElementById('wbgt-val').textContent = '指数: ' + data.wbgt.value + '℃';
+
+        ['day1', 'day2', 'day3'].forEach(k => {
+          if (!data[k]) return;
+          document.getElementById(`date-${k}`).textContent = data[k].date;
+          document.getElementById(`weather-${k}`).textContent = data[k].weather;
+          document.getElementById(`pop-${k}`).textContent = '☔' + data[k].pop + '%';
+          document.getElementById(`high-${k}`).textContent = data[k].temp_max + '℃';
+          document.getElementById(`low-${k}`).textContent = data[k].temp_min + '℃';
+        });
+      } catch (e) { console.error(e); }
+    }
+
+    loadData();
+    setInterval(loadData, 60000);
+  </script>
+</body>
+</html>
