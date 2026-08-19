@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>シンプル3日天気（17時/0時自動シフト版）</title>
+  <title>久留米市 3日天気（17時/0時自動シフト版）</title>
   <style>
     * {
       box-sizing: border-box;
@@ -133,8 +133,8 @@
 
   <script>
     const CITIES = {
-      '4020300': { forecastCode: '400000' },
-      '4021700': { forecastCode: '400000' }
+      '4020300': { name: '福岡県久留米市', forecastCode: '400000', areaCode: '400040', tempName: '久留米' },
+      '4021900': { name: '福岡県大野城市', forecastCode: '400000', areaCode: '400010', tempName: '福岡' }
     };
 
     const WEATHER_CODE_MAP = {
@@ -173,19 +173,23 @@
 
         // 1. 短期天気・気温データ取得
         if (shortData && shortData.timeSeries) {
+          // 天気データ（久留米市が属する「筑後地方:400040」を優先検索）
           const tsWeather = shortData.timeSeries[0];
-          const areaWeather = tsWeather.areas[0];
-          tsWeather.timeDefines.forEach((tStr, idx) => {
-            const key = getDateKey(new Date(tStr));
-            if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
-            if (areaWeather.weathers && areaWeather.weathers[idx]) {
-              dailyMap[key].weather = areaWeather.weathers[idx].trim();
-            }
-          });
+          if (tsWeather && tsWeather.areas) {
+            const areaWeather = tsWeather.areas.find(a => a.area.code === cityInfo.areaCode || a.area.name.includes('筑後')) || tsWeather.areas[0];
+            tsWeather.timeDefines.forEach((tStr, idx) => {
+              const key = getDateKey(new Date(tStr));
+              if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
+              if (areaWeather.weathers && areaWeather.weathers[idx]) {
+                dailyMap[key].weather = areaWeather.weathers[idx].trim();
+              }
+            });
+          }
 
-          if (shortData.timeSeries[2]) {
+          // 気温データ（「久留米」観測地点を優先検索）
+          if (shortData.timeSeries[2] && shortData.timeSeries[2].areas) {
             const tsTemp = shortData.timeSeries[2];
-            const areaTemp = tsTemp.areas[0];
+            const areaTemp = tsTemp.areas.find(a => a.area.name === cityInfo.tempName || a.area.name.includes('久留米')) || tsTemp.areas[0];
             tsTemp.timeDefines.forEach((tStr, idx) => {
               const key = getDateKey(new Date(tStr));
               const val = parseInt(areaTemp.temps[idx]);
@@ -199,9 +203,10 @@
 
         // 2. 週間天気・気温データ補完
         if (weeklyData && weeklyData.timeSeries) {
-          if (weeklyData.timeSeries[0]) {
+          // 週間天気
+          if (weeklyData.timeSeries[0] && weeklyData.timeSeries[0].areas) {
             const tsWWeather = weeklyData.timeSeries[0];
-            const areaWWeather = tsWWeather.areas[0];
+            const areaWWeather = tsWWeather.areas.find(a => a.area.code === cityInfo.areaCode || a.area.name.includes('筑後')) || tsWWeather.areas[0];
             const codes = areaWWeather.weatherCodes || [];
             tsWWeather.timeDefines.forEach((tStr, idx) => {
               const key = getDateKey(new Date(tStr));
@@ -212,9 +217,10 @@
             });
           }
 
-          if (weeklyData.timeSeries[1]) {
+          // 週間気温
+          if (weeklyData.timeSeries[1] && weeklyData.timeSeries[1].areas) {
             const tsWTemp = weeklyData.timeSeries[1];
-            const areaWTemp = tsWTemp.areas[0];
+            const areaWTemp = tsWTemp.areas.find(a => a.area.name === cityInfo.tempName || a.area.name.includes('久留米')) || tsWTemp.areas[0];
             tsWTemp.timeDefines.forEach((tStr, idx) => {
               const key = getDateKey(new Date(tStr));
               if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
