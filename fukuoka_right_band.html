@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>シンプル3日天気 - 極限版</title>
+  <title>シンプル3日天気（福岡版）</title>
   <style>
     * {
       box-sizing: border-box;
@@ -28,74 +28,73 @@
       gap: 2vh;
     }
 
-    /* 天気カード（3分割） */
     .weather-card {
       flex: 1;
       background: #111722;
       border: 1px solid #1f2b3e;
       border-radius: 16px;
-      padding: 0 4vw;
+      padding: 0 3vw;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      overflow: hidden;
     }
 
-    /* 今日（最上段）の強調 */
     .weather-card.today {
       background: linear-gradient(135deg, #132238 0%, #0d1726 100%);
       border: 2px solid #00e5ff;
     }
 
-    /* 1. 左：日付・曜日 */
+    /* 1. 左：日付（はみ出し防止） */
     .date-box {
-      width: 30%;
+      flex: 1.2;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      min-width: 0;
     }
     .day-label {
-      font-size: clamp(14px, 2.2vh, 20px);
+      font-size: clamp(12px, 2vh, 18px);
       font-weight: bold;
       color: #00e5ff;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
     .today .day-label {
       color: #ffcc00;
     }
     .date-text {
-      font-size: clamp(18px, 3vh, 28px);
+      font-size: clamp(16px, 2.8vh, 24px);
       font-weight: 900;
       color: #ffffff;
       white-space: nowrap;
     }
 
-    /* 2. 中央：巨大天気アイコン（文字全カット） */
+    /* 2. 中央：天気アイコン（サイズ調整して被りを防止） */
     .icon-box {
-      width: 30%;
+      flex: 1;
       text-align: center;
-      font-size: clamp(48px, 9vh, 80px);
+      font-size: clamp(36px, 7vh, 60px);
       line-height: 1;
     }
 
-    /* 3. 右：気温 */
+    /* 3. 右：気温（右寄せ） */
     .temp-box {
-      width: 40%;
+      flex: 1.5;
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 8px;
-      font-size: clamp(22px, 4.5vh, 42px);
+      gap: 4px;
+      font-size: clamp(18px, 3.8vh, 34px);
       font-weight: 900;
       white-space: nowrap;
     }
     .temp-high { color: #ff5555; }
-    .temp-slash { color: #3a4b60; font-weight: 400; }
+    .temp-slash { color: #3a4b60; font-weight: 400; padding: 0 2px; }
     .temp-low { color: #3399ff; }
   </style>
 </head>
 <body>
 
-  <!-- 今日 -->
   <div class="weather-card today">
     <div class="date-box">
       <div class="day-label" id="label-0">今日</div>
@@ -109,7 +108,6 @@
     </div>
   </div>
 
-  <!-- 明日 -->
   <div class="weather-card">
     <div class="date-box">
       <div class="day-label" id="label-1">明日</div>
@@ -123,7 +121,6 @@
     </div>
   </div>
 
-  <!-- 明後日 -->
   <div class="weather-card">
     <div class="date-box">
       <div class="day-label" id="label-2">明後日</div>
@@ -139,15 +136,14 @@
 
   <script>
     const CITIES = {
-      '4020300': { forecastCode: '400000' },
-      '4021700': { forecastCode: '400000' }
+      '4020300': { forecastCode: '400000' }, // 久留米など
+      '4021700': { forecastCode: '400000' }  // みやまなど
     };
 
     const params = new URLSearchParams(window.location.search);
     const cityCode = params.get('city') || '4020300';
     const cityInfo = CITIES[cityCode] || CITIES['4020300'];
 
-    // 長い文章からシンプルなアイコンだけを判定
     function getWeatherIcon(text) {
       if (!text) return '☀️';
       if (text.includes('雷')) return '🌩️';
@@ -173,7 +169,7 @@
 
         const dailyMap = {};
 
-        // 1. 天気アイコン判定用のテキスト保持
+        // 1. 天気テキスト取得
         const tsWeather = shortData.timeSeries[0];
         const areaWeather = tsWeather.areas[0];
         tsWeather.timeDefines.forEach((tStr, idx) => {
@@ -184,7 +180,7 @@
           }
         });
 
-        // 2. 短期気温データの保持
+        // 2. 短期気温取得
         if (shortData.timeSeries[2]) {
           const tsTemp = shortData.timeSeries[2];
           const areaTemp = tsTemp.areas[0];
@@ -198,7 +194,7 @@
           });
         }
 
-        // 3. 週間データの補完
+        // 3. 週間気温データの補完
         if (weeklyData && weeklyData.timeSeries && weeklyData.timeSeries[1]) {
           const tsWTemp = weeklyData.timeSeries[1];
           const areaWTemp = tsWTemp.areas[0];
@@ -210,7 +206,6 @@
           });
         }
 
-        // 4. 今日の日付以降を抽出
         const now = new Date();
         const todayKey = getDateKey(now);
         const sortedKeys = Object.keys(dailyMap).filter(k => k >= todayKey).sort();
@@ -235,8 +230,21 @@
           if (item.temps.length > 0) {
             const maxTemp = Math.max(...item.temps);
             const minTemp = Math.min(...item.temps);
+            
             if (!highVal) highVal = maxTemp;
-            if (!lowVal && item.temps.length > 1) lowVal = minTemp;
+            
+            // 昼以降に1つしかデータが取れない場合の同値バグ対策
+            if (maxTemp !== minTemp) {
+              if (!lowVal) lowVal = minTemp;
+              if (key === todayKey) localStorage.setItem(`fukuoka_low_${todayKey}`, minTemp);
+            } else {
+              if (key === todayKey) {
+                const savedLow = localStorage.getItem(`fukuoka_low_${todayKey}`);
+                lowVal = savedLow ? savedLow : null;
+              } else if (!lowVal) {
+                lowVal = minTemp;
+              }
+            }
           }
 
           document.getElementById(`high-${i}`).textContent = (highVal !== null && highVal !== undefined) ? `${highVal}℃` : '--℃';
