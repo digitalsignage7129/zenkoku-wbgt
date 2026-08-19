@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>シンプル3日天気（福岡版）</title>
+  <title>シンプル3日天気（17時/0時自動シフト版）</title>
   <style>
     * {
       box-sizing: border-box;
@@ -40,12 +40,11 @@
       overflow: hidden;
     }
 
-    .weather-card.today {
+    .weather-card.top-card {
       background: linear-gradient(135deg, #132238 0%, #0d1726 100%);
       border: 2px solid #00e5ff;
     }
 
-    /* 1. 左：日付（はみ出し防止） */
     .date-box {
       flex: 1.2;
       display: flex;
@@ -59,7 +58,7 @@
       color: #00e5ff;
       margin-bottom: 2px;
     }
-    .today .day-label {
+    .top-card .day-label {
       color: #ffcc00;
     }
     .date-text {
@@ -69,7 +68,6 @@
       white-space: nowrap;
     }
 
-    /* 2. 中央：天気アイコン（サイズ調整して被りを防止） */
     .icon-box {
       flex: 1;
       text-align: center;
@@ -77,7 +75,6 @@
       line-height: 1;
     }
 
-    /* 3. 右：気温（右寄せ） */
     .temp-box {
       flex: 1.5;
       display: flex;
@@ -95,7 +92,7 @@
 </head>
 <body>
 
-  <div class="weather-card today">
+  <div class="weather-card top-card">
     <div class="date-box">
       <div class="day-label" id="label-0">今日</div>
       <div class="date-text" id="date-0">--/-- (-)</div>
@@ -136,8 +133,14 @@
 
   <script>
     const CITIES = {
-      '4020300': { forecastCode: '400000' }, // 久留米など
-      '4021700': { forecastCode: '400000' }  // みやまなど
+      '4020300': { forecastCode: '400000' },
+      '4021700': { forecastCode: '400000' }
+    };
+
+    const WEATHER_CODE_MAP = {
+      "100": "晴れ", "101": "晴れ時々くもり", "102": "晴れ一時雨", "103": "晴れ時々雨",
+      "200": "くもり", "201": "くもり時々晴れ", "202": "くもり一時雨", "203": "くもり時々雨",
+      "300": "雨", "301": "雨時々晴れ", "302": "雨時々くもり", "400": "雪"
     };
 
     const params = new URLSearchParams(window.location.search);
@@ -146,6 +149,7 @@
 
     function getWeatherIcon(text) {
       if (!text) return '☀️';
+      if (WEATHER_CODE_MAP[text]) text = WEATHER_CODE_MAP[text];
       if (text.includes('雷')) return '🌩️';
       if (text.includes('雪')) return '❄️';
       if (text.includes('雨')) return text.includes('晴') ? '🌦️' : '🌧️';
@@ -153,9 +157,8 @@
       return '☀️';
     }
 
-    function getDateKey(isoStr) {
-      const d = new Date(isoStr);
-      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    function getDateKey(dateObj) {
+      return `${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,'0')}-${String(dateObj.getDate()).padStart(2,'0')}`;
     }
 
     async function fetchForecast() {
@@ -166,51 +169,74 @@
 
         const shortData = data[0];
         const weeklyData = data[1] || null;
-
         const dailyMap = {};
 
-        // 1. 天気テキスト取得
-        const tsWeather = shortData.timeSeries[0];
-        const areaWeather = tsWeather.areas[0];
-        tsWeather.timeDefines.forEach((tStr, idx) => {
-          const key = getDateKey(tStr);
-          if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
-          if (areaWeather.weathers && areaWeather.weathers[idx]) {
-            dailyMap[key].weather = areaWeather.weathers[idx].trim();
-          }
-        });
-
-        // 2. 短期気温取得
-        if (shortData.timeSeries[2]) {
-          const tsTemp = shortData.timeSeries[2];
-          const areaTemp = tsTemp.areas[0];
-          tsTemp.timeDefines.forEach((tStr, idx) => {
-            const key = getDateKey(tStr);
-            const val = parseInt(areaTemp.temps[idx]);
-            if (!isNaN(val)) {
-              if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
-              dailyMap[key].temps.push(val);
+        // 1. 短期天気・気温データ取得
+        if (shortData && shortData.timeSeries) {
+          const tsWeather = shortData.timeSeries[0];
+          const areaWeather = tsWeather.areas[0];
+          tsWeather.timeDefines.forEach((tStr, idx) => {
+            const key = getDateKey(new Date(tStr));
+            if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
+            if (areaWeather.weathers && areaWeather.weathers[idx]) {
+              dailyMap[key].weather = areaWeather.weathers[idx].trim();
             }
           });
+
+          if (shortData.timeSeries[2]) {
+            const tsTemp = shortData.timeSeries[2];
+            const areaTemp = tsTemp.areas[0];
+            tsTemp.timeDefines.forEach((tStr, idx) => {
+              const key = getDateKey(new Date(tStr));
+              const val = parseInt(areaTemp.temps[idx]);
+              if (!isNaN(val)) {
+                if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
+                dailyMap[key].temps.push(val);
+              }
+            });
+          }
         }
 
-        // 3. 週間気温データの補完
-        if (weeklyData && weeklyData.timeSeries && weeklyData.timeSeries[1]) {
-          const tsWTemp = weeklyData.timeSeries[1];
-          const areaWTemp = tsWTemp.areas[0];
-          tsWTemp.timeDefines.forEach((tStr, idx) => {
-            const key = getDateKey(tStr);
-            if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
-            if (areaWTemp.tempsMax && areaWTemp.tempsMax[idx] !== "") dailyMap[key].high = areaWTemp.tempsMax[idx];
-            if (areaWTemp.tempsMin && areaWTemp.tempsMin[idx] !== "") dailyMap[key].low = areaWTemp.tempsMin[idx];
-          });
+        // 2. 週間天気・気温データ補完
+        if (weeklyData && weeklyData.timeSeries) {
+          if (weeklyData.timeSeries[0]) {
+            const tsWWeather = weeklyData.timeSeries[0];
+            const areaWWeather = tsWWeather.areas[0];
+            const codes = areaWWeather.weatherCodes || [];
+            tsWWeather.timeDefines.forEach((tStr, idx) => {
+              const key = getDateKey(new Date(tStr));
+              if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
+              if (!dailyMap[key].weather && codes[idx]) {
+                dailyMap[key].weather = codes[idx];
+              }
+            });
+          }
+
+          if (weeklyData.timeSeries[1]) {
+            const tsWTemp = weeklyData.timeSeries[1];
+            const areaWTemp = tsWTemp.areas[0];
+            tsWTemp.timeDefines.forEach((tStr, idx) => {
+              const key = getDateKey(new Date(tStr));
+              if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
+              if (areaWTemp.tempsMax && areaWTemp.tempsMax[idx] !== "") dailyMap[key].high = areaWTemp.tempsMax[idx];
+              if (areaWTemp.tempsMin && areaWTemp.tempsMin[idx] !== "") dailyMap[key].low = areaWTemp.tempsMin[idx];
+            });
+          }
         }
 
+        // --- 時間帯判定（17時切り替え ＆ 0時自動復帰） ---
         const now = new Date();
-        const todayKey = getDateKey(now);
-        const sortedKeys = Object.keys(dailyMap).filter(k => k >= todayKey).sort();
+        const isAfter17 = now.getHours() >= 17;
 
-        const labels = ['今日', '明日', '明後日'];
+        // 17時以降なら基準日を「明日」に設定
+        const baseDate = new Date(now);
+        if (isAfter17) {
+          baseDate.setDate(baseDate.getDate() + 1);
+        }
+        const baseKey = getDateKey(baseDate);
+
+        const sortedKeys = Object.keys(dailyMap).filter(k => k >= baseKey).sort();
+        const labels = isAfter17 ? ['明日', '明後日', '明々後日'] : ['今日', '明日', '明後日'];
 
         for (let i = 0; i < 3; i++) {
           const key = sortedKeys[i];
@@ -220,7 +246,7 @@
           const d = item.dateObj;
           const dateStr = `${d.getMonth()+1}/${d.getDate()} (${['日','月','火','水','木','金','土'][d.getDay()]})`;
 
-          document.getElementById(`label-${i}`).textContent = labels[i] || `${i}日後`;
+          document.getElementById(`label-${i}`).textContent = labels[i];
           document.getElementById(`date-${i}`).textContent = dateStr;
           document.getElementById(`icon-${i}`).textContent = getWeatherIcon(item.weather);
 
@@ -230,21 +256,8 @@
           if (item.temps.length > 0) {
             const maxTemp = Math.max(...item.temps);
             const minTemp = Math.min(...item.temps);
-            
             if (!highVal) highVal = maxTemp;
-            
-            // 昼以降に1つしかデータが取れない場合の同値バグ対策
-            if (maxTemp !== minTemp) {
-              if (!lowVal) lowVal = minTemp;
-              if (key === todayKey) localStorage.setItem(`fukuoka_low_${todayKey}`, minTemp);
-            } else {
-              if (key === todayKey) {
-                const savedLow = localStorage.getItem(`fukuoka_low_${todayKey}`);
-                lowVal = savedLow ? savedLow : null;
-              } else if (!lowVal) {
-                lowVal = minTemp;
-              }
-            }
+            if (!lowVal && maxTemp !== minTemp) lowVal = minTemp;
           }
 
           document.getElementById(`high-${i}`).textContent = (highVal !== null && highVal !== undefined) ? `${highVal}℃` : '--℃';
