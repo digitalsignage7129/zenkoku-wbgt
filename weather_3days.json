@@ -5,7 +5,7 @@
       "weather": "晴れ / くもり",
       "icon": "⛅",
       "pop": "24",
-      "temp_high": "31",
+      "temp_high": "32",
       "temp_low": "24"
     },
     {
@@ -14,7 +14,7 @@
       "icon": "🌧️",
       "pop": "63",
       "temp_high": "33",
-      "temp_low": "25"
+      "temp_low": "24"
     },
     {
       "date_str": "8/21 (金)",
