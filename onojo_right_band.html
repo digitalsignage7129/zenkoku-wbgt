@@ -76,8 +76,10 @@
   </div>
 
   <script>
-    // 大野城市用（福岡県エリアコード: 400000）
-    const FORECAST_CODE = '400000';
+    // --- 大野城市用設定 ---
+    const FORECAST_CODE = '400000'; // 福岡県
+    const AREA_CODE = '400010';     // 福岡地方（大野城市が属する区域）
+    const TEMP_CODE = '82182';      // 福岡観測所（最寄りの気温予測拠点）
 
     const WEATHER_CODE_MAP = {
       "100": "晴れ", "101": "晴れ時々くもり", "102": "晴れ一時雨", "103": "晴れ時々雨",
@@ -99,6 +101,13 @@
       return `${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,'0')}-${String(dateObj.getDate()).padStart(2,'0')}`;
     }
 
+    // 配列の中から「大野城市（福岡地方/福岡）」のエリアデータを特定して返す関数
+    function findTargetArea(areas, targetCodes) {
+      if (!areas || areas.length === 0) return null;
+      const codes = Array.isArray(targetCodes) ? targetCodes : [targetCodes];
+      return areas.find(a => a.area && codes.includes(a.area.code)) || areas[0];
+    }
+
     async function fetchForecast() {
       try {
         const url = `https://www.jma.go.jp/bosai/forecast/data/forecast/${FORECAST_CODE}.json?t=` + Date.now();
@@ -109,57 +118,70 @@
         const weeklyData = data[1] || null;
         const dailyMap = {};
 
+        // 1. 短期予報データ処理（大野城市＝福岡地方・福岡地点のデータをピンポイント指定）
         if (shortData && shortData.timeSeries) {
+          // 天気データ
           const tsWeather = shortData.timeSeries[0];
-          const areaWeather = tsWeather.areas[0];
-          tsWeather.timeDefines.forEach((tStr, idx) => {
-            const key = getDateKey(new Date(tStr));
-            if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
-            if (areaWeather.weathers && areaWeather.weathers[idx]) {
-              dailyMap[key].weather = areaWeather.weathers[idx].trim();
-            }
-          });
-
-          if (shortData.timeSeries[2]) {
-            const tsTemp = shortData.timeSeries[2];
-            const areaTemp = tsTemp.areas[0];
-            tsTemp.timeDefines.forEach((tStr, idx) => {
+          const areaWeather = findTargetArea(tsWeather.areas, [AREA_CODE, FORECAST_CODE]);
+          if (areaWeather) {
+            tsWeather.timeDefines.forEach((tStr, idx) => {
               const key = getDateKey(new Date(tStr));
-              const val = parseInt(areaTemp.temps[idx]);
-              if (!isNaN(val)) {
-                if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
-                dailyMap[key].temps.push(val);
+              if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
+              if (areaWeather.weathers && areaWeather.weathers[idx]) {
+                dailyMap[key].weather = areaWeather.weathers[idx].trim();
               }
             });
           }
+
+          // 気温データ
+          if (shortData.timeSeries[2]) {
+            const tsTemp = shortData.timeSeries[2];
+            const areaTemp = findTargetArea(tsTemp.areas, [TEMP_CODE, AREA_CODE]);
+            if (areaTemp) {
+              tsTemp.timeDefines.forEach((tStr, idx) => {
+                const key = getDateKey(new Date(tStr));
+                const val = parseInt(areaTemp.temps[idx]);
+                if (!isNaN(val)) {
+                  if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
+                  dailyMap[key].temps.push(val);
+                }
+              });
+            }
+          }
         }
 
+        // 2. 週間予報データ処理（補完用）
         if (weeklyData && weeklyData.timeSeries) {
           if (weeklyData.timeSeries[0]) {
             const tsWWeather = weeklyData.timeSeries[0];
-            const areaWWeather = tsWWeather.areas[0];
-            const codes = areaWWeather.weatherCodes || [];
-            tsWWeather.timeDefines.forEach((tStr, idx) => {
-              const key = getDateKey(new Date(tStr));
-              if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
-              if (!dailyMap[key].weather && codes[idx]) {
-                dailyMap[key].weather = codes[idx];
-              }
-            });
+            const areaWWeather = findTargetArea(tsWWeather.areas, [AREA_CODE, FORECAST_CODE]);
+            if (areaWWeather) {
+              const codes = areaWWeather.weatherCodes || [];
+              tsWWeather.timeDefines.forEach((tStr, idx) => {
+                const key = getDateKey(new Date(tStr));
+                if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
+                if (!dailyMap[key].weather && codes[idx]) {
+                  dailyMap[key].weather = codes[idx];
+                }
+              });
+            }
           }
 
           if (weeklyData.timeSeries[1]) {
             const tsWTemp = weeklyData.timeSeries[1];
-            const areaWTemp = tsWTemp.areas[0];
-            tsWTemp.timeDefines.forEach((tStr, idx) => {
-              const key = getDateKey(new Date(tStr));
-              if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
-              if (areaWTemp.tempsMax && areaWTemp.tempsMax[idx] !== "") dailyMap[key].high = areaWTemp.tempsMax[idx];
-              if (areaWTemp.tempsMin && areaWTemp.tempsMin[idx] !== "") dailyMap[key].low = areaWTemp.tempsMin[idx];
-            });
+            const areaWTemp = findTargetArea(tsWTemp.areas, [TEMP_CODE, AREA_CODE]);
+            if (areaWTemp) {
+              tsWTemp.timeDefines.forEach((tStr, idx) => {
+                const key = getDateKey(new Date(tStr));
+                if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
+                if (areaWTemp.tempsMax && areaWTemp.tempsMax[idx] !== "") dailyMap[key].high = areaWTemp.tempsMax[idx];
+                if (areaWTemp.tempsMin && areaWTemp.tempsMin[idx] !== "") dailyMap[key].low = areaWTemp.tempsMin[idx];
+              });
+            }
           }
         }
 
+        // 17時切り替え＆0時復帰ロジック
         const now = new Date();
         const isAfter17 = now.getHours() >= 17;
         const baseDate = new Date(now);
