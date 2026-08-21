@@ -2,8 +2,8 @@
   "forecasts": [
     {
       "date_str": "8/21 (金)",
-      "weather": "くもり",
-      "icon": "☁️",
+      "weather": "雨",
+      "icon": "🌧️",
       "pop": "90",
       "temp_high": "32",
       "temp_low": "25"
