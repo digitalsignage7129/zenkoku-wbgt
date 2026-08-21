@@ -2,10 +2,10 @@
   "forecasts": [
     {
       "date_str": "8/22 (土)",
-      "weather": "晴れ / くもり",
-      "icon": "⛅",
+      "weather": "雨",
+      "icon": "🌧️",
       "pop": "45",
-      "temp_high": "32",
+      "temp_high": "33",
       "temp_low": "25"
     },
     {
