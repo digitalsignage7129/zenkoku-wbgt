@@ -1,10 +1,10 @@
 {
   "location": "名古屋市守山区（周辺：名古屋）",
-  "wbgt": "30.8",
-  "level": "厳重警戒",
-  "temperature": "32.1",
-  "humidity": "59",
-  "wind_speed": "1.9",
+  "wbgt": "31.9",
+  "level": "危険",
+  "temperature": "31.8",
+  "humidity": "63",
+  "wind_speed": "1.6",
   "weather": "晴れ",
-  "updated_at": "2026-08-22 10:20"
+  "updated_at": "2026-08-22 10:30"
 }
