@@ -4,7 +4,7 @@
       "date_str": "8/23 (日)",
       "weather": "雨",
       "icon": "🌧️",
-      "pop": "59",
+      "pop": "88",
       "temp_high": "33",
       "temp_low": "25"
     },
@@ -12,7 +12,7 @@
       "date_str": "8/24 (月)",
       "weather": "晴れ",
       "icon": "☀️",
-      "pop": "33",
+      "pop": "27",
       "temp_high": "33",
       "temp_low": "26"
     },
@@ -20,7 +20,7 @@
       "date_str": "8/25 (火)",
       "weather": "晴れ",
       "icon": "☀️",
-      "pop": "40",
+      "pop": "39",
       "temp_high": "33",
       "temp_low": "26"
     }
