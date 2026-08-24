@@ -1,10 +1,10 @@
 {
   "location": "奈良県田原本町",
-  "wbgt": "29.4",
+  "wbgt": "29.2",
   "level": "厳重警戒",
-  "temperature": "32.8",
-  "humidity": "53",
-  "wind_speed": "6.7",
+  "temperature": "32.9",
+  "humidity": "59",
+  "wind_speed": "3.0",
   "weather": "晴れ",
-  "updated_at": "2026-08-24 16:00"
+  "updated_at": "2026-08-24 16:30"
 }
