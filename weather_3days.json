@@ -12,15 +12,15 @@
       "date_str": "8/26 (水)",
       "weather": "くもり",
       "icon": "☁️",
-      "pop": "61",
-      "temp_high": "33",
-      "temp_low": "25"
+      "pop": "20",
+      "temp_high": "32",
+      "temp_low": "24"
     },
     {
       "date_str": "8/27 (木)",
       "weather": "雨",
       "icon": "🌧️",
-      "pop": "59",
+      "pop": "71",
       "temp_high": "31",
       "temp_low": "27"
     }
