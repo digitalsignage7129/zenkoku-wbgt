@@ -1,9 +1,9 @@
 {
   "location": "大阪府枚方市周辺",
-  "wbgt": "31.1",
-  "level": "危険",
-  "temperature": "33.9",
-  "wind_speed": "3.6",
+  "wbgt": "28.1",
+  "level": "厳重警戒",
+  "temperature": "33.8",
+  "wind_speed": "3.4",
   "weather": "晴れ",
-  "updated_at": "2026-08-25 17:20"
+  "updated_at": "2026-08-25 17:30"
 }
