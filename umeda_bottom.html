@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>大阪市梅田 下帯サイネージ</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #000000;
+      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      color: #ffffff;
+      user-select: none;
+    }
+
+    body {
+      padding: 12px;
+      display: flex;
+      align-items: stretch;
+      gap: 12px;
+      width: 100%;
+      height: 100%;
+    }
+
+    .clock-block {
+      width: 340px;
+      height: 100%;
+      background: #11141a;
+      border: 2px solid #2a364a;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .clock-date { font-size: 22px; color: #9ab0c7; font-weight: bold; }
+    .clock-time { font-size: 68px; color: #00e5ff; font-weight: 900; line-height: 1; margin-top: 2px; letter-spacing: -1px; }
+
+    .main-block {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .status-bar {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    .city-badge {
+      background: #00e5ff;
+      color: #000000;
+      font-size: 26px;
+      font-weight: 900;
+      padding: 0 24px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      border-radius: 8px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .alert-badge {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      font-size: 24px;
+      font-weight: 900;
+      padding: 0 24px;
+      border-radius: 8px;
+      background: #007700;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .alert-badge.advisory { background: #d99b00; color: #000000; }
+    .alert-badge.warning { background: #d92626; color: #ffffff; }
+    .alert-badge.emergency {
+      background: #990099;
+      color: #ffffff;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    /* テロップ容器：Container Queryを適用 */
+    .ticker-container {
+      container-type: inline-size;
+      flex: 1;
+      min-height: 0;
+      background: #0a0d14;
+      border: 2px solid #2a364a;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+    }
+
+    /* 流れる文字：GPUアクセラレーション固定 */
+    .ticker-text {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      width: max-content;
+      font-size: 44px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: 1px;
+      
+      will-change: transform;
+      backface-visibility: hidden;
+      transform: translate3d(0, 0, 0);
+    }
+
+    /* 60fpsでスムーズに動くCSSアニメーション */
+    @keyframes tickerScroll {
+      0% {
+        transform: translate3d(100cqw, 0, 0);
+      }
+      100% {
+        transform: translate3d(-100%, 0, 0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="clock-block">
+    <div class="clock-date" id="clock-date">----/--/-- (-)</div>
+    <div class="clock-time" id="clock-time">00:00</div>
+  </div>
+
+  <div class="main-block">
+    <div class="status-bar">
+      <div class="city-badge" id="city-badge">大阪市</div>
+      <div class="alert-badge" id="alert-badge">気象情報を確認中...</div>
+    </div>
+    <div class="ticker-container" id="ticker-bg">
+      <div class="ticker-text" id="ticker-text">データ取得中...</div>
+    </div>
+  </div>
+
+  <script>
+    // --- 大阪市梅田用設定 ---
+    // JMAの警報・注意報は「大阪市」単位で発表されるため(区より細かい単位はない)、
+    // 梅田(北区)を含む大阪市全体のデータを表示する。
+    const CITIES = {
+      '2710000': { name: '大阪府大阪市(梅田)', areaCode: '270000' }
+    };
+
+    const WARNING_CODES = {
+      '02': { name: '暴風雪特別警報', type: 'emergency' },
+      '03': { name: '大雨特別警報', type: 'emergency' },
+      '04': { name: '高潮特別警報', type: 'emergency' },
+      '05': { name: '波浪特別警報', type: 'emergency' },
+      '07': { name: '暴風特別警報', type: 'emergency' },
+      '08': { name: '大雪特別警報', type: 'emergency' },
+      '10': { name: '大雨警報', type: 'warning' },
+      '12': { name: '洪水警報', type: 'warning' },
+      '13': { name: '高潮警報', type: 'warning' },
+      '14': { name: '波浪警報', type: 'warning' },
+      '15': { name: '暴風警報', type: 'warning' },
+      '16': { name: '警報級の可能性', type: 'warning' },
+      '17': { name: '大雪警報', type: 'warning' },
+      '18': { name: '暴風雪警報', type: 'warning' },
+      '19': { name: '大雨注意報', type: 'advisory' },
+      '20': { name: '洪水注意報', type: 'advisory' },
+      '21': { name: '高潮注意報', type: 'advisory' },
+      '22': { name: '波浪注意報', type: 'advisory' },
+      '23': { name: '強風注意報', type: 'advisory' },
+      '24': { name: '大雪注意報', type: 'advisory' },
+      '25': { name: '濃霧注意報', type: 'advisory' },
+      '26': { name: '雷注意報', type: 'advisory' },
+      '27': { name: '乾燥注意報', type: 'advisory' },
+      '28': { name: 'なだれ注意報', type: 'advisory' },
+      '29': { name: '低温注意報', type: 'advisory' },
+      '30': { name: '霜注意報', type: 'advisory' },
+      '31': { name: '着氷注意報', type: 'advisory' },
+      '32': { name: '着雪注意報', type: 'advisory' }
+    };
+
+    // URLパラメータなしの場合は「大阪市(2710000)」をデフォルトに指定
+    const params = new URLSearchParams(window.location.search);
+    const cityCode = params.get('city') || '2710000';
+    const cityInfo = CITIES[cityCode] || CITIES['2710000'];
+
+    document.getElementById('city-badge').textContent = cityInfo.name;
+
+    function updateClock() {
+      const now = new Date();
+      const days = ['日', '月', '火', '水', '木', '金', '土'];
+      document.getElementById('clock-date').textContent = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} (${days[now.getDay()]})`;
+      document.getElementById('clock-time').textContent = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    let currentText = '';
+
+    function startTicker(text) {
+      if (currentText === text) return;
+      currentText = text;
+
+      const el = document.getElementById('ticker-text');
+      el.textContent = text;
+
+      // 1文字あたり約0.38秒の滑らかなスピード調整
+      const duration = Math.max(12, text.length * 0.38 + 6);
+
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = `tickerScroll ${duration}s linear infinite`;
+    }
+
+    startTicker(`【${cityInfo.name}】気象庁から最新データを取得しています...`);
+
+    async function fetchJmaWarnings() {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      try {
+        const url = `https://www.jma.go.jp/bosai/warning/data/warning/${cityInfo.areaCode}.json?t=` + Date.now();
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (!res.ok) throw new Error('HTTPエラー');
+        const data = await res.json();
+
+        const root = Array.isArray(data) ? data[0] : data;
+        const areaTypes = root?.areaTypes || [];
+
+        let activeWarnings = [];
+        let maxLevel = 'none';
+
+        for (const areaType of areaTypes) {
+          for (const area of areaType.areas || []) {
+            if (String(area.code) === String(cityCode)) {
+              for (const w of area.warnings || []) {
+                if (w.status === "発表" || w.status === "継続") {
+                  const master = WARNING_CODES[w.code];
+                  if (master) {
+                    activeWarnings.push(master.name);
+                    if (master.type === 'emergency') maxLevel = 'emergency';
+                    else if (master.type === 'warning' && maxLevel !== 'emergency') maxLevel = 'warning';
+                    else if (master.type === 'advisory' && maxLevel === 'none') maxLevel = 'advisory';
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        const badgeEl = document.getElementById('alert-badge');
+        badgeEl.className = 'alert-badge';
+
+        if (activeWarnings.length === 0) {
+          badgeEl.textContent = '警報・注意報：発表なし';
+          startTicker(`【${cityInfo.name}】現在、警報・注意報は発表されていません。本日もご安全にお過ごしください。`);
+        } else {
+          badgeEl.classList.add(maxLevel);
+          const titleMap = {
+            'emergency': '【特別警報発表中】',
+            'warning': '【気象警報発表中】',
+            'advisory': '【気象注意報発表中】'
+          };
+          badgeEl.textContent = titleMap[maxLevel] + ' ' + activeWarnings.join('・');
+          startTicker(`【${titleMap[maxLevel]}】${cityInfo.name}に「${activeWarnings.join('、')}」が発表されています。最新の気象・防災情報に注意してください。`);
+        }
+
+      } catch (e) {
+        clearTimeout(timeoutId);
+        console.error('気象警報取得エラー:', e);
+        document.getElementById('alert-badge').textContent = '警報・注意報：発表なし';
+        startTicker(`【${cityInfo.name}】現在、警報・注意報は発表されていません。本日もご安全にお過ごしください。`);
+      }
+    }
+
+    fetchJmaWarnings();
+    setInterval(fetchJmaWarnings, 600000);
+  </script>
+</body>
+</html>
