@@ -1,13 +1,13 @@
 {
   "location": "福岡県大牟田市",
-  "updated_at": "2026-08-26 10:43",
+  "updated_at": "2026-08-26 11:53",
   "is_night_mode": false,
   "day1": {
     "label": "今日",
     "date": "8/26(水)",
     "weather": "晴れ 昼過ぎ から くもり",
-    "temp_max": "37",
-    "temp_min": "37",
+    "temp_max": "38",
+    "temp_min": "38",
     "pop": "--"
   },
   "day2": {
@@ -16,14 +16,14 @@
     "weather": "晴れ 昼過ぎ から くもり",
     "temp_max": "37",
     "temp_min": "28",
-    "pop": "30"
+    "pop": "40"
   },
   "day3": {
     "label": "明後日",
     "date": "8/28(金)",
-    "weather": "くもり一時雨",
+    "weather": "くもり",
     "temp_max": "34",
     "temp_min": "28",
-    "pop": "50"
+    "pop": "40"
   }
 }
