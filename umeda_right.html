@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>大阪市梅田 3日天気</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100vw; height: 100vh; overflow: hidden;
+      background-color: #080b10; font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      color: #ffffff; user-select: none;
+    }
+    body { padding: 2vh 3vw; display: flex; flex-direction: column; gap: 2vh; }
+    .weather-card {
+      flex: 1; background: #111722; border: 1px solid #1f2b3e; border-radius: 16px;
+      padding: 0 3vw; display: flex; align-items: center; justify-content: space-between; overflow: hidden;
+    }
+    .weather-card.top-card {
+      background: linear-gradient(135deg, #132238 0%, #0d1726 100%);
+      border: 2px solid #00e5ff;
+    }
+    .date-box { flex: 1.2; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+    .day-label { font-size: clamp(12px, 2vh, 18px); font-weight: bold; color: #00e5ff; margin-bottom: 2px; }
+    .top-card .day-label { color: #ffcc00; }
+    .date-text { font-size: clamp(16px, 2.8vh, 24px); font-weight: 900; color: #ffffff; white-space: nowrap; }
+    .icon-box { flex: 1; text-align: center; font-size: clamp(36px, 7vh, 60px); line-height: 1; }
+    .temp-box {
+      flex: 1.5; display: flex; align-items: center; justify-content: flex-end;
+      gap: 4px; font-size: clamp(18px, 3.8vh, 34px); font-weight: 900; white-space: nowrap;
+    }
+    .temp-high { color: #ff5555; }
+    .temp-slash { color: #3a4b60; font-weight: 400; padding: 0 2px; }
+    .temp-low { color: #3399ff; }
+  </style>
+</head>
+<body>
+
+  <div class="weather-card top-card">
+    <div class="date-box">
+      <div class="day-label" id="label-0">今日</div>
+      <div class="date-text" id="date-0">--/-- (-)</div>
+    </div>
+    <div class="icon-box" id="icon-0">☀️</div>
+    <div class="temp-box">
+      <span class="temp-high" id="high-0">--℃</span>
+      <span class="temp-slash">/</span>
+      <span class="temp-low" id="low-0">--℃</span>
+    </div>
+  </div>
+
+  <div class="weather-card">
+    <div class="date-box">
+      <div class="day-label" id="label-1">明日</div>
+      <div class="date-text" id="date-1">--/-- (-)</div>
+    </div>
+    <div class="icon-box" id="icon-1">⛅</div>
+    <div class="temp-box">
+      <span class="temp-high" id="high-1">--℃</span>
+      <span class="temp-slash">/</span>
+      <span class="temp-low" id="low-1">--℃</span>
+    </div>
+  </div>
+
+  <div class="weather-card">
+    <div class="date-box">
+      <div class="day-label" id="label-2">明後日</div>
+      <div class="date-text" id="date-2">--/-- (-)</div>
+    </div>
+    <div class="icon-box" id="icon-2">🌧️</div>
+    <div class="temp-box">
+      <span class="temp-high" id="high-2">--℃</span>
+      <span class="temp-slash">/</span>
+      <span class="temp-low" id="low-2">--℃</span>
+    </div>
+  </div>
+
+  <script>
+    // --- 大阪市梅田用設定 ---
+    // 梅田は「大阪府」の予報区域に含まれ、気温は最寄りの観測地点「大阪」を使用する。
+    // (大阪管区気象台の観測点「大阪」は大阪市内にあり、梅田エリアの気温として
+    //  最も近い公式データとなる)
+    const FORECAST_CODE = '270000'; // 大阪府
+    const AREA_CODE = '270000';     // 大阪府(大阪府は天気区分が1つのため予報コードと同じ)
+    const TEMP_CODE = '62078';      // 大阪観測所(梅田エリアに最も近い気温予測拠点)
+
+    const WEATHER_CODE_MAP = {
+      "100": "晴れ", "101": "晴れ時々くもり", "102": "晴れ一時雨", "103": "晴れ時々雨",
+      "200": "くもり", "201": "くもり時々晴れ", "202": "くもり一時雨", "203": "くもり時々雨",
+      "300": "雨", "301": "雨時々晴れ", "302": "雨時々くもり", "400": "雪"
+    };
+
+    function getWeatherIcon(text) {
+      if (!text) return '☀️';
+      if (WEATHER_CODE_MAP[text]) text = WEATHER_CODE_MAP[text];
+      if (text.includes('雷')) return '🌩️';
+      if (text.includes('雪')) return '❄️';
+      if (text.includes('雨')) return text.includes('晴') ? '🌦️' : '🌧️';
+      if (text.includes('くもり') || text.includes('曇')) return text.includes('晴') ? '⛅' : '☁️';
+      return '☀️';
+    }
+
+    function getDateKey(dateObj) {
+      return `${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,'0')}-${String(dateObj.getDate()).padStart(2,'0')}`;
+    }
+
+    // 配列の中から「大阪市梅田（大阪府/大阪）」のエリアデータを特定して返す関数
+    function findTargetArea(areas, targetCodes) {
+      if (!areas || areas.length === 0) return null;
+      const codes = Array.isArray(targetCodes) ? targetCodes : [targetCodes];
+      return areas.find(a => a.area && codes.includes(a.area.code)) || areas[0];
+    }
+
+    async function fetchForecast() {
+      try {
+        const url = `https://www.jma.go.jp/bosai/forecast/data/forecast/${FORECAST_CODE}.json?t=` + Date.now();
+        const res = await fetch(url);
+        const data = await res.json();
+
+        const shortData = data[0];
+        const weeklyData = data[1] || null;
+        const dailyMap = {};
+
+        // 1. 短期予報データ処理(大阪市梅田＝大阪府・大阪地点のデータをピンポイント指定)
+        if (shortData && shortData.timeSeries) {
+          // 天気データ
+          const tsWeather = shortData.timeSeries[0];
+          const areaWeather = findTargetArea(tsWeather.areas, [AREA_CODE, FORECAST_CODE]);
+          if (areaWeather) {
+            tsWeather.timeDefines.forEach((tStr, idx) => {
+              const key = getDateKey(new Date(tStr));
+              if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
+              if (areaWeather.weathers && areaWeather.weathers[idx]) {
+                dailyMap[key].weather = areaWeather.weathers[idx].trim();
+              }
+            });
+          }
+
+          // 気温データ
+          if (shortData.timeSeries[2]) {
+            const tsTemp = shortData.timeSeries[2];
+            const areaTemp = findTargetArea(tsTemp.areas, [TEMP_CODE, AREA_CODE]);
+            if (areaTemp) {
+              tsTemp.timeDefines.forEach((tStr, idx) => {
+                const key = getDateKey(new Date(tStr));
+                const val = parseInt(areaTemp.temps[idx]);
+                if (!isNaN(val)) {
+                  if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
+                  dailyMap[key].temps.push(val);
+                }
+              });
+            }
+          }
+        }
+
+        // 2. 週間予報データ処理(補完用)
+        if (weeklyData && weeklyData.timeSeries) {
+          if (weeklyData.timeSeries[0]) {
+            const tsWWeather = weeklyData.timeSeries[0];
+            const areaWWeather = findTargetArea(tsWWeather.areas, [AREA_CODE, FORECAST_CODE]);
+            if (areaWWeather) {
+              const codes = areaWWeather.weatherCodes || [];
+              tsWWeather.timeDefines.forEach((tStr, idx) => {
+                const key = getDateKey(new Date(tStr));
+                if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
+                if (!dailyMap[key].weather && codes[idx]) {
+                  dailyMap[key].weather = codes[idx];
+                }
+              });
+            }
+          }
+
+          if (weeklyData.timeSeries[1]) {
+            const tsWTemp = weeklyData.timeSeries[1];
+            const areaWTemp = findTargetArea(tsWTemp.areas, [TEMP_CODE, AREA_CODE]);
+            if (areaWTemp) {
+              tsWTemp.timeDefines.forEach((tStr, idx) => {
+                const key = getDateKey(new Date(tStr));
+                if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(tStr), weather: '', temps: [], high: null, low: null };
+                if (areaWTemp.tempsMax && areaWTemp.tempsMax[idx] !== "") dailyMap[key].high = areaWTemp.tempsMax[idx];
+                if (areaWTemp.tempsMin && areaWTemp.tempsMin[idx] !== "") dailyMap[key].low = areaWTemp.tempsMin[idx];
+              });
+            }
+          }
+        }
+
+        // 17時切り替え&0時復帰ロジック
+        const now = new Date();
+        const isAfter17 = now.getHours() >= 17;
+        const baseDate = new Date(now);
+        if (isAfter17) baseDate.setDate(baseDate.getDate() + 1);
+
+        const baseKey = getDateKey(baseDate);
+        const sortedKeys = Object.keys(dailyMap).filter(k => k >= baseKey).sort();
+        const labels = isAfter17 ? ['明日', '明後日', '明々後日'] : ['今日', '明日', '明後日'];
+
+        for (let i = 0; i < 3; i++) {
+          const key = sortedKeys[i];
+          if (!key) continue;
+
+          const item = dailyMap[key];
+          const d = item.dateObj;
+          const dateStr = `${d.getMonth()+1}/${d.getDate()} (${['日','月','火','水','木','金','土'][d.getDay()]})`;
+
+          document.getElementById(`label-${i}`).textContent = labels[i];
+          document.getElementById(`date-${i}`).textContent = dateStr;
+          document.getElementById(`icon-${i}`).textContent = getWeatherIcon(item.weather);
+
+          let highVal = item.high;
+          let lowVal = item.low;
+
+          if (item.temps.length > 0) {
+            const maxTemp = Math.max(...item.temps);
+            const minTemp = Math.min(...item.temps);
+            if (!highVal) highVal = maxTemp;
+            if (!lowVal && maxTemp !== minTemp) lowVal = minTemp;
+          }
+
+          document.getElementById(`high-${i}`).textContent = (highVal !== null && highVal !== undefined) ? `${highVal}℃` : '--℃';
+          document.getElementById(`low-${i}`).textContent = (lowVal !== null && lowVal !== undefined) ? `${lowVal}℃` : '--℃';
+        }
+
+      } catch (e) {
+        console.error('天気取得エラー:', e);
+      }
+    }
+
+    fetchForecast();
+    setInterval(fetchForecast, 600000);
+  </script>
+</body>
+</html>
