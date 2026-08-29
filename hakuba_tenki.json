@@ -1,13 +1,13 @@
 {
   "location": "長野県白馬村",
-  "updated_at": "2026-08-29 08:24",
+  "updated_at": "2026-08-29 14:52",
   "is_night_mode": false,
   "day1": {
     "label": "今日",
     "date": "8/29(土)",
-    "weather": "雨 時々 くもり 乗鞍上高地地域 では 昼過ぎ から 夕方 雷を伴い 激しく 降る",
-    "temp_max": "25",
-    "temp_min": "25",
+    "weather": "雨 夜 くもり",
+    "temp_max": "23",
+    "temp_min": "23",
     "pop": "--"
   },
   "day2": {
@@ -16,14 +16,14 @@
     "weather": "くもり 夜 晴れ",
     "temp_max": "32",
     "temp_min": "21",
-    "pop": "50"
+    "pop": "30"
   },
   "day3": {
     "label": "明後日",
     "date": "8/31(月)",
     "weather": "くもり時々晴れ",
     "temp_max": "35",
-    "temp_min": "22",
+    "temp_min": "23",
     "pop": "30"
   }
 }
