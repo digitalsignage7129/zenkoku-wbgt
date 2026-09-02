@@ -14,15 +14,15 @@
       "icon": "🌧️",
       "pop": "89",
       "temp_high": "27",
-      "temp_low": "23"
+      "temp_low": "24"
     },
     {
       "date_str": "9/4 (金)",
       "weather": "雨",
       "icon": "🌧️",
       "pop": "96",
-      "temp_high": "22",
-      "temp_low": "20"
+      "temp_high": "24",
+      "temp_low": "22"
     }
   ]
 }
