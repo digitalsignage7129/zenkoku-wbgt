@@ -156,7 +156,10 @@
     // 静岡県の府県予報区コードは 220000、菊川市の地域コードは 2222400
     // (https://www.jma.go.jp/bosai/warning/data/warning/220000.json 内で確認済み)。
     const CITIES = {
-      '2222400': { name: '静岡県菊川市', areaCode: '220000' }
+      '2222400': { name: '静岡県菊川市', areaCode: '220000', regionCode: '220040' }
+      // regionCode = 静岡県西部(一次細分区域)。雷注意報など、JMAが市区町村単位
+      // ではなく一次細分区域単位でしかstatusを持たない種別があるため、
+      // 市区町村コード(area.code)だけでなく一次細分区域コードも突き合わせる。
     };
     // 2026-09時点でJMA API解説記事(Qiita)・IIJ社SDK文書・国立情報学研究所
     // 警報データベースの3資料を突き合わせて検証した正しいコード対応表。
@@ -230,22 +233,38 @@
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
       try {
-        const url = `https://www.jma.go.jp/bosai/warning/data/warning/${cityInfo.areaCode}.json?t=` + Date.now();
+        // 2026年5月末にJMAが警報・注意報JSONの配信方式を変更した(旧URL
+        // .../data/warning/{code}.json は更新が止まった凍結データを返し続ける)。
+        // 現在の正しいエンドポイントは .../data/r8/{code}.json で、スキーマも
+        // areaTypes/areas/warnings → warning.class10Items/class20Items/kinds に
+        // 変わっている。また応答は「直近複数回分の発表(レポート)」の配列であり、
+        // 必ずしも新しい順に並んでいないため、reportDatetimeが最も新しいものを
+        // 現在の状態として採用する。
+        const url = `https://www.jma.go.jp/bosai/warning/data/r8/${cityInfo.areaCode}.json?t=` + Date.now();
         const res = await fetch(url, { signal: controller.signal });
         clearTimeout(timeoutId);
         if (!res.ok) throw new Error('HTTPエラー');
         const data = await res.json();
-        const root = Array.isArray(data) ? data[0] : data;
-        const areaTypes = root?.areaTypes || [];
+        const reports = Array.isArray(data) ? data : [data];
+        const sorted = [...reports].sort((a, b) => new Date(b.reportDatetime) - new Date(a.reportDatetime));
+        const latest = sorted[0] || {};
+        const warningData = latest.warning || {};
+        const itemGroups = [warningData.class20Items || [], warningData.class10Items || []];
         let activeWarnings = [];
         let maxLevel = 'none';
-        for (const areaType of areaTypes) {
-          for (const area of areaType.areas || []) {
-            if (String(area.code) === String(cityCode)) {
-              for (const w of area.warnings || []) {
-                if (w.status === "発表" || w.status === "継続") {
-                  const master = WARNING_CODES[w.code];
-                  if (master) {
+        // 市区町村コード(cityCode)に加えて一次細分区域コード(regionCode)も突き合わせる。
+        // JMAは警報種別によって、市区町村単位ではなく一次細分区域単位でしか
+        // status(発表/継続)を持たないことがあるため(例: 雷注意報)、両方見ないと
+        // 実際には発表中の注意報を取りこぼす。
+        const matchCodes = [String(cityCode)];
+        if (cityInfo.regionCode) matchCodes.push(String(cityInfo.regionCode));
+        for (const items of itemGroups) {
+          for (const item of items) {
+            if (matchCodes.includes(String(item.areaCode))) {
+              for (const k of item.kinds || []) {
+                if (k.status === "発表" || k.status === "継続") {
+                  const master = WARNING_CODES[k.code];
+                  if (master && !activeWarnings.includes(master.name)) {
                     activeWarnings.push(master.name);
                     if (master.type === 'emergency') maxLevel = 'emergency';
                     else if (master.type === 'warning' && maxLevel !== 'emergency') maxLevel = 'warning';
