@@ -4,7 +4,7 @@
   "level": "警戒",
   "temperature": 25.1,
   "humidity": 100,
-  "wind_speed": 1.2,
+  "wind_speed": 0.7,
   "weather": "くもり",
-  "updated_at": "2026-09-03 22:29"
+  "updated_at": "2026-09-03 22:30"
 }
