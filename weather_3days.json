@@ -13,7 +13,7 @@
       "weather": "雨",
       "icon": "🌧️",
       "pop": "99",
-      "temp_high": "25",
+      "temp_high": "24",
       "temp_low": "22"
     },
     {
@@ -21,8 +21,8 @@
       "weather": "雨",
       "icon": "🌧️",
       "pop": "49",
-      "temp_high": "29",
-      "temp_low": "21"
+      "temp_high": "25",
+      "temp_low": "22"
     }
   ]
 }
