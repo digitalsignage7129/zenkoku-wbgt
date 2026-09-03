@@ -1,0 +1,42 @@
+name: Update Kikugawa WBGT
+
+# 外部サイト(cron-job.org)からのAPI呼び出しで起動する。
+# scheduleは「外部トリガーが止まった時の保険」として30分毎に残しておく
+# (GitHub Actions単体のscheduleは数分〜十数分の遅延が起きうるため、
+#  10分間隔の主役はrepository_dispatch側に持たせる)。
+on:
+  repository_dispatch:
+    types: [run-wbgt-update]
+  workflow_dispatch: {}
+  schedule:
+    - cron: '*/30 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-wbgt
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # kikugawa_wbgt.py は標準ライブラリのみ使用のため pip install 不要
+
+      - name: Run WBGT script
+        run: python kikugawa_wbgt.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add kikugawa_wbgt.json
+          git diff --staged --quiet || git commit -m "Update kikugawa_wbgt.json [skip ci]"
+          git push
