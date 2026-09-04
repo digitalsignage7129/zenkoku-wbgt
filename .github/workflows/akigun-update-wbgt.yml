@@ -1,0 +1,40 @@
+name: Update Akigun WBGT
+
+# 外部サイト(cron-job.org)から
+# POST https://api.github.com/repos/<owner>/<repo>/actions/workflows/akigun-update-wbgt.yml/dispatches
+# を叩いて起動する(kikugawa-update-wbgt.ymlと同じ方式)。
+# scheduleは外部トリガーが止まった時の保険として30分毎に残す。
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '*/30 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-akigun-wbgt
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # akigun-wbgt.py は標準ライブラリのみ使用のため pip install 不要
+
+      - name: Run WBGT script
+        run: python akigun-wbgt.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add akigun-wbgt.json
+          git diff --staged --quiet || git commit -m "Update akigun-wbgt.json [skip ci]"
+          git push
