@@ -1,40 +1,48 @@
 name: Update Hakuba WBGT Data
-
 on:
   schedule:
     # 毎時 6分, 16分, 26分, 36分, 46分, 56分 に実行
     - cron: '6/10 * * * *'
   workflow_dispatch:
-
 jobs:
   update-data:
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-
       - name: Run data fetch script
         run: python get_hakuba_data.py
-
       - name: Commit and push if updated
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           git add hakuba_wbgt.json
-          
+
           if git diff --staged --quiet; then
             echo "データに変更はありませんでした。"
-          else
-            git commit -m "Auto update hakuba_wbgt.json [skip ci]"
-            git push
+            exit 0
           fi
+
+          git commit -m "Auto update hakuba_wbgt.json [skip ci]"
+
+          # 他のワークフロー(他地域用)が先にmainへpushしていた場合に備えて
+          # pull --rebase してからpush、それでも失敗したらランダムな待機を挟んでリトライする
+          for i in 1 2 3 4 5; do
+            if git push; then
+              echo "push成功 (試行 $i 回目)"
+              exit 0
+            fi
+            echo "push失敗、リモートを取り込んでリトライします (試行 $i 回目)..."
+            git pull --rebase origin main
+            sleep $(( (RANDOM % 10) + 3 ))
+          done
+
+          echo "5回リトライしてもpushできませんでした。"
+          exit 1
