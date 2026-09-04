@@ -6,9 +6,9 @@ from datetime import datetime, timedelta, timezone
 
 # 広島県の天気予報JSON
 JMA_URL = "https://www.jma.go.jp/bosai/forecast/data/forecast/340000.json"
-# 南部（広島市が属する天気予報区分。右帯テンプレートと同じ根拠で採用）
+# 南部（広島市安芸区が属する天気予報区分。右帯テンプレートと同じ根拠で採用）
 AREA_CODE = "340010"
-# 広島観測所（広島市そのものの気温予測拠点。右帯テンプレートと同じ根拠で採用）
+# 広島観測所（安芸区矢野町からも至近の気温予測拠点。右帯テンプレートと同じ根拠で採用）
 TEMP_CODE = "67437"
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 
@@ -70,7 +70,7 @@ def get_jma_weather():
     weekly = data[1] if len(data) > 1 else {}
 
     result = {
-        "location": "広島県広島市",
+        "location": "広島県広島市安芸区",
         "updated_at": now.strftime("%Y-%m-%d %H:%M"),
         "is_night_mode": is_after_17,
         "day1": {"label": "", "date": "", "weather": "--", "temp_max": "--", "temp_min": "--", "pop": "--"},
@@ -153,10 +153,10 @@ def get_jma_weather():
         result["day1"]["temp_min"] = "--"
 
     # JSON書き出し
-    with open("hiroshima_tenki.json", "w", encoding="utf-8") as f:
+    with open("akigun-tenki.json", "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 
-    print("hiroshima_tenki.json を正常に生成しました:")
+    print("akigun-tenki.json を正常に生成しました:")
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
