@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>広島市 現場用 WBGT・気象情報表示器（高視認性・屋外仕様）</title>
+  <title>広島市安芸区 現場用 WBGT・気象情報表示器（高視認性・屋外仕様）</title>
   <style>
     * {
       box-sizing: border-box;
@@ -233,12 +233,12 @@
     /* データ取得 & 表示更新ロジック */
     async function updateData() {
       try {
-        // 広島市用のJSONファイルを取得
-        const response = await fetch('./hiroshima_wbgt.json?t=' + new Date().getTime());
+        // 広島市安芸区用のJSONファイルを取得
+        const response = await fetch('./akigun-wbgt.json?t=' + new Date().getTime());
         if (!response.ok) return;
         const data = await response.json();
         // テキスト更新
-        document.getElementById('location').textContent = data.location || '広島県広島市';
+        document.getElementById('location').textContent = data.location || '広島県広島市安芸区';
         document.getElementById('wbgt').textContent = data.wbgt;
         document.getElementById('temp').textContent = data.temperature;
         document.getElementById('wind').textContent = data.wind_speed;
