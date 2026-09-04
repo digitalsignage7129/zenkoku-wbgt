@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>広島市 現場用 WBGT・気象情報表示器（高視認性・屋外仕様）</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    /* 配信システムの枠いっぱいに広げる */
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden; /* スクロールバー・見切れ防止 */
+      background-color: #000000; /* 背景を完全な黒に固定 */
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+    }
+    /*
+      【基準キャンバス (690px × 730px)】
+      JSがこのブロック全体を自動スケーリングします。
+    */
+    #stage {
+      width: 690px;
+      height: 730px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transform-origin: center center;
+      flex-shrink: 0;
+      background-color: #000000;
+    }
+    /* 1. ヘッダーエリア (高さ 45px) */
+    .header {
+      height: 45px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid #444444;
+      padding-bottom: 6px;
+    }
+    .location-title {
+      font-size: 28px;
+      font-weight: 900;
+      color: #00e5ff; /* 目立つネオンブルー */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 440px;
+    }
+    .update-time {
+      font-size: 18px;
+      font-weight: 800;
+      color: #aaaaaa;
+      white-space: nowrap;
+    }
+    /* 2. メイン表示: WBGT & 警戒度 (高さ 420px) */
+    .main-section {
+      height: 420px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .wbgt-box {
+      background: #0d0d0d;
+      border: 4px solid #555555;
+      border-radius: 20px;
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .wbgt-label {
+      font-size: 26px;
+      font-weight: 900;
+      color: #ffeb3b; /* 遠くからでも目立つイエロー */
+      margin-bottom: 10px;
+    }
+    .wbgt-value-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+    .wbgt-value {
+      font-size: 110px;
+      font-weight: 900;
+      line-height: 1;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+    }
+    .wbgt-unit {
+      font-size: 38px;
+      font-weight: 900;
+      color: #ffffff;
+    }
+    /* 警戒度バナー */
+    .level-banner {
+      border-radius: 20px;
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+    }
+    .level-sub {
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 10px;
+      letter-spacing: 0.05em;
+    }
+    .level-text {
+      font-size: 54px;
+      font-weight: 900;
+      line-height: 1.1;
+      white-space: nowrap;
+      letter-spacing: 0.05em;
+    }
+    /* 3. サブ気象情報 3列カード (高さ 200px) */
+    .metrics-grid {
+      height: 200px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .metric-card {
+      background: #0d0d0d;
+      border: 4px solid #555555;
+      border-radius: 16px;
+      padding: 8px 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .metric-label {
+      font-size: 24px;
+      font-weight: 900;
+      color: #00e5ff;
+      margin-bottom: 6px;
+    }
+    .metric-value {
+      font-size: 42px;
+      font-weight: 900;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .metric-unit {
+      font-size: 20px;
+      font-weight: 900;
+      color: #cccccc;
+      margin-left: 2px;
+    }
+    /* 警戒度別カラー定義（黒背景用に最適化した高彩度高コントラスト） */
+    .bg-danger  { background-color: #cc0000; color: #ffffff; border-color: #ff6666; } /* 危険: 赤 */
+    .bg-severe  { background-color: #ff5500; color: #ffffff; border-color: #ffaa55; } /* 厳重警戒: オレンジ */
+    .bg-warning { background-color: #ffcc00; color: #000000; border-color: #ffff88; } /* 警戒: 黄 (黒文字で視認性最大化) */
+    .bg-caution { background-color: #0066ff; color: #ffffff; border-color: #66aa22; } /* 留意: 青 */
+    .bg-safe    { background-color: #00aa44; color: #ffffff; border-color: #66ff99; } /* ほぼ安全: 緑 */
+  </style>
+</head>
+<body>
+  <!-- STB側サイズに合わせて自動伸縮する690x730基準ステージ -->
+  <div id="stage">
+
+    <!-- ヘッダー -->
+    <div class="header">
+      <div class="location-title" id="location">---</div>
+      <div class="update-time">更新: <span id="updated-at">--:--</span></div>
+    </div>
+    <!-- メイン表示: WBGT & 警戒度 -->
+    <div class="main-section">
+      <div class="wbgt-box">
+        <div class="wbgt-label">暑さ指数 (WBGT)</div>
+        <div class="wbgt-value-wrap">
+          <span class="wbgt-value" id="wbgt">--.-</span>
+          <span class="wbgt-unit">℃</span>
+        </div>
+      </div>
+      <div class="level-banner" id="level-banner">
+        <div class="level-sub">熱中症警戒レベル</div>
+        <div class="level-text" id="level">--</div>
+      </div>
+    </div>
+    <!-- 3項目気象データ -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">気温</div>
+        <div class="metric-value"><span id="temp">--.-</span><span class="metric-unit">℃</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">風速</div>
+        <div class="metric-value"><span id="wind">--.-</span><span class="metric-unit">m/s</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">天気</div>
+        <div class="metric-value" style="font-size: 34px;" id="weather">--</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    /* STBの実際の枠領域を計測し、690x730キャンバスを完全フィッティングさせる制御 */
+    function autoFit() {
+      const targetW = 690;
+      const targetH = 730;
+
+      const currentW = window.innerWidth;
+      const currentH = window.innerHeight;
+      if (currentW === 0 || currentH === 0) return;
+      const scale = Math.min(currentW / targetW, currentH / targetH);
+
+      const stage = document.getElementById('stage');
+      if (stage) {
+        stage.style.transform = `scale(${scale})`;
+      }
+    }
+    // 画面初期化時・リサイズ時にフィット処理を実行
+    window.addEventListener('resize', autoFit);
+    window.addEventListener('DOMContentLoaded', autoFit);
+    window.addEventListener('load', autoFit);
+    autoFit();
+    /* データ取得 & 表示更新ロジック */
+    async function updateData() {
+      try {
+        // 広島市用のJSONファイルを取得
+        const response = await fetch('./hiroshima_wbgt.json?t=' + new Date().getTime());
+        if (!response.ok) return;
+        const data = await response.json();
+        // テキスト更新
+        document.getElementById('location').textContent = data.location || '広島県広島市';
+        document.getElementById('wbgt').textContent = data.wbgt;
+        document.getElementById('temp').textContent = data.temperature;
+        document.getElementById('wind').textContent = data.wind_speed;
+        document.getElementById('weather').textContent = data.weather || '不明';
+        // 更新日時の整形（"YYYY-MM-DD HH:MM" から "HH:MM" のみを抽出）
+        if (data.updated_at) {
+          const timeOnly = data.updated_at.includes(' ') ? data.updated_at.split(' ')[1] : data.updated_at;
+          document.getElementById('updated-at').textContent = timeOnly;
+        }
+        // 警戒度バナーの文字と背景色更新
+        const banner = document.getElementById('level-banner');
+        const levelText = document.getElementById('level');
+        const level = data.level;
+        levelText.textContent = level;
+        banner.className = 'level-banner'; // リセット
+        if (level === '危険') {
+          banner.classList.add('bg-danger');
+        } else if (level === '厳重警戒') {
+          banner.classList.add('bg-severe');
+        } else if (level === '警戒') {
+          banner.classList.add('bg-warning');
+        } else if (level === '留意') {
+          banner.classList.add('bg-caution');
+        } else {
+          banner.classList.add('bg-safe'); // 「ほぼ安全」
+        }
+      } catch (error) {
+        console.error('Data fetch error:', error);
+      }
+    }
+    // 初回実行 ＋ 60秒ごと自動更新
+    updateData();
+    setInterval(updateData, 60000);
+  </script>
+</body>
+</html>
