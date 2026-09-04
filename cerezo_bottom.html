@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>長居スタジアム 下帯サイネージ</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      color: #ffffff;
+      user-select: none;
+    }
+    /* セレッソ大阪カラー(桜色〜マゼンタのグラデーション)＋菱形パターン＋花びらを
+       CSSで再現した背景。実写画像を使わないのは、下帯の横長比率に合わせて
+       綺麗に伸縮させるため(固定画像だと機器の画面比率ごとに欠けたり伸びたりする)。 */
+    body {
+      position: relative;
+      padding: 12px;
+      display: flex;
+      align-items: stretch;
+      gap: 12px;
+      width: 100%;
+      height: 100%;
+      background:
+        linear-gradient(135deg, #ff2d87 0%, #e8005f 55%, #c2004f 100%);
+    }
+    /* 菱形格子パターン */
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(60deg, rgba(255,255,255,0.10) 0px, rgba(255,255,255,0.10) 1px, transparent 1px, transparent 34px),
+        repeating-linear-gradient(-60deg, rgba(255,255,255,0.10) 0px, rgba(255,255,255,0.10) 1px, transparent 1px, transparent 34px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* 桜の花びら(ぼかした白い楕円を散らして表現) */
+    .petal {
+      position: absolute;
+      background: rgba(255,255,255,0.85);
+      border-radius: 60% 40% 55% 45% / 45% 55% 40% 60%;
+      filter: blur(0.5px);
+      opacity: 0.75;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .petal.p1 { width: 46px; height: 30px; top: 6%;  left: 3%;  transform: rotate(25deg); }
+    .petal.p2 { width: 30px; height: 20px; top: 60%; left: 1.5%; transform: rotate(-15deg); opacity: 0.5; }
+    .petal.p3 { width: 38px; height: 24px; top: 15%; right: 4%; transform: rotate(-30deg); }
+    .petal.p4 { width: 24px; height: 16px; top: 70%; right: 8%; transform: rotate(50deg); opacity: 0.55; }
+    .petal.p5 { width: 20px; height: 14px; top: 40%; right: 20%; transform: rotate(10deg); opacity: 0.4; }
+    .clock-block {
+      position: relative;
+      z-index: 1;
+      width: 340px;
+      height: 100%;
+      background: rgba(13, 14, 34, 0.82);
+      border: 2px solid #d4af37;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .clock-date { font-size: 22px; color: #f2b8d4; font-weight: bold; }
+    .clock-time { font-size: 68px; color: #ffd166; font-weight: 900; line-height: 1; margin-top: 2px; letter-spacing: -1px; }
+    .main-block {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+      min-height: 0;
+    }
+    .status-bar {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    .city-badge {
+      background: linear-gradient(135deg, #ffd166, #d4af37);
+      color: #1a0d24;
+      font-size: 26px;
+      font-weight: 900;
+      padding: 0 24px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      border-radius: 8px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .alert-badge {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      font-size: 24px;
+      font-weight: 900;
+      padding: 0 24px;
+      border-radius: 8px;
+      background: #007700;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .alert-badge.advisory { background: #d99b00; color: #000000; }
+    .alert-badge.warning { background: #d92626; color: #ffffff; }
+    .alert-badge.emergency {
+      background: #990099;
+      color: #ffffff;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    /* テロップ容器：Container Queryを適用 */
+    .ticker-container {
+      container-type: inline-size;
+      flex: 1;
+      min-height: 0;
+      background: rgba(10, 10, 24, 0.82);
+      border: 2px solid #d4af37;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+    }
+    /* 流れる文字：GPUアクセラレーション固定 */
+    .ticker-text {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      width: max-content;
+      font-size: 44px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: 1px;
+
+      will-change: transform;
+      backface-visibility: hidden;
+      transform: translate3d(0, 0, 0);
+    }
+    /* 60fpsでスムーズに動くCSSアニメーション */
+    @keyframes tickerScroll {
+      0% {
+        transform: translate3d(100cqw, 0, 0);
+      }
+      100% {
+        transform: translate3d(-100%, 0, 0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="petal p1"></div>
+  <div class="petal p2"></div>
+  <div class="petal p3"></div>
+  <div class="petal p4"></div>
+  <div class="petal p5"></div>
+  <div class="clock-block">
+    <div class="clock-date" id="clock-date">----/--/-- (-)</div>
+    <div class="clock-time" id="clock-time">00:00</div>
+  </div>
+  <div class="main-block">
+    <div class="status-bar">
+      <div class="city-badge" id="city-badge">長居スタジアム</div>
+      <div class="alert-badge" id="alert-badge">気象情報を確認中...</div>
+    </div>
+    <div class="ticker-container" id="ticker-bg">
+      <div class="ticker-text" id="ticker-text">データ取得中...</div>
+    </div>
+  </div>
+  <script>
+    // --- 長居スタジアム(大阪市東住吉区)用設定 ---
+    // 大阪市は政令指定都市だが、実際の警報・注意報配信(tenki.jp等の公開サイトでも
+    // 「大阪市の警報・注意報」として東住吉区を含む市全体が2710000でまとめられている
+    // ことを確認済み)は広島市のような区単位分割ではなく大阪市全体で1つのため、
+    // 大阪市梅田版と同じcityCode(2710000)をそのまま使用する。
+    const CITIES = {
+      '2710000': { name: '大阪府大阪市(長居スタジアム)', areaCode: '270000' }
+    };
+    // 2026-09時点でJMA API解説記事(Qiita)・IIJ社SDK文書・国立情報学研究所
+    // 警報データベースの3資料を突き合わせて検証した正しいコード対応表。
+    const WARNING_CODES = {
+      '02': { name: '暴風雪警報', type: 'warning' },
+      '03': { name: '大雨警報', type: 'warning' },
+      '04': { name: '洪水警報', type: 'warning' },
+      '05': { name: '暴風警報', type: 'warning' },
+      '06': { name: '大雪警報', type: 'warning' },
+      '07': { name: '波浪警報', type: 'warning' },
+      '08': { name: '高潮警報', type: 'warning' },
+      '09': { name: '土砂災害警報', type: 'warning' },
+      '10': { name: '大雨注意報', type: 'advisory' },
+      '12': { name: '大雪注意報', type: 'advisory' },
+      '13': { name: '風雪注意報', type: 'advisory' },
+      '14': { name: '雷注意報', type: 'advisory' },
+      '15': { name: '強風注意報', type: 'advisory' },
+      '16': { name: '波浪注意報', type: 'advisory' },
+      '17': { name: '融雪注意報', type: 'advisory' },
+      '18': { name: '洪水注意報', type: 'advisory' },
+      '19': { name: '高潮注意報', type: 'advisory' },
+      '20': { name: '濃霧注意報', type: 'advisory' },
+      '21': { name: '乾燥注意報', type: 'advisory' },
+      '22': { name: 'なだれ注意報', type: 'advisory' },
+      '23': { name: '低温注意報', type: 'advisory' },
+      '24': { name: '霜注意報', type: 'advisory' },
+      '25': { name: '着氷注意報', type: 'advisory' },
+      '26': { name: '着雪注意報', type: 'advisory' },
+      '27': { name: 'その他の注意報', type: 'advisory' },
+      '29': { name: '土砂災害注意報', type: 'advisory' },
+      '32': { name: '暴風雪特別警報', type: 'emergency' },
+      '33': { name: '大雨特別警報', type: 'emergency' },
+      '35': { name: '暴風特別警報', type: 'emergency' },
+      '36': { name: '大雪特別警報', type: 'emergency' },
+      '37': { name: '波浪特別警報', type: 'emergency' },
+      '38': { name: '高潮特別警報', type: 'emergency' },
+      '39': { name: '土砂災害特別警報', type: 'emergency' },
+      '43': { name: '大雨危険警報', type: 'warning' },
+      '48': { name: '高潮危険警報', type: 'warning' },
+      '49': { name: '土砂災害危険警報', type: 'warning' }
+    };
+    const params = new URLSearchParams(window.location.search);
+    const cityCode = params.get('city') || '2710000';
+    const cityInfo = CITIES[cityCode] || CITIES['2710000'];
+    document.getElementById('city-badge').textContent = cityInfo.name;
+    function updateClock() {
+      const now = new Date();
+      const days = ['日', '月', '火', '水', '木', '金', '土'];
+      document.getElementById('clock-date').textContent = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} (${days[now.getDay()]})`;
+      document.getElementById('clock-time').textContent = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+    let currentText = '';
+    function startTicker(text) {
+      if (currentText === text) return;
+      currentText = text;
+      const el = document.getElementById('ticker-text');
+      el.textContent = text;
+      const duration = Math.max(12, text.length * 0.38 + 6);
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = `tickerScroll ${duration}s linear infinite`;
+    }
+    startTicker(`【${cityInfo.name}】気象庁から最新データを取得しています...`);
+    async function fetchJmaWarnings() {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      try {
+        const url = `https://www.jma.go.jp/bosai/warning/data/r8/${cityInfo.areaCode}.json?t=` + Date.now();
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error('HTTPエラー');
+        const data = await res.json();
+        const reports = Array.isArray(data) ? data : [data];
+        const sorted = [...reports].sort((a, b) => new Date(b.reportDatetime) - new Date(a.reportDatetime));
+        const latest = sorted[0] || {};
+        const warningData = latest.warning || {};
+        const itemGroups = [warningData.class20Items || [], warningData.class10Items || []];
+        let activeWarnings = [];
+        let maxLevel = 'none';
+        const matchCodes = [String(cityCode)];
+        if (cityInfo.regionCode) matchCodes.push(String(cityInfo.regionCode));
+        for (const items of itemGroups) {
+          for (const item of items) {
+            if (matchCodes.includes(String(item.areaCode))) {
+              for (const k of item.kinds || []) {
+                if (k.status === "発表" || k.status === "継続") {
+                  const master = WARNING_CODES[k.code];
+                  if (master && !activeWarnings.includes(master.name)) {
+                    activeWarnings.push(master.name);
+                    if (master.type === 'emergency') maxLevel = 'emergency';
+                    else if (master.type === 'warning' && maxLevel !== 'emergency') maxLevel = 'warning';
+                    else if (master.type === 'advisory' && maxLevel === 'none') maxLevel = 'advisory';
+                  }
+                }
+              }
+            }
+          }
+        }
+        const badgeEl = document.getElementById('alert-badge');
+        badgeEl.className = 'alert-badge';
+        if (activeWarnings.length === 0) {
+          badgeEl.textContent = '警報・注意報：発表なし';
+          startTicker(`【${cityInfo.name}】現在、警報・注意報は発表されていません。本日もご安全にお過ごしください。`);
+        } else {
+          badgeEl.classList.add(maxLevel);
+          const titleMap = {
+            'emergency': '【特別警報発表中】',
+            'warning': '【気象警報発表中】',
+            'advisory': '【気象注意報発表中】'
+          };
+          badgeEl.textContent = titleMap[maxLevel] + ' ' + activeWarnings.join('・');
+          startTicker(`【${titleMap[maxLevel]}】${cityInfo.name}に「${activeWarnings.join('、')}」が発表されています。最新の気象・防災情報に注意してください。`);
+        }
+      } catch (e) {
+        clearTimeout(timeoutId);
+        console.error('気象警報取得エラー:', e);
+        document.getElementById('alert-badge').textContent = '警報・注意報：発表なし';
+        startTicker(`【${cityInfo.name}】現在、警報・注意報は発表されていません。本日もご安全にお過ごしください。`);
+      }
+    }
+    fetchJmaWarnings();
+    setInterval(fetchJmaWarnings, 600000);
+  </script>
+</body>
+</html>
