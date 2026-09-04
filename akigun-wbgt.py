@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-広島市 現場用 WBGT・気象情報 生成スクリプト
-田原本町版/菊川市版と同じロジックで、定数のみ広島市向けに差し替えたもの。
+広島市安芸区(矢野町) 現場用 WBGT・気象情報 生成スクリプト
+田原本町版/菊川市版と同じロジックで、定数のみ差し替えたもの。
 
 【定数の根拠】
+- 設置場所の座標(北緯34.31853, 東経132.54614)を国土地理院の逆ジオコーディングAPI
+  (https://mreversegeocoder.gsi.go.jp/reverse-geocoder/LonLatToAddress?lat=..&lon=..)
+  で照合した結果、muniCd=34107(広島市安芸区)・矢野町 と判定された。
+  なお「安芸区」と「安芸郡」は名前が似ているが別の自治体で、
+  安芸郡(府中町・海田町・熊野町・坂町など)の市区町村コードは34107ではなく
+  30x台の別コードになるため混同しないよう注意(今回の座標は明確に安芸区側)。
 - AMEDAS_CODE / MOE_POINT = "67437" (広島)
   環境省熱中症予防情報サイトの実URL
     https://www.wbgt.env.go.jp/sp/graph_ref_td.php?region=08&prefecture=67&point=67437
   のページタイトルが「環境省熱中症予防情報サイト 広島(広島)」であることを確認済み。
-  つまり広島市そのものの観測点であり、菊川市版のような「最寄りの代替地点」ではない。
-  同時にJMA AMeDASの実況点としても有効であることを
-  https://www.jma.go.jp/bosai/amedas/data/point/67437/... で確認済み
-  (実際に気温24.6℃・湿度79%・風速2.1m/sなどの実データが取得できた)。
-  なおこの67437というコードはJMA天気予報JSON(220000.json相当の340000.json)の
-  気温シリーズでも「広島」地点として同一コードで登場する(右帯・天気テンプレートの
-  TEMP_CODEと同じ値)。
+  安芸区(矢野町)からも至近距離にある広島市の公式観測点。
+  JMA AMeDASの実況点としても有効であることを確認済み
+  (気温24.6℃・湿度79%・風速2.1m/sなどの実データを取得できた)。
 - REGION_CODE = "08" / PREF_CODE = "67" (広島県)
   上記の実URLで確認済み(region=08, prefecture=67)。
 """
@@ -28,13 +30,13 @@ import ssl
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
-# --- 広島市用設定 ---
+# --- 広島市安芸区用設定 ---
 AMEDAS_CODE = "67437"   # 広島 - JMA AMeDAS実況点
-MOE_POINT = "67437"     # 同上 - 環境省WBGT観測地点(広島市そのものの地点)
+MOE_POINT = "67437"     # 同上 - 環境省WBGT観測地点
 REGION_CODE = "08"      # 中国(環境省サイトの地域コード)
 PREF_CODE = "67"        # 広島県
-LOCATION_NAME = "広島県広島市"
-OUTPUT_FILE = "hiroshima_wbgt.json"
+LOCATION_NAME = "広島県広島市安芸区"
+OUTPUT_FILE = "akigun-wbgt.json"
 
 JST = timezone(timedelta(hours=9))
 
