@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>広島県広島市 3日間天気予報</title>
+  <title>広島県広島市安芸区 3日間天気予報</title>
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -177,7 +177,7 @@
 <body>
   <!-- ヘッダー -->
   <div class="header">
-    <div class="location-name" id="location-name">広島県広島市</div>
+    <div class="location-name" id="location-name">広島県広島市安芸区</div>
     <div class="update-time" id="updated-at">更新: --:--</div>
   </div>
   <!-- 3日間エリア -->
@@ -272,10 +272,10 @@
     }
     async function loadWeather() {
       try {
-        const response = await fetch('hiroshima_tenki.json?t=' + new Date().getTime());
+        const response = await fetch('akigun-tenki.json?t=' + new Date().getTime());
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
-        document.getElementById('location-name').textContent = data.location || '広島県広島市';
+        document.getElementById('location-name').textContent = data.location || '広島県広島市安芸区';
         document.getElementById('updated-at').textContent = '更新: ' + (data.updated_at || '--');
         const keys = ['day1', 'day2', 'day3'];
         keys.forEach((key) => {
