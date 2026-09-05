@@ -1,29 +1,29 @@
 {
   "location": "長野県白馬村",
-  "updated_at": "2026-09-05 21:24",
-  "is_night_mode": true,
+  "updated_at": "2026-09-06 00:48",
+  "is_night_mode": false,
   "day1": {
-    "label": "明日",
+    "label": "今日",
     "date": "9/6(日)",
-    "weather": "雨時々くもり",
+    "weather": "晴れ 夜 くもり 佐久地域 では 夜遅く 霧",
+    "temp_max": "--",
+    "temp_min": "--",
+    "pop": "--"
+  },
+  "day2": {
+    "label": "明日",
+    "date": "9/7(月)",
+    "weather": "くもり 夜 雨",
     "temp_max": "25",
     "temp_min": "21",
     "pop": "90"
   },
-  "day2": {
+  "day3": {
     "label": "明後日",
-    "date": "9/7(月)",
+    "date": "9/8(火)",
     "weather": "くもり時々雨",
     "temp_max": "31",
     "temp_min": "21",
     "pop": "60"
-  },
-  "day3": {
-    "label": "明々後日",
-    "date": "9/8(火)",
-    "weather": "くもり時々雨",
-    "temp_max": "28",
-    "temp_min": "20",
-    "pop": "70"
   }
 }
