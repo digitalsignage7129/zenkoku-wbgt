@@ -6,15 +6,15 @@
       "icon": "🌧️",
       "pop": "97",
       "temp_high": "28",
-      "temp_low": "23"
+      "temp_low": "22"
     },
     {
       "date_str": "9/7 (月)",
       "weather": "雨",
       "icon": "🌧️",
       "pop": "90",
-      "temp_high": "26",
-      "temp_low": "23"
+      "temp_high": "27",
+      "temp_low": "22"
     },
     {
       "date_str": "9/8 (火)",
@@ -22,7 +22,7 @@
       "icon": "🌧️",
       "pop": "88",
       "temp_high": "28",
-      "temp_low": "24"
+      "temp_low": "23"
     }
   ]
 }
