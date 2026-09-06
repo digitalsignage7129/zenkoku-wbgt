@@ -1,29 +1,29 @@
 {
   "location": "奈良県田原本町",
-  "updated_at": "2026-09-06 23:50",
-  "is_night_mode": true,
+  "updated_at": "2026-09-07 00:20",
+  "is_night_mode": false,
   "day1": {
-    "label": "明日",
+    "label": "今日",
     "date": "9/7(月)",
-    "weather": "くもり時々雨",
-    "temp_max": "30",
-    "temp_min": "25",
-    "pop": "80"
+    "weather": "雨",
+    "temp_max": "23",
+    "temp_min": "--",
+    "pop": "90"
   },
   "day2": {
-    "label": "明後日",
+    "label": "明日",
     "date": "9/8(火)",
+    "weather": "雨",
+    "temp_max": "30",
+    "temp_min": "27",
+    "pop": "80"
+  },
+  "day3": {
+    "label": "明後日",
+    "date": "9/9(水)",
     "weather": "くもり時々雨",
     "temp_max": "30",
     "temp_min": "24",
     "pop": "70"
-  },
-  "day3": {
-    "label": "明々後日",
-    "date": "9/9(水)",
-    "weather": "くもり一時雨",
-    "temp_max": "30",
-    "temp_min": "23",
-    "pop": "60"
   }
 }
