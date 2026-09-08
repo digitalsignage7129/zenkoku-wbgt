@@ -1,21 +1,21 @@
 {
   "location": "広島県広島市安芸区",
-  "updated_at": "2026-09-09 04:21",
+  "updated_at": "2026-09-09 05:20",
   "is_night_mode": false,
   "day1": {
     "label": "今日",
     "date": "9/9(水)",
-    "weather": "くもり 夜のはじめ頃 雨",
-    "temp_max": "25",
+    "weather": "くもり",
+    "temp_max": "31",
     "temp_min": "--",
-    "pop": "50"
+    "pop": "40"
   },
   "day2": {
     "label": "明日",
     "date": "9/10(木)",
-    "weather": "雨 昼前 から くもり",
-    "temp_max": "31",
-    "temp_min": "31",
+    "weather": "くもり 昼前 まで 時々 晴れ",
+    "temp_max": "29",
+    "temp_min": "22",
     "pop": "50"
   },
   "day3": {
