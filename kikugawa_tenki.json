@@ -1,11 +1,11 @@
 {
   "location": "静岡県菊川市",
-  "updated_at": "2026-09-10 11:00",
+  "updated_at": "2026-09-10 12:40",
   "is_night_mode": false,
   "day1": {
     "label": "今日",
     "date": "9/10(木)",
-    "weather": "くもり 昼過ぎ から 雨",
+    "weather": "雨",
     "temp_max": "25",
     "temp_min": "--",
     "pop": "70"
