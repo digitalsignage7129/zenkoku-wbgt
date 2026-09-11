@@ -13,7 +13,7 @@
       "weather": "晴れ",
       "icon": "☀️",
       "pop": "12",
-      "temp_high": "32",
+      "temp_high": "31",
       "temp_low": "22"
     },
     {
@@ -22,7 +22,7 @@
       "icon": "🌧️",
       "pop": "76",
       "temp_high": "32",
-      "temp_low": "23"
+      "temp_low": "24"
     }
   ]
 }
