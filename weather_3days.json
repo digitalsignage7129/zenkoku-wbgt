@@ -2,11 +2,11 @@
   "forecasts": [
     {
       "date_str": "9/13 (日)",
-      "weather": "雨",
-      "icon": "🌧️",
+      "weather": "晴れ",
+      "icon": "☀️",
       "pop": "72",
-      "temp_high": "31",
-      "temp_low": "23"
+      "temp_high": "30",
+      "temp_low": "24"
     },
     {
       "date_str": "9/14 (月)",
