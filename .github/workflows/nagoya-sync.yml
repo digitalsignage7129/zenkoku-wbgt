@@ -114,7 +114,7 @@ jobs:
           now_str = datetime.now(jst).strftime("%Y-%m-%d %H:%M")
 
           result = {
-              "location": "名古屋市守山区（周辺：名古屋）",
+              "location": "名古屋市",
               "wbgt": str(wbgt_val),
               "level": level,
               "temperature": str(temp_val),
