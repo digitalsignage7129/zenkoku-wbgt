@@ -5,7 +5,7 @@
       "weather": "雨",
       "icon": "🌧️",
       "pop": "90",
-      "temp_high": "24",
+      "temp_high": "26",
       "temp_low": "21"
     },
     {
@@ -14,7 +14,7 @@
       "icon": "🌧️",
       "pop": "69",
       "temp_high": "24",
-      "temp_low": "20"
+      "temp_low": "21"
     },
     {
       "date_str": "9/17 (木)",
