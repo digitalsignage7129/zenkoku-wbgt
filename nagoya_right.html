@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>名古屋市 3日間天気(右帯)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100vw; height: 100vh; overflow: hidden;
+      background-color: #080b10; font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      color: #ffffff;
+    }
+    body {
+      padding: 2vh 1.5vw;
+      display: flex; flex-direction: column; gap: 2vh;
+    }
+
+    .header{
+      background: #111722; border: 1px solid #1f2b3e; border-radius: 14px;
+      padding: 1.6vh 0; text-align: center; flex-shrink: 0;
+      font-size: clamp(18px, 2.6vh, 28px); font-weight: 900; letter-spacing: 0.08em;
+      color: #00e5ff;
+    }
+
+    .weather-card {
+      flex: 1; min-height: 0;
+      background: #111722; border: 1px solid #1f2b3e; border-radius: 16px;
+      padding: 2vh 1.4vw;
+      display: flex; flex-direction: column; justify-content: center; gap: 1.2vh;
+    }
+    .weather-card.top-card {
+      background: linear-gradient(135deg, #132238 0%, #0d1726 100%);
+      border: 2px solid #00e5ff;
+    }
+
+    .day-label { font-size: clamp(14px, 2vh, 20px); font-weight: bold; color: #00e5ff; }
+    .top-card .day-label { color: #ffcc00; }
+    .date-text { font-size: clamp(13px, 1.7vh, 17px); color: #9ab0c7; margin-top: 2px; }
+
+    .icon-row { display: flex; align-items: center; gap: 1.2vw; margin-top: 0.6vh; }
+    .icon-box { font-size: clamp(34px, 6.5vh, 62px); line-height: 1; }
+    .condition-text {
+      font-size: clamp(13px, 1.7vh, 17px); font-weight: 700; color: #d7e2ec; line-height: 1.4;
+      display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+    }
+
+    .temp-row {
+      display: flex; align-items: baseline; gap: 0.6vw; margin-top: 0.6vh;
+      font-size: clamp(22px, 4vh, 40px); font-weight: 900;
+    }
+    .temp-high { color: #ff5555; }
+    .temp-slash { color: #3a4b60; font-weight: 400; padding: 0 2px; font-size: 0.6em; }
+    .temp-low { color: #3399ff; }
+
+    .pop-text { font-size: clamp(12px, 1.6vh, 15px); color: #6fb8ff; font-weight: 700; margin-top: 0.4vh; }
+
+    .updated {
+      text-align: center; font-size: clamp(10px, 1.2vh, 12px); color: #5a6b7a; flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">名古屋市の天気</div>
+
+  <div class="weather-card top-card">
+    <div class="day-label" id="label-0">今日</div>
+    <div class="date-text" id="date-0">--/-- (-)</div>
+    <div class="icon-row">
+      <div class="icon-box" id="icon-0">☀️</div>
+      <div class="condition-text" id="cond-0">--</div>
+    </div>
+    <div class="temp-row">
+      <span class="temp-high" id="high-0">--℃</span>
+      <span class="temp-slash">/</span>
+      <span class="temp-low" id="low-0">--℃</span>
+    </div>
+    <div class="pop-text" id="pop-0">降水確率: --%</div>
+  </div>
+
+  <div class="weather-card">
+    <div class="day-label" id="label-1">明日</div>
+    <div class="date-text" id="date-1">--/-- (-)</div>
+    <div class="icon-row">
+      <div class="icon-box" id="icon-1">⛅</div>
+      <div class="condition-text" id="cond-1">--</div>
+    </div>
+    <div class="temp-row">
+      <span class="temp-high" id="high-1">--℃</span>
+      <span class="temp-slash">/</span>
+      <span class="temp-low" id="low-1">--℃</span>
+    </div>
+    <div class="pop-text" id="pop-1">降水確率: --%</div>
+  </div>
+
+  <div class="weather-card">
+    <div class="day-label" id="label-2">明後日</div>
+    <div class="date-text" id="date-2">--/-- (-)</div>
+    <div class="icon-row">
+      <div class="icon-box" id="icon-2">🌧️</div>
+      <div class="condition-text" id="cond-2">--</div>
+    </div>
+    <div class="temp-row">
+      <span class="temp-high" id="high-2">--℃</span>
+      <span class="temp-slash">/</span>
+      <span class="temp-low" id="low-2">--℃</span>
+    </div>
+    <div class="pop-text" id="pop-2">降水確率: --%</div>
+  </div>
+
+  <div class="updated" id="updated"></div>
+
+  <script>
+    // --- 名古屋市用設定 ---
+    const FORECAST_CODE = '230000'; // 愛知県
+    const AREA_CODE = '230010';     // 愛知県西部(名古屋市を含む区域)
+    const TEMP_CODE = '51106';      // 名古屋観測所
+
+    const WEATHER_CODE_MAP = {
+      "100": "晴れ", "101": "晴れ時々くもり", "102": "晴れ一時雨", "103": "晴れ時々雨",
+      "104": "晴れ一時雪", "105": "晴れ時々雪", "106": "晴れ一時雨か雪", "107": "晴れ時々雨か雪",
+      "108": "晴れ一時雷雨", "110": "晴れ後時々くもり", "111": "晴れ後くもり",
+      "112": "晴れ一時雨", "113": "晴れ後時々雨", "114": "晴れ後雨",
+      "200": "くもり", "201": "くもり時々晴れ", "202": "くもり一時雨", "203": "くもり時々雨",
+      "204": "くもり一時雪", "205": "くもり時々雪", "206": "くもり一時雨か雪", "207": "くもり時々雨か雪",
+      "208": "くもり一時雷雨", "209": "霧", "210": "くもり後時々晴れ", "211": "くもり後晴れ",
+      "212": "くもり一時雨", "213": "くもり後時々雨", "214": "くもり後雨",
+      "300": "雨", "301": "雨時々晴れ", "302": "雨時々くもり", "303": "雨時々雪",
+      "308": "雨で雷を伴う", "400": "雪", "401": "雪時々晴れ", "402": "雪時々くもり"
+    };
+
+    function getWeatherIcon(codeOrText) {
+      let text = codeOrText || '';
+      if (WEATHER_CODE_MAP[text]) text = WEATHER_CODE_MAP[text];
+      if (text.includes('雷')) return '⛈️';
+      if (text.includes('雪')) return '❄️';
+      if (text.includes('雨')) return (text.includes('晴') || text.includes('くもり')) ? '🌦️' : '🌧️';
+      if (text.includes('くもり') || text.includes('曇')) return text.includes('晴') ? '⛅' : '☁️';
+      if (text.includes('霧')) return '🌫️';
+      return '☀️';
+    }
+    function getWeatherText(codeOrText) {
+      let text = codeOrText || '--';
+      if (WEATHER_CODE_MAP[text]) return WEATHER_CODE_MAP[text];
+      return text.replace(/\u3000+/g, '');
+    }
+
+    function getDateKey(d) {
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    function findArea(areas, codes) {
+      if (!areas) return null;
+      const list = Array.isArray(codes) ? codes : [codes];
+      return areas.find(a => a.area && list.includes(a.area.code)) || areas[0];
+    }
+
+    async function fetchForecast() {
+      try {
+        const url = `https://www.jma.go.jp/bosai/forecast/data/forecast/${FORECAST_CODE}.json?t=` + Date.now();
+        const res = await fetch(url);
+        const data = await res.json();
+
+        const shortData = data[0];
+        const weeklyData = data[1];
+        const dailyMap = {};
+
+        if (shortData && shortData.timeSeries) {
+          const tsWeather = shortData.timeSeries[0];
+          const areaWeather = findArea(tsWeather.areas, [AREA_CODE, FORECAST_CODE]);
+          if (areaWeather) {
+            tsWeather.timeDefines.forEach((t, i) => {
+              const key = getDateKey(new Date(t));
+              if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(t), weather: '', pop: '', temps: [], high: null, low: null };
+              if (areaWeather.weathers && areaWeather.weathers[i]) dailyMap[key].weather = areaWeather.weathers[i].trim();
+            });
+          }
+          if (shortData.timeSeries[1]) {
+            const tsPop = shortData.timeSeries[1];
+            const areaPop = findArea(tsPop.areas, [AREA_CODE, FORECAST_CODE]);
+            if (areaPop) {
+              const dailyMaxPop = {};
+              tsPop.timeDefines.forEach((t, i) => {
+                const key = getDateKey(new Date(t));
+                const v = parseInt(areaPop.pops[i]);
+                if (!isNaN(v)) dailyMaxPop[key] = Math.max(dailyMaxPop[key] || 0, v);
+              });
+              Object.keys(dailyMaxPop).forEach((key) => {
+                if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(key), weather: '', pop: '', temps: [], high: null, low: null };
+                dailyMap[key].pop = dailyMaxPop[key];
+              });
+            }
+          }
+          if (shortData.timeSeries[2]) {
+            const tsTemp = shortData.timeSeries[2];
+            const areaTemp = findArea(tsTemp.areas, [TEMP_CODE]);
+            if (areaTemp) {
+              tsTemp.timeDefines.forEach((t, i) => {
+                const key = getDateKey(new Date(t));
+                const v = parseInt(areaTemp.temps[i]);
+                if (!isNaN(v)) {
+                  if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(t), weather: '', pop: '', temps: [], high: null, low: null };
+                  dailyMap[key].temps.push(v);
+                }
+              });
+            }
+          }
+        }
+
+        if (weeklyData && weeklyData.timeSeries) {
+          if (weeklyData.timeSeries[0]) {
+            const tsW = weeklyData.timeSeries[0];
+            const areaW = findArea(tsW.areas, [FORECAST_CODE]);
+            if (areaW) {
+              const codes = areaW.weatherCodes || [];
+              const pops = areaW.pops || [];
+              tsW.timeDefines.forEach((t, i) => {
+                const key = getDateKey(new Date(t));
+                if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(t), weather: '', pop: '', temps: [], high: null, low: null };
+                if (!dailyMap[key].weather && codes[i]) dailyMap[key].weather = codes[i];
+                if (!dailyMap[key].pop && pops[i]) dailyMap[key].pop = pops[i];
+              });
+            }
+          }
+          if (weeklyData.timeSeries[1]) {
+            const tsT = weeklyData.timeSeries[1];
+            const areaT = findArea(tsT.areas, [TEMP_CODE]);
+            if (areaT) {
+              tsT.timeDefines.forEach((t, i) => {
+                const key = getDateKey(new Date(t));
+                if (!dailyMap[key]) dailyMap[key] = { dateObj: new Date(t), weather: '', pop: '', temps: [], high: null, low: null };
+                if (areaT.tempsMax && areaT.tempsMax[i] !== "") dailyMap[key].high = areaT.tempsMax[i];
+                if (areaT.tempsMin && areaT.tempsMin[i] !== "") dailyMap[key].low = areaT.tempsMin[i];
+              });
+            }
+          }
+        }
+
+        const todayKey = getDateKey(new Date());
+        const sortedKeys = Object.keys(dailyMap).filter(k => k >= todayKey).sort();
+        const labels = ['今日', '明日', '明後日'];
+
+        for (let i = 0; i < 3; i++) {
+          const key = sortedKeys[i];
+          if (!key) continue;
+          const item = dailyMap[key];
+          const d = item.dateObj;
+          const dateStr = `${d.getMonth()+1}/${d.getDate()} (${['日','月','火','水','木','金','土'][d.getDay()]})`;
+
+          document.getElementById(`label-${i}`).textContent = labels[i];
+          document.getElementById(`date-${i}`).textContent = dateStr;
+          document.getElementById(`icon-${i}`).textContent = getWeatherIcon(item.weather);
+          document.getElementById(`cond-${i}`).textContent = getWeatherText(item.weather);
+
+          let highVal = item.high, lowVal = item.low;
+          if (item.temps.length > 0) {
+            const maxTemp = Math.max(...item.temps);
+            const minTemp = Math.min(...item.temps);
+            if (!highVal) highVal = maxTemp;
+            if (!lowVal && maxTemp !== minTemp) lowVal = minTemp;
+          }
+
+          document.getElementById(`high-${i}`).textContent = (highVal !== null && highVal !== undefined && highVal !== '') ? `${highVal}℃` : '--℃';
+          document.getElementById(`low-${i}`).textContent = (lowVal !== null && lowVal !== undefined && lowVal !== '') ? `${lowVal}℃` : '--℃';
+          document.getElementById(`pop-${i}`).textContent = `降水確率: ${(item.pop !== '' && item.pop !== undefined) ? item.pop : '--'}%`;
+        }
+
+        const now = new Date();
+        document.getElementById('updated').textContent =
+          `更新: ${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+      } catch (e) {
+        console.error('天気取得エラー:', e);
+      }
+    }
+
+    fetchForecast();
+    setInterval(fetchForecast, 600000);
+  </script>
+</body>
+</html>
