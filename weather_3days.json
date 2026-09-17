@@ -10,19 +10,19 @@
     },
     {
       "date_str": "9/18 (金)",
-      "weather": "雨",
-      "icon": "🌧️",
+      "weather": "晴れ / くもり",
+      "icon": "⛅",
       "pop": "20",
       "temp_high": "29",
-      "temp_low": "22"
+      "temp_low": "23"
     },
     {
       "date_str": "9/19 (土)",
-      "weather": "雨",
-      "icon": "🌧️",
+      "weather": "晴れ / くもり",
+      "icon": "⛅",
       "pop": "30",
-      "temp_high": "27",
-      "temp_low": "22"
+      "temp_high": "29",
+      "temp_low": "23"
     }
   ]
 }
