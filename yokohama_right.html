@@ -102,6 +102,30 @@
       const codes = Array.isArray(targetCodes) ? targetCodes : [targetCodes];
       return areas.find(a => a.area && codes.includes(a.area.code)) || areas[0];
     }
+    // 昼以降、JMAの短期予報には「今日の最低気温」がもう含まれなくなる
+    // (すでに発生済みの明け方の気温は予報APIが返さなくなるため)。
+    // その場合はアメダス実況(その日1日分の10分値をまとめて返すエンドポイント)
+    // から本日これまでの最低気温を拾って補完する。
+    async function fetchTodayObservedLow() {
+      try {
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+        const url = `https://www.jma.go.jp/bosai/amedas/data/point/${TEMP_CODE}/${dateStr}_00.json?t=` + Date.now();
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const data = await res.json();
+        let minTemp = null;
+        for (const key in data) {
+          const t = data[key] && data[key].temp;
+          if (Array.isArray(t) && typeof t[0] === 'number') {
+            if (minTemp === null || t[0] < minTemp) minTemp = t[0];
+          }
+        }
+        return minTemp;
+      } catch (e) {
+        return null;
+      }
+    }
     async function fetchForecast() {
       try {
         const url = `https://www.jma.go.jp/bosai/forecast/data/forecast/${FORECAST_CODE}.json?t=` + Date.now();
@@ -193,6 +217,13 @@
             const minTemp = Math.min(...item.temps);
             if (!highVal) highVal = maxTemp;
             if (!lowVal && maxTemp !== minTemp) lowVal = minTemp;
+          }
+          // 今日(i===0)の最低気温がまだ埋まっていなければ、アメダス実況の
+          // 本日最低値で補完する(予報側にはすでに発生済みの明け方の
+          // 最低気温が含まれていないことがあるため)
+          if (i === 0 && (lowVal === null || lowVal === undefined || lowVal === '')) {
+            const observedLow = await fetchTodayObservedLow();
+            if (observedLow !== null) lowVal = observedLow;
           }
           document.getElementById(`high-${i}`).textContent = (highVal !== null && highVal !== undefined) ? `${highVal}℃` : '--℃';
           document.getElementById(`low-${i}`).textContent = (lowVal !== null && lowVal !== undefined) ? `${lowVal}℃` : '--℃';
