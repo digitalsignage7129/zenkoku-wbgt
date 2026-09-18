@@ -223,7 +223,10 @@
           // 最低気温が含まれていないことがあるため)
           if (i === 0 && (lowVal === null || lowVal === undefined || lowVal === '')) {
             const observedLow = await fetchTodayObservedLow();
-            if (observedLow !== null) lowVal = observedLow;
+            // アメダス実況値は小数点第1位まで返る(例: 19.4)が、予報側の表示は
+            // 整数のため、桁数が増えて天気マークと重なってしまう。四捨五入して
+            // 表示幅を予報値と揃える。
+            if (observedLow !== null) lowVal = Math.round(observedLow);
           }
           document.getElementById(`high-${i}`).textContent = (highVal !== null && highVal !== undefined) ? `${highVal}℃` : '--℃';
           document.getElementById(`low-${i}`).textContent = (lowVal !== null && lowVal !== undefined) ? `${lowVal}℃` : '--℃';
