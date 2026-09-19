@@ -2,9 +2,9 @@
   "location": "名古屋市",
   "wbgt": "27.4",
   "level": "警戒",
-  "temperature": "30.8",
-  "humidity": "52",
-  "wind_speed": "1.0",
+  "temperature": "30.4",
+  "humidity": "54",
+  "wind_speed": "2.2",
   "weather": "晴れ",
-  "updated_at": "2026-09-19 16:10"
+  "updated_at": "2026-09-19 16:20"
 }
