@@ -10,8 +10,8 @@
     },
     {
       "date_str": "9/22 (火)",
-      "weather": "晴れ / くもり",
-      "icon": "⛅",
+      "weather": "晴れ",
+      "icon": "☀️",
       "pop": "0",
       "temp_high": "28",
       "temp_low": "21"
