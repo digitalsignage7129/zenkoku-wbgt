@@ -4,9 +4,9 @@
       "date_str": "9/21 (月)",
       "weather": "雨",
       "icon": "🌧️",
-      "pop": "35",
-      "temp_high": "28",
-      "temp_low": "23"
+      "pop": "47",
+      "temp_high": "26",
+      "temp_low": "24"
     },
     {
       "date_str": "9/22 (火)",
@@ -20,7 +20,7 @@
       "date_str": "9/23 (水)",
       "weather": "雨",
       "icon": "🌧️",
-      "pop": "37",
+      "pop": "43",
       "temp_high": "27",
       "temp_low": "19"
     }
