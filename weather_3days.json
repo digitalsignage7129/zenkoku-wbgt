@@ -10,8 +10,8 @@
     },
     {
       "date_str": "9/23 (水)",
-      "weather": "雨",
-      "icon": "🌧️",
+      "weather": "晴れ / くもり",
+      "icon": "⛅",
       "pop": "63",
       "temp_high": "28",
       "temp_low": "20"
