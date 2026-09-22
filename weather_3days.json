@@ -18,8 +18,8 @@
     },
     {
       "date_str": "9/24 (木)",
-      "weather": "晴れ",
-      "icon": "☀️",
+      "weather": "晴れ / くもり",
+      "icon": "⛅",
       "pop": "6",
       "temp_high": "30",
       "temp_low": "21"
