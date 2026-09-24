@@ -2,16 +2,16 @@
   "forecasts": [
     {
       "date_str": "9/24 (木)",
-      "weather": "くもり",
-      "icon": "☁️",
+      "weather": "晴れ / くもり",
+      "icon": "⛅",
       "pop": "2",
       "temp_high": "28",
       "temp_low": "21"
     },
     {
       "date_str": "9/25 (金)",
-      "weather": "くもり",
-      "icon": "☁️",
+      "weather": "晴れ / くもり",
+      "icon": "⛅",
       "pop": "6",
       "temp_high": "26",
       "temp_low": "19"
