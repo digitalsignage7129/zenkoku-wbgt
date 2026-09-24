@@ -1,10 +1,10 @@
 {
   "location": "新港清掃工場（周辺：千葉）",
-  "wbgt": "25.9",
-  "level": "警戒",
-  "temperature": "26.7",
-  "humidity": "70",
-  "wind_speed": "0.4",
-  "weather": "晴れ",
-  "updated_at": "2026-09-24 17:20"
+  "wbgt": "24.6",
+  "level": "留意",
+  "temperature": "26.9",
+  "humidity": "69",
+  "wind_speed": "1.2",
+  "weather": "くもり",
+  "updated_at": "2026-09-24 17:30"
 }
