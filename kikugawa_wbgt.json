@@ -1,10 +1,10 @@
 {
   "location": "静岡県菊川市",
-  "wbgt": 26.5,
-  "level": "警戒",
-  "temperature": 26.8,
-  "humidity": 90,
-  "wind_speed": 2.0,
+  "wbgt": 28.9,
+  "level": "厳重警戒",
+  "temperature": 26.3,
+  "humidity": 91,
+  "wind_speed": 3.5,
   "weather": "晴れ",
-  "updated_at": "2026-09-24 15:00"
+  "updated_at": "2026-09-24 15:40"
 }
