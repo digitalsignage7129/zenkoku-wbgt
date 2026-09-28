@@ -1,21 +1,21 @@
 {
   "location": "長野県白馬村",
-  "updated_at": "2026-09-29 03:29",
+  "updated_at": "2026-09-29 08:44",
   "is_night_mode": false,
   "day1": {
     "label": "今日",
     "date": "9/29(火)",
-    "weather": "雨 夜のはじめ頃 くもり",
-    "temp_max": "--",
-    "temp_min": "--",
+    "weather": "雨 夕方 から くもり",
+    "temp_max": "20",
+    "temp_min": "20",
     "pop": "--"
   },
   "day2": {
     "label": "明日",
     "date": "9/30(水)",
-    "weather": "くもり 昼過ぎ まで 時々 雨",
-    "temp_max": "26",
-    "temp_min": "14",
+    "weather": "くもり 時々 晴れ",
+    "temp_max": "27",
+    "temp_min": "12",
     "pop": "40"
   },
   "day3": {
