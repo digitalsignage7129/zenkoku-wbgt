@@ -1,29 +1,29 @@
 {
   "location": "静岡県菊川市",
-  "updated_at": "2026-09-28 16:40",
-  "is_night_mode": false,
+  "updated_at": "2026-09-28 17:23",
+  "is_night_mode": true,
   "day1": {
-    "label": "今日",
-    "date": "9/28(月)",
-    "weather": "雨 時々 くもり",
-    "temp_max": "26",
-    "temp_min": "--",
+    "label": "明日",
+    "date": "9/29(火)",
+    "weather": "くもり時々雨",
+    "temp_max": "24",
+    "temp_min": "19",
     "pop": "80"
   },
   "day2": {
-    "label": "明日",
-    "date": "9/29(火)",
-    "weather": "雨 時々 くもり",
-    "temp_max": "24",
-    "temp_min": "21",
-    "pop": "80"
-  },
-  "day3": {
     "label": "明後日",
     "date": "9/30(水)",
     "weather": "くもり一時雨",
     "temp_max": "28",
     "temp_min": "20",
     "pop": "60"
+  },
+  "day3": {
+    "label": "明々後日",
+    "date": "10/1(木)",
+    "weather": "くもり時々晴れ",
+    "temp_max": "26",
+    "temp_min": "18",
+    "pop": "30"
   }
 }
