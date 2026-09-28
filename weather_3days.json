@@ -14,14 +14,14 @@
       "icon": "🌧️",
       "pop": "100",
       "temp_high": "22",
-      "temp_low": "18"
+      "temp_low": "20"
     },
     {
       "date_str": "9/30 (水)",
-      "weather": "晴れ / くもり",
-      "icon": "⛅",
+      "weather": "晴れ",
+      "icon": "☀️",
       "pop": "4",
-      "temp_high": "25",
+      "temp_high": "28",
       "temp_low": "17"
     }
   ]
