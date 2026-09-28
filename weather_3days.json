@@ -6,7 +6,7 @@
       "icon": "🌧️",
       "pop": "100",
       "temp_high": "22",
-      "temp_low": "18"
+      "temp_low": "19"
     },
     {
       "date_str": "9/30 (水)",
@@ -14,14 +14,14 @@
       "icon": "☀️",
       "pop": "6",
       "temp_high": "28",
-      "temp_low": "15"
+      "temp_low": "16"
     },
     {
       "date_str": "10/1 (木)",
       "weather": "晴れ / くもり",
       "icon": "⛅",
       "pop": "4",
-      "temp_high": "28",
+      "temp_high": "26",
       "temp_low": "20"
     }
   ]
