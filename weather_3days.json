@@ -10,19 +10,19 @@
     },
     {
       "date_str": "10/4 (日)",
-      "weather": "晴れ / くもり",
-      "icon": "⛅",
+      "weather": "くもり",
+      "icon": "☁️",
       "pop": "64",
       "temp_high": "27",
       "temp_low": "18"
     },
     {
       "date_str": "10/5 (月)",
-      "weather": "雨",
-      "icon": "🌧️",
+      "weather": "くもり",
+      "icon": "☁️",
       "pop": "35",
-      "temp_high": "23",
-      "temp_low": "19"
+      "temp_high": "25",
+      "temp_low": "20"
     }
   ]
 }
