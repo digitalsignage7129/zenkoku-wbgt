@@ -10,8 +10,8 @@
     },
     {
       "date_str": "10/4 (日)",
-      "weather": "雨",
-      "icon": "🌧️",
+      "weather": "くもり",
+      "icon": "☁️",
       "pop": "99",
       "temp_high": "24",
       "temp_low": "19"
