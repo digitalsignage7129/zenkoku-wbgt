@@ -3,8 +3,8 @@
   "wbgt": 25.2,
   "level": "警戒",
   "temperature": 24.2,
-  "humidity": 87,
-  "wind_speed": 1.9,
-  "weather": "晴れ",
-  "updated_at": "2026-10-05 15:30"
+  "humidity": 85,
+  "wind_speed": 2.0,
+  "weather": "くもり",
+  "updated_at": "2026-10-05 15:47"
 }
