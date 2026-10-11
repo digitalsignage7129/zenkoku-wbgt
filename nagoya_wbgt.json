@@ -1,10 +1,10 @@
 {
   "location": "名古屋市",
-  "wbgt": "18.2",
+  "wbgt": "18.4",
   "level": "ほぼ安全",
-  "temperature": "20.1",
+  "temperature": "20.0",
   "humidity": "83",
-  "wind_speed": "1.1",
+  "wind_speed": "2.2",
   "weather": "くもり",
-  "updated_at": "2026-10-12 01:20"
+  "updated_at": "2026-10-12 01:30"
 }
