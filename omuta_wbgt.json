@@ -1,10 +1,10 @@
 {
   "location": "福岡県大牟田市",
-  "wbgt": "23.8",
-  "level": "留意",
-  "temperature": "24.7",
-  "humidity": "80",
-  "wind_speed": "0.8",
+  "wbgt": "26.7",
+  "level": "警戒",
+  "temperature": "27.6",
+  "humidity": "71",
+  "wind_speed": "1.9",
   "weather": "晴れ",
-  "updated_at": "2026-10-12 09:00"
+  "updated_at": "2026-10-12 11:00"
 }
