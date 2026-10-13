@@ -1,29 +1,29 @@
 {
   "location": "広島県広島市安芸区",
-  "updated_at": "2026-10-13 21:10",
-  "is_night_mode": true,
+  "updated_at": "2026-10-14 00:20",
+  "is_night_mode": false,
   "day1": {
-    "label": "明日",
+    "label": "今日",
     "date": "10/14(水)",
-    "weather": "晴れ時々くもり",
-    "temp_max": "25",
-    "temp_min": "14",
-    "pop": "10"
+    "weather": "くもり 夜 雨",
+    "temp_max": "19",
+    "temp_min": "--",
+    "pop": "50"
   },
   "day2": {
-    "label": "明後日",
+    "label": "明日",
     "date": "10/15(木)",
-    "weather": "晴れ時々くもり",
-    "temp_max": "26",
-    "temp_min": "14",
+    "weather": "くもり 後 晴れ 未明 雨 福山・尾三 では 雷を伴い 激しく 降る",
+    "temp_max": "25",
+    "temp_min": "26",
     "pop": "10"
   },
   "day3": {
-    "label": "明々後日",
+    "label": "明後日",
     "date": "10/16(金)",
     "weather": "晴れ時々くもり",
-    "temp_max": "27",
-    "temp_min": "16",
+    "temp_max": "26",
+    "temp_min": "14",
     "pop": "10"
   }
 }
