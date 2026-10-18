@@ -1,11 +1,11 @@
 {
   "location": "長野県白馬村",
-  "updated_at": "2026-10-18 08:46",
+  "updated_at": "2026-10-18 12:16",
   "is_night_mode": false,
   "day1": {
     "label": "今日",
     "date": "10/18(日)",
-    "weather": "晴れ 松本地域 では 昼前 まで 霧",
+    "weather": "晴れ",
     "temp_max": "25",
     "temp_min": "25",
     "pop": "--"
@@ -16,14 +16,14 @@
     "weather": "くもり 夕方 から 雨",
     "temp_max": "23",
     "temp_min": "13",
-    "pop": "40"
+    "pop": "50"
   },
   "day3": {
     "label": "明後日",
     "date": "10/20(火)",
     "weather": "くもり一時雨",
-    "temp_max": "25",
-    "temp_min": "16",
-    "pop": "50"
+    "temp_max": "27",
+    "temp_min": "15",
+    "pop": "60"
   }
 }
