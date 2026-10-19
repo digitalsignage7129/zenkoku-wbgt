@@ -1,10 +1,10 @@
 {
   "location": "広島県広島市安芸区",
-  "wbgt": 21.5,
+  "wbgt": 22.6,
   "level": "留意",
-  "temperature": 22.8,
-  "humidity": 87,
-  "wind_speed": 1.0,
+  "temperature": 24.0,
+  "humidity": 80,
+  "wind_speed": 1.1,
   "weather": "くもり",
-  "updated_at": "2026-10-20 06:10"
+  "updated_at": "2026-10-20 08:51"
 }
