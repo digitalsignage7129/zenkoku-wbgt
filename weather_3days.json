@@ -10,10 +10,10 @@
     },
     {
       "date_str": "10/23 (金)",
-      "weather": "くもり",
-      "icon": "☁️",
+      "weather": "雨",
+      "icon": "🌧️",
       "pop": "83",
-      "temp_high": "22",
+      "temp_high": "21",
       "temp_low": "12"
     },
     {
