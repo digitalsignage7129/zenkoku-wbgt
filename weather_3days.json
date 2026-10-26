@@ -5,13 +5,13 @@
       "weather": "雨",
       "icon": "🌧️",
       "pop": "100",
-      "temp_high": "19",
+      "temp_high": "20",
       "temp_low": "18"
     },
     {
       "date_str": "10/27 (火)",
-      "weather": "雨",
-      "icon": "🌧️",
+      "weather": "くもり",
+      "icon": "☁️",
       "pop": "92",
       "temp_high": "24",
       "temp_low": "16"
