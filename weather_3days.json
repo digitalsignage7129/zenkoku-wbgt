@@ -4,7 +4,7 @@
       "date_str": "10/27 (火)",
       "weather": "晴れ / くもり",
       "icon": "⛅",
-      "pop": "49",
+      "pop": "57",
       "temp_high": "24",
       "temp_low": "16"
     },
@@ -12,15 +12,15 @@
       "date_str": "10/28 (水)",
       "weather": "晴れ / くもり",
       "icon": "⛅",
-      "pop": "0",
+      "pop": "6",
       "temp_high": "17",
       "temp_low": "10"
     },
     {
       "date_str": "10/29 (木)",
-      "weather": "雨",
-      "icon": "🌧️",
-      "pop": "4",
+      "weather": "くもり",
+      "icon": "☁️",
+      "pop": "3",
       "temp_high": "17",
       "temp_low": "8"
     }
