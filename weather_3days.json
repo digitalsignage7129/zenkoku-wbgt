@@ -4,15 +4,15 @@
       "date_str": "10/28 (水)",
       "weather": "くもり",
       "icon": "☁️",
-      "pop": "4",
+      "pop": "12",
       "temp_high": "16",
       "temp_low": "10"
     },
     {
       "date_str": "10/29 (木)",
-      "weather": "雨",
-      "icon": "🌧️",
-      "pop": "2",
+      "weather": "晴れ / くもり",
+      "icon": "⛅",
+      "pop": "0",
       "temp_high": "20",
       "temp_low": "8"
     },
@@ -20,9 +20,9 @@
       "date_str": "10/30 (金)",
       "weather": "雨",
       "icon": "🌧️",
-      "pop": "87",
+      "pop": "84",
       "temp_high": "17",
-      "temp_low": "12"
+      "temp_low": "13"
     }
   ]
 }
