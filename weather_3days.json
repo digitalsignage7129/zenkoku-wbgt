@@ -10,8 +10,8 @@
     },
     {
       "date_str": "11/3 (火)",
-      "weather": "くもり",
-      "icon": "☁️",
+      "weather": "晴れ / くもり",
+      "icon": "⛅",
       "pop": "0",
       "temp_high": "21",
       "temp_low": "12"
