@@ -5,8 +5,8 @@
       "weather": "雨",
       "icon": "🌧️",
       "pop": "63",
-      "temp_high": "20",
-      "temp_low": "11"
+      "temp_high": "19",
+      "temp_low": "12"
     },
     {
       "date_str": "11/5 (木)",
@@ -14,7 +14,7 @@
       "icon": "🌧️",
       "pop": "73",
       "temp_high": "22",
-      "temp_low": "15"
+      "temp_low": "14"
     },
     {
       "date_str": "11/6 (金)",
