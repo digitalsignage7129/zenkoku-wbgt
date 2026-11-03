@@ -10,8 +10,8 @@
     },
     {
       "date_str": "11/4 (水)",
-      "weather": "くもり",
-      "icon": "☁️",
+      "weather": "雨",
+      "icon": "🌧️",
       "pop": "59",
       "temp_high": "20",
       "temp_low": "11"
