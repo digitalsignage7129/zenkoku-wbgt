@@ -4,7 +4,7 @@
   "level": "ほぼ安全",
   "temperature": 15.8,
   "humidity": 100,
-  "wind_speed": 0.8,
+  "wind_speed": 1.0,
   "weather": "くもり",
-  "updated_at": "2026-11-06 04:20"
+  "updated_at": "2026-11-06 04:30"
 }
