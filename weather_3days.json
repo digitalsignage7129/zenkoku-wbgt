@@ -6,12 +6,12 @@
       "icon": "🌧️",
       "pop": "98",
       "temp_high": "22",
-      "temp_low": "15"
+      "temp_low": "14"
     },
     {
       "date_str": "11/6 (金)",
-      "weather": "雨",
-      "icon": "🌧️",
+      "weather": "晴れ / くもり",
+      "icon": "⛅",
       "pop": "100",
       "temp_high": "21",
       "temp_low": "13"
