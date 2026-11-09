@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>相生市 警報・注意報</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+  }
+  #bar {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(180deg, #0a2a4a 0%, #0d3a66 100%);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+  #label {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0 2.2vw;
+    background: #e3000f;
+    color: #fff;
+    font-size: 3.6vh;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  #label.none {
+    background: #1b4d7a;
+  }
+  #ticker-wrap {
+    flex: 1 1 auto;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  #ticker {
+    position: absolute;
+    white-space: nowrap;
+    font-size: 3.4vh;
+    font-weight: 600;
+    color: #fff;
+    will-change: transform;
+  }
+  .item {
+    display: inline-block;
+    margin-right: 6vw;
+  }
+  .status-発表 { color: #ffd400; }
+  .status-継続 { color: #ffd400; }
+  .status-解除 { color: #8fd3ff; }
+  .status-none { color: #e8f2ff; }
+  #clock {
+    flex: 0 0 auto;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 1.8vw;
+    color: #cfe6ff;
+    font-size: 2.6vh;
+    font-weight: 500;
+    border-left: 2px solid rgba(255,255,255,0.25);
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<div id="bar">
+  <div id="label" class="none">相生市</div>
+  <div id="ticker-wrap"><div id="ticker">読み込み中...</div></div>
+  <div id="clock">--:--:--</div>
+</div>
+
+<script>
+// ============================================================
+// 対象地域設定 — 兵庫県相生市
+// LGコード 28208 + "00" = JMA class20コード 2820800
+// weathernews.jp (onebox/warn/hyogo/2820800/) で「相生市」であることを確認済み
+// ============================================================
+const CITIES = {
+  '2820800': { name: '兵庫県相生市', areaCode: '280000', regionCode: '280010' }
+};
+const CITY_CODE = Object.keys(CITIES)[0];
+const CITY = CITIES[CITY_CODE];
+
+// JMA 警報・注意報種別コード表(2026-09修正版を踏襲)
+const WARNING_CODES = {
+  '02': '暴風雪警報',
+  '03': '大雨警報',
+  '04': '洪水警報',
+  '05': '暴風警報',
+  '06': '大雪警報',
+  '07': '波浪警報',
+  '08': '高潮警報',
+  '09': '大雨注意報',
+  '10': '大雪注意報',
+  '11': '風雪注意報',
+  '12': '雷注意報',
+  '13': '強風注意報',
+  '14': '波浪注意報',
+  '15': '高潮注意報',
+  '16': '乾燥注意報',
+  '17': 'なだれ注意報',
+  '18': '洪水注意報',
+  '19': '低温注意報',
+  '20': '濃霧注意報',
+  '21': '霜注意報',
+  '22': '着氷注意報',
+  '23': '着雪注意報',
+  '24': '融雪注意報',
+  '25': '浸水注意報',
+  '32': '暴風雪特別警報',
+  '33': '大雨特別警報',
+  '34': '暴風特別警報',
+  '35': '大雪特別警報',
+  '36': '波浪特別警報',
+  '37': '高潮特別警報'
+};
+
+const REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5分ごとに再取得
+let scrollX = 0;
+let scrollSpeed = 3.0; // px/frame相当(後でdt補正)
+
+function buildMessage(kinds) {
+  if (!kinds || kinds.length === 0) return null;
+  const parts = [];
+  kinds.forEach(k => {
+    if (!k.code) return; // コード無し(発表警報・注意報はなし)は無視
+    const name = WARNING_CODES[k.code] || ('コード' + k.code);
+    let statusClass = 'status-' + (k.status || 'none');
+    let label = name;
+    if (k.status === '解除') label = name + '(解除)';
+    parts.push(`<span class="item ${statusClass}">${label}</span>`);
+  });
+  return parts.length ? parts.join('') : null;
+}
+
+async function fetchJmaWarnings() {
+  const labelEl = document.getElementById('label');
+  const tickerEl = document.getElementById('ticker');
+  try {
+    const res = await fetch(`https://www.jma.go.jp/bosai/warning/data/r8/${CITY.areaCode}.json`, { cache: 'no-store' });
+    const reports = await res.json();
+    if (!Array.isArray(reports) || reports.length === 0) throw new Error('empty');
+
+    // 最新のreportDatetimeを採用
+    let latest = reports[0];
+    reports.forEach(r => {
+      if (new Date(r.reportDatetime) > new Date(latest.reportDatetime)) latest = r;
+    });
+
+    const warning = latest.warning || {};
+    const class20 = warning.class20Items || [];
+    const class10 = warning.class10Items || [];
+
+    let item = class20.find(i => i.areaCode === CITY_CODE);
+    if (!item) {
+      // 市町村単位の項目が無ければ一次細分区域(regionCode)にフォールバック
+      item = class10.find(i => i.areaCode === CITY.regionCode);
+    }
+
+    const msg = item ? buildMessage(item.kinds) : null;
+
+    if (msg) {
+      labelEl.textContent = CITY.name;
+      labelEl.classList.remove('none');
+      tickerEl.innerHTML = msg + '<span class="item status-none">　</span>' + msg; // 繋ぎ目を滑らかにするため複製
+    } else {
+      labelEl.textContent = CITY.name;
+      labelEl.classList.add('none');
+      tickerEl.innerHTML = '<span class="item status-none">現在、相生市に発表されている警報・注意報はありません</span>';
+    }
+    scrollX = 0;
+  } catch (e) {
+    labelEl.textContent = CITY.name;
+    labelEl.classList.add('none');
+    tickerEl.innerHTML = '<span class="item status-none">警報・注意報情報を取得できませんでした</span>';
+    console.error('JMA fetch error', e);
+  }
+}
+
+function animateTicker() {
+  const wrap = document.getElementById('ticker-wrap');
+  const ticker = document.getElementById('ticker');
+  const wrapWidth = wrap.clientWidth;
+  const tickerWidth = ticker.scrollWidth;
+
+  scrollX -= scrollSpeed;
+  if (tickerWidth > 0 && scrollX < -tickerWidth / 2) {
+    scrollX = 0;
+  }
+  ticker.style.transform = `translateX(${wrapWidth + scrollX}px)`;
+  requestAnimationFrame(animateTicker);
+}
+
+function updateClock() {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  document.getElementById('clock').textContent = `${hh}:${mm}:${ss}`;
+}
+
+fetchJmaWarnings();
+setInterval(fetchJmaWarnings, REFRESH_INTERVAL_MS);
+setInterval(updateClock, 1000);
+updateClock();
+requestAnimationFrame(animateTicker);
+</script>
+</body>
+</html>

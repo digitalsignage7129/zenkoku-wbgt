@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>相生市 3日間天気予報</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #072a46;
+    font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+    color: #fff;
+  }
+  #panel {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, #0a3659 0%, #072a46 100%);
+  }
+  #title {
+    flex: 0 0 auto;
+    text-align: center;
+    padding: 2.2vh 0 1.4vh;
+    font-size: 3.0vh;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+  }
+  #days {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .day {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    padding: 1vh 0;
+  }
+  .day:last-child { border-bottom: none; }
+  .day-label {
+    font-size: 2.2vh;
+    font-weight: 600;
+    color: #bfe0ff;
+    margin-bottom: 0.6vh;
+  }
+  .day-icon {
+    font-size: 5.5vh;
+    line-height: 1;
+    margin-bottom: 0.4vh;
+  }
+  .day-pop {
+    font-size: 2.0vh;
+    color: #8fd3ff;
+    margin-bottom: 0.3vh;
+  }
+  .day-temps {
+    font-size: 2.6vh;
+    font-weight: 700;
+  }
+  .temp-max { color: #ff8a65; }
+  .temp-min { color: #64b5f6; }
+  #updated {
+    flex: 0 0 auto;
+    text-align: center;
+    font-size: 1.5vh;
+    color: #7fa8c9;
+    padding: 0.6vh 0;
+  }
+</style>
+</head>
+<body>
+<div id="panel">
+  <div id="title">相生市の天気</div>
+  <div id="days">
+    <div class="day" id="day0"><div class="day-label">-</div><div class="day-icon">-</div><div class="day-pop">-</div><div class="day-temps">-</div></div>
+    <div class="day" id="day1"><div class="day-label">-</div><div class="day-icon">-</div><div class="day-pop">-</div><div class="day-temps">-</div></div>
+    <div class="day" id="day2"><div class="day-label">-</div><div class="day-icon">-</div><div class="day-pop">-</div><div class="day-temps">-</div></div>
+  </div>
+  <div id="updated">更新中...</div>
+</div>
+
+<script>
+// ============================================================
+// 対象地域設定 — 兵庫県相生市
+// 兵庫県の天気予報区分は南部/北部の2つのみ、気温予報地点は
+// 神戸(63518)/豊岡(63051)/洲本(63571)/姫路(63383)の4地点。
+// 相生市は播磨南西部(南部に属する)で専用の予報地点・アメダス
+// 観測点は確認できなかったため、同じ南部の市川町版と同様に
+// 最寄りの姫路を採用。
+// ============================================================
+const FORECAST_CODE = '280000'; // 兵庫県
+const AREA_CODE = '280010';     // 南部
+const TEMP_CODE = '63383';      // 姫路
+
+const WEATHER_ICONS = {
+  // JMA weatherCode(先頭2桁分類)に応じた簡易アイコン
+  '100': '☀️', '101': '🌤️', '102': '🌤️', '103': '🌤️', '104': '☁️', '105': '☁️',
+  '106': '🌤️', '107': '🌤️', '108': '🌤️', '110': '🌤️', '111': '🌤️', '112': '🌦️',
+  '113': '🌦️', '114': '🌦️', '115': '🌦️', '116': '🌦️', '117': '⛈️', '118': '🌦️',
+  '119': '🌧️', '120': '🌦️', '121': '🌦️', '122': '🌦️', '123': '⛈️', '124': '🌨️',
+  '125': '⛈️', '126': '🌦️', '127': '🌦️', '128': '🌦️', '130': '🌤️', '131': '🌤️',
+  '132': '🌤️', '140': '⛈️', '160': '🌨️', '170': '🌨️', '181': '🌨️',
+  '200': '☁️', '201': '☁️', '202': '🌦️', '203': '🌦️', '204': '🌦️', '205': '🌦️',
+  '206': '🌦️', '207': '🌤️', '208': '🌦️', '209': '🌫️', '210': '🌤️', '211': '🌤️',
+  '212': '🌦️', '213': '🌦️', '214': '🌦️', '215': '🌦️', '216': '🌦️', '217': '🌦️',
+  '218': '🌦️', '219': '🌨️', '220': '🌦️', '221': '🌦️', '222': '🌦️', '223': '🌤️',
+  '224': '🌧️', '225': '🌧️', '226': '🌧️', '227': '🌧️', '228': '🌨️', '229': '🌨️',
+  '230': '🌨️', '231': '🌫️', '240': '⛈️', '250': '⛈️', '260': '🌨️', '270': '🌨️',
+  '281': '🌨️',
+  '300': '🌧️', '301': '🌧️', '302': '🌧️', '303': '🌨️', '304': '🌧️', '306': '🌧️',
+  '308': '⛈️', '309': '🌧️', '311': '🌧️', '313': '🌧️', '314': '🌧️', '315': '🌧️',
+  '316': '🌧️', '317': '🌧️', '320': '🌧️', '321': '🌧️', '322': '🌨️', '323': '🌧️',
+  '324': '🌧️', '325': '🌧️', '326': '🌨️', '327': '🌨️', '328': '🌧️', '329': '🌨️',
+  '340': '🌨️', '350': '⛈️', '361': '🌨️', '371': '🌨️',
+  '400': '🌨️', '401': '🌨️', '402': '🌨️', '403': '🌨️', '405': '🌨️', '406': '🌨️',
+  '407': '🌨️', '409': '🌨️', '411': '🌨️', '413': '🌨️', '414': '🌨️', '420': '🌨️',
+  '421': '🌨️', '422': '🌨️', '423': '🌨️', '425': '🌨️', '426': '🌨️', '427': '🌨️',
+  '450': '⛈️'
+};
+
+function iconFor(code) {
+  return WEATHER_ICONS[String(code)] || '🌡️';
+}
+
+function fmtMD(dateStr) {
+  const d = new Date(dateStr);
+  return `${d.getMonth() + 1}/${d.getDate()}`;
+}
+
+function dayLabel(idx, dateStr) {
+  const labels = ['今日', '明日', '明後日'];
+  const base = labels[idx] || fmtMD(dateStr);
+  return `${base}（${fmtMD(dateStr)}）`;
+}
+
+async function fetchTodayObservedLow() {
+  // 当日の実測最低気温をアメダスから補完する。
+  // 気象庁の短期予報APIは昼以降、当日の最低気温(明け方発生済み)を
+  // 返さなくなるため、横浜版で導入した補完処理をそのまま適用。
+  try {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    const ymd = `${y}${m}${d}`;
+    const currentHour = now.getHours();
+
+    // 今日の00時から直前の3時間ブロックまでを取得
+    const blocks = [];
+    for (let h = 0; h <= currentHour; h += 3) {
+      blocks.push(String(h).padStart(2, '0'));
+    }
+
+    let minTemp = null;
+    for (const h of blocks) {
+      try {
+        const url = `https://www.jma.go.jp/bosai/amedas/data/point/${TEMP_CODE}/${ymd}_${h}.json`;
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) continue;
+        const data = await res.json();
+        Object.values(data).forEach(rec => {
+          if (rec && Array.isArray(rec.temp) && typeof rec.temp[0] === 'number') {
+            if (minTemp === null || rec.temp[0] < minTemp) minTemp = rec.temp[0];
+          }
+        });
+      } catch (innerErr) {
+        // 1ブロック分の取得失敗は無視して続行
+      }
+    }
+    return minTemp;
+  } catch (e) {
+    console.error('fetchTodayObservedLow error', e);
+    return null;
+  }
+}
+
+function findAreaItem(series, code) {
+  if (!series || !series.areas) return null;
+  return series.areas.find(a => a.area && a.area.code === code) || null;
+}
+
+async function fetchForecast() {
+  const updatedEl = document.getElementById('updated');
+  try {
+    const res = await fetch(`https://www.jma.go.jp/bosai/forecast/data/forecast/${FORECAST_CODE}.json`, { cache: 'no-store' });
+    const data = await res.json();
+
+    const shortTerm = data[0]; // 3日間詳細予報
+    const weekly = data[1];    // 週間予報(気温はこちら優先)
+
+    const weatherSeries = shortTerm.timeSeries.find(ts => ts.areas[0] && Array.isArray(ts.areas[0].weatherCodes));
+    const weatherItem = findAreaItem(weatherSeries, AREA_CODE);
+    const timeDefines = weatherSeries.timeDefines;
+
+    const weeklyWeatherSeries = weekly.timeSeries[0];
+    const weeklyWeatherItem = findAreaItem(weeklyWeatherSeries, AREA_CODE);
+    const weeklyTimeDefines = weeklyWeatherSeries.timeDefines;
+
+    const weeklyTempSeries = weekly.timeSeries[1];
+    const weeklyTempItem = findAreaItem(weeklyTempSeries, TEMP_CODE);
+
+    // 短期予報の気温シリーズ(存在すれば最優先で使う。今日・明日のみ)
+    const shortTempSeries = shortTerm.timeSeries.find(ts => ts.areas[0] && (ts.areas[0].temps || ts.areas[0].tempsMin));
+    const shortTempItem = shortTempSeries ? findAreaItem(shortTempSeries, TEMP_CODE) : null;
+
+    const now = new Date();
+    const afterRollover = now.getHours() >= 17; // 17時以降は表示をもう1日進める
+
+    const todayObservedLow = await fetchTodayObservedLow();
+
+    // 表示する3日分のインデックスを決定(17時以降は今日を外して明日基準にスライド)
+    const dayCount = 3;
+    for (let i = 0; i < dayCount; i++) {
+      const slot = afterRollover ? i + 1 : i;
+      const labelIdx = i;
+      renderDay(i, labelIdx, slot, {
+        timeDefines, weatherItem,
+        weeklyTimeDefines, weeklyWeatherItem, weeklyTempItem,
+        shortTempItem,
+        todayObservedLow, isFirstVisibleDay: i === 0 && !afterRollover
+      });
+    }
+
+    const d = new Date();
+    updatedEl.textContent = `更新: ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
+  } catch (e) {
+    console.error('forecast fetch error', e);
+    updatedEl.textContent = '天気予報を取得できませんでした';
+  }
+}
+
+function renderDay(displaySlot, labelIdx, dataSlot, ctx) {
+  const el = document.getElementById('day' + displaySlot);
+  if (!el) return;
+
+  // 天気コード・降水確率は短期(0,1日目)優先、無ければ週間へフォールバック
+  let weatherCode = null, pop = null, dateStr = null;
+  if (ctx.weatherItem && ctx.timeDefines && ctx.timeDefines[dataSlot]) {
+    weatherCode = ctx.weatherItem.weatherCodes ? ctx.weatherItem.weatherCodes[dataSlot] : null;
+    pop = ctx.weatherItem.pops ? ctx.weatherItem.pops[dataSlot] : null;
+    dateStr = ctx.timeDefines[dataSlot];
+  }
+  if ((weatherCode === null || weatherCode === undefined) && ctx.weeklyWeatherItem && ctx.weeklyTimeDefines) {
+    // 週間予報側のインデックスは日単位で並んでいるため日付文字列で突き合わせる
+    const idx = ctx.weeklyTimeDefines.findIndex(td => dateStr ? td.slice(0, 10) === dateStr.slice(0, 10) : false);
+    const useIdx = idx >= 0 ? idx : dataSlot;
+    weatherCode = ctx.weeklyWeatherItem.weatherCodes ? ctx.weeklyWeatherItem.weatherCodes[useIdx] : null;
+    pop = ctx.weeklyWeatherItem.pops ? ctx.weeklyWeatherItem.pops[useIdx] : pop;
+    dateStr = ctx.weeklyTimeDefines[useIdx] || dateStr;
+  }
+
+  // 気温: 短期予報(今日・明日)優先、それ以外は週間予報のtempsMin/tempsMax
+  let tMax = null, tMin = null;
+  if (ctx.shortTempItem && ctx.shortTempItem.tempsMin && ctx.shortTempItem.tempsMax) {
+    tMin = ctx.shortTempItem.tempsMin[dataSlot];
+    tMax = ctx.shortTempItem.tempsMax[dataSlot];
+  }
+  if ((tMax === undefined || tMax === null || tMax === '') && ctx.weeklyTempItem) {
+    const idx = ctx.weeklyTimeDefines ? ctx.weeklyTimeDefines.findIndex(td => dateStr ? td.slice(0, 10) === dateStr.slice(0, 10) : false) : -1;
+    const useIdx = idx >= 0 ? idx : dataSlot;
+    tMin = ctx.weeklyTempItem.tempsMin ? ctx.weeklyTempItem.tempsMin[useIdx] : tMin;
+    tMax = ctx.weeklyTempItem.tempsMax ? ctx.weeklyTempItem.tempsMax[useIdx] : tMax;
+  }
+
+  // 当日の実測最低気温で補完(今日の表示枠かつ予報値が欠落している場合)
+  if (ctx.isFirstVisibleDay && (tMin === undefined || tMin === null || tMin === '') && ctx.todayObservedLow !== null) {
+    tMin = Math.round(ctx.todayObservedLow);
+  } else if (tMin !== undefined && tMin !== null && tMin !== '') {
+    tMin = Math.round(Number(tMin));
+  }
+  if (tMax !== undefined && tMax !== null && tMax !== '') {
+    tMax = Math.round(Number(tMax));
+  }
+
+  const labelText = dateStr ? dayLabel(labelIdx, dateStr) : ['今日', '明日', '明後日'][labelIdx] || '';
+  el.querySelector('.day-label').textContent = labelText;
+  el.querySelector('.day-icon').textContent = iconFor(weatherCode);
+  el.querySelector('.day-pop').textContent = (pop !== null && pop !== undefined && pop !== '') ? `降水確率 ${pop}%` : '';
+  const maxTxt = (tMax !== undefined && tMax !== null && tMax !== '' && !Number.isNaN(tMax)) ? `${tMax}°` : '--°';
+  const minTxt = (tMin !== undefined && tMin !== null && tMin !== '' && !Number.isNaN(tMin)) ? `${tMin}°` : '--°';
+  el.querySelector('.day-temps').innerHTML = `<span class="temp-max">${maxTxt}</span> / <span class="temp-min">${minTxt}</span>`;
+}
+
+const REFRESH_INTERVAL_MS = 10 * 60 * 1000; // 10分ごとに再取得
+fetchForecast();
+setInterval(fetchForecast, REFRESH_INTERVAL_MS);
+</script>
+</body>
+</html>
