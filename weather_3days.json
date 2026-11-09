@@ -5,7 +5,7 @@
       "weather": "雨",
       "icon": "🌧️",
       "pop": "35",
-      "temp_high": "14",
+      "temp_high": "13",
       "temp_low": "10"
     },
     {
@@ -14,15 +14,15 @@
       "icon": "🌧️",
       "pop": "91",
       "temp_high": "15",
-      "temp_low": "8"
+      "temp_low": "10"
     },
     {
       "date_str": "11/11 (水)",
-      "weather": "霧",
-      "icon": "🌫️",
+      "weather": "晴れ",
+      "icon": "☀️",
       "pop": "0",
-      "temp_high": "16",
-      "temp_low": "6"
+      "temp_high": "17",
+      "temp_low": "8"
     }
   ]
 }
