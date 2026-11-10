@@ -13,15 +13,15 @@
       "weather": "晴れ / くもり",
       "icon": "⛅",
       "pop": "2",
-      "temp_high": "19",
+      "temp_high": "20",
       "temp_low": "9"
     },
     {
       "date_str": "11/13 (金)",
-      "weather": "晴れ / くもり",
-      "icon": "⛅",
+      "weather": "晴れ",
+      "icon": "☀️",
       "pop": "14",
-      "temp_high": "20",
+      "temp_high": "21",
       "temp_low": "11"
     }
   ]
