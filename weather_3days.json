@@ -2,8 +2,8 @@
   "forecasts": [
     {
       "date_str": "11/12 (木)",
-      "weather": "晴れ / くもり",
-      "icon": "⛅",
+      "weather": "くもり",
+      "icon": "☁️",
       "pop": "0",
       "temp_high": "18",
       "temp_low": "8"
