@@ -2,10 +2,10 @@
   "forecasts": [
     {
       "date_str": "11/14 (土)",
-      "weather": "くもり",
-      "icon": "☁️",
+      "weather": "雨",
+      "icon": "🌧️",
       "pop": "36",
-      "temp_high": "16",
+      "temp_high": "17",
       "temp_low": "11"
     },
     {
@@ -13,7 +13,7 @@
       "weather": "雨",
       "icon": "🌧️",
       "pop": "100",
-      "temp_high": "18",
+      "temp_high": "17",
       "temp_low": "14"
     },
     {
